@@ -27,6 +27,10 @@ export default function Home() {
   const [events, setEvents] = useState<EventData[]>([initialEvent]);
   const [isSameThemeAllMonth, setIsSameThemeAllMonth] = useState(false);
 
+  const showSameThemeSwitch = useMemo(() => {
+    return events.some(event => event.predefinedEvent === 'happy_sabado');
+  }, [events]);
+
   const sortedEvents = useMemo(() => {
     return [...events].sort((a, b) => {
       const dateA = new Date(`${a.date}T${a.startTime || '00:00'}`);
@@ -46,7 +50,7 @@ export default function Home() {
     }
     return '';
   }, [sortedEvents]);
-
+  
   const enhancedEvents = useMemo(() => {
     if (isSameThemeAllMonth && sortedEvents.length > 0) {
       const firstEvent = sortedEvents[0];
@@ -114,16 +118,18 @@ export default function Home() {
                   placeholder="Ex: Shopping Iguatemi"
                 />
               </div>
-
-               <div className="flex items-center space-x-2 pt-2">
-                <Switch
-                  id="same-theme-switch"
-                  checked={isSameThemeAllMonth}
-                  onCheckedChange={setIsSameThemeAllMonth}
-                  disabled={events.length < 2}
-                />
-                <Label htmlFor="same-theme-switch">Usar o mesmo tema para todos os sábados do mês</Label>
-              </div>
+              
+              {showSameThemeSwitch && (
+                <div className="flex items-center space-x-2 pt-2">
+                  <Switch
+                    id="same-theme-switch"
+                    checked={isSameThemeAllMonth}
+                    onCheckedChange={setIsSameThemeAllMonth}
+                    disabled={events.length < 2}
+                  />
+                  <Label htmlFor="same-theme-switch">Usar o mesmo tema para todos os sábados do mês</Label>
+                </div>
+              )}
 
               {events.map((eventData, index) => (
                 <EventForm 
