@@ -21,10 +21,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 
 const eventFormSchema = z.object({
   id: z.string().optional(),
-  title: z.string().min(2, { message: "O título deve ter pelo menos 2 caracteres." }).max(50, { message: "O título não pode exceder 50 caracteres." }),
+  title: z.string().max(100, { message: "O título não pode exceder 100 caracteres." }).optional().default(''),
+  subtitle: z.string().max(50, { message: "O subtítulo não pode exceder 50 caracteres." }).optional().default(''),
   date: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "Data inválida." }),
   startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Formato de hora inválido (HH:MM)." }),
-  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Formato de hora inválido (HH:MM)." }),
+  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Formato de hora inválido (HH:MM)." }).optional().default(''),
   description: z.string().max(200, { message: "A descrição não pode exceder 200 caracteres." }).optional().default(''),
   predefinedEvent: z.string().optional(),
 });
@@ -80,6 +81,8 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
     mode: "onChange",
   });
 
+  const predefinedEvent = form.watch("predefinedEvent");
+
   useEffect(() => {
     form.reset(initialData);
   }, [initialData, form]);
@@ -96,28 +99,31 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
         updatedValue.description = predefined.description;
         updatedValue.startTime = predefined.startTime;
         updatedValue.endTime = predefined.endTime;
+        if(eventKey !== 'happy_sabado') {
+          updatedValue.subtitle = '';
+        }
 
-        // Using reset to update multiple fields and re-validate
         form.reset(updatedValue);
+      } else if (name === 'subtitle' && value.predefinedEvent === 'happy_sabado') {
+        updatedValue.title = PREDEFINED_EVENTS.happy_sabado.title + (value.subtitle || '');
       }
       
       const result = eventFormSchema.safeParse(updatedValue);
       if (result.success) {
         onDataChange(result.data);
       } else {
-        // Even if validation fails, pass the current data up so the UI feels responsive
         onDataChange(updatedValue);
       }
     });
     return () => subscription.unsubscribe();
   }, [form, onDataChange]);
 
-
   function onSubmit(data: EventData) {
     console.log("Form submitted:", data);
   }
 
   const isDisabled = isSameThemeAllMonth && !isFirstEvent;
+  const isHappySabado = predefinedEvent === 'happy_sabado';
 
   return (
     <Form {...form}>
@@ -160,19 +166,36 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Título do Evento</FormLabel>
-                <FormControl>
-                  <Input placeholder="Concerto de Ano Novo" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {isHappySabado ? (
+            <FormField
+              control={form.control}
+              name="subtitle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Subtítulo do Happy Sábado</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ex: Oficina de Slime" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : (
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Título do Evento</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Concerto de Ano Novo" {...field} disabled={isHappySabado} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
           
           <FormField
               control={form.control}

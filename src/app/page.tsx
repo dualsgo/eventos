@@ -15,6 +15,7 @@ const MAX_EVENTS = 4;
 const initialEvent: EventData = {
   id: `evt_${Math.random()}`,
   title: 'Exemplo de Evento',
+  subtitle: '',
   date: new Date().toISOString().split('T')[0],
   startTime: '14:00',
   endTime: '18:00',
@@ -54,13 +55,22 @@ export default function Home() {
   const enhancedEvents = useMemo(() => {
     if (isSameThemeAllMonth && sortedEvents.length > 0) {
       const firstEvent = sortedEvents[0];
+      const title = firstEvent.predefinedEvent === 'happy_sabado' 
+        ? `Happy Sábado - ${firstEvent.subtitle}`
+        : firstEvent.title;
+
       return sortedEvents.map(event => ({
         ...event,
-        title: firstEvent.title,
+        title: title,
         description: `Todos os sábados do mês de ${monthOfEvents}.\n${firstEvent.description}`,
       }));
     }
-    return sortedEvents;
+    return sortedEvents.map(event => {
+      if (event.predefinedEvent === 'happy_sabado') {
+        return { ...event, title: `Happy Sábado - ${event.subtitle}` };
+      }
+      return event;
+    });
   }, [sortedEvents, isSameThemeAllMonth, monthOfEvents]);
 
 
@@ -73,6 +83,7 @@ export default function Home() {
       const newEvent: EventData = {
         id: `evt_${Math.random()}`,
         title: ``,
+        subtitle: '',
         date: new Date().toISOString().split('T')[0],
         startTime: '14:00',
         endTime: '18:00',
