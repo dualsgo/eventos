@@ -36,9 +36,16 @@ const getNextDayOfWeek = (dayOfWeek: number): string => { // 0=Sunday, 1=Monday,
   const today = new Date();
   const resultDate = new Date(today.getTime());
   resultDate.setDate(today.getDate() + (dayOfWeek + 7 - today.getDay()) % 7);
-  if (resultDate.getDate() === today.getDate()) {
+  if (resultDate.getDate() === today.getDate() && resultDate.getDay() !== today.getDay()) {
+      // It's in the same week, just a few days ahead
+  } else if (resultDate.getDate() <= today.getDate()) {
+     resultDate.setDate(resultDate.getDate() + 7);
+  }
+   if (resultDate.getDay() === today.getDay() && resultDate.getDate() === today.getDate()) {
     resultDate.setDate(resultDate.getDate() + 7);
   }
+
+
   return resultDate.toISOString().split('T')[0];
 };
 

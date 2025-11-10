@@ -63,39 +63,46 @@ export default function Home() {
   }, [sortedEvents]);
   
   const enhancedEvents = useMemo(() => {
-    if (isSameThemeAllMonth && sortedEvents.length > 0 && showSameThemeSwitch) {
-      const firstEvent = sortedEvents[0];
-      const themeTitle = firstEvent.predefinedEvent === 'happy_sabado' 
-        ? `Happy Sábado - ${firstEvent.subtitle}`
-        : firstEvent.title;
-      
-      const themeDescription = `Todos os sábados do mês de ${monthOfEvents}.\n${firstEvent.description}`;
+    const happySabados = sortedEvents.filter(e => e.predefinedEvent === 'happy_sabado');
+    const otherEvents = sortedEvents.filter(e => e.predefinedEvent !== 'happy_sabado');
 
-      return sortedEvents.map(event => ({
-        ...event,
+    let processedEvents = otherEvents.map(event => ({
+      ...event,
+      title: event.predefinedEvent === 'happy_sabado' ? `Happy Sábado - ${event.subtitle}` : event.title
+    }));
+
+    if (isSameThemeAllMonth && showSameThemeSwitch && happySabados.length > 0) {
+      const firstHappySabado = happySabados[0];
+      const themeTitle = `Happy Sábado - ${firstHappySabado.subtitle}`;
+      const themeDescription = `Todos os sábados do mês de ${monthOfEvents}.\n${firstHappySabado.description}`;
+      
+      const unifiedHappySabadoEvent: EventData = {
+        ...firstHappySabado,
+        id: 'unified_happy_sabado',
         title: themeTitle,
-        subtitle: firstEvent.subtitle,
         description: themeDescription,
-        // Remove date and time for unified view
-        date: '', 
+        date: '',
         startTime: '',
         endTime: '',
-      }));
+      };
+      processedEvents.push(unifiedHappySabadoEvent);
+    } else {
+        processedEvents.push(...happySabados.map(event => ({
+            ...event,
+            title: `Happy Sábado - ${event.subtitle}`
+        })));
     }
-    return sortedEvents.map(event => {
-      if (event.predefinedEvent === 'happy_sabado') {
-        return { ...event, title: `Happy Sábado - ${event.subtitle}` };
-      }
-      return event;
+    
+    return processedEvents.sort((a, b) => {
+        // Keep unified event at the end or sort by date
+        if (a.id === 'unified_happy_sabado') return 1;
+        if (b.id === 'unified_happy_sabado') return -1;
+        const dateA = new Date(`${a.date}T${a.startTime || '00:00'}`);
+        const dateB = new Date(`${b.date}T${b.startTime || '00:00'}`);
+        return dateA.getTime() - dateB.getTime();
     });
-  }, [sortedEvents, isSameThemeAllMonth, monthOfEvents, showSameThemeSwitch]);
 
-  const mainDescriptionForAllMonthTheme = useMemo(() => {
-     if (isSameThemeAllMonth && showSameThemeSwitch && sortedEvents.length > 0) {
-        return `Todos os sábados do mês de ${monthOfEvents}.\n${sortedEvents[0].description}`;
-    }
-    return null;
-  }, [isSameThemeAllMonth, showSameThemeSwitch, sortedEvents, monthOfEvents]);
+  }, [sortedEvents, isSameThemeAllMonth, monthOfEvents, showSameThemeSwitch]);
 
 
   const handlePrint = () => {
@@ -172,8 +179,8 @@ export default function Home() {
                   initialData={eventData}
                   onRemove={() => handleRemoveEvent(eventData.id!)}
                   showRemoveButton={events.length > 1}
-                  isSameThemeAllMonth={isSameThemeAllMonth && showSameThemeSwitch}
-                  isFirstEvent={index === 0}
+                  isSameThemeAllMonth={isSameThemeAllMonth && showSameThemeSwitch && eventData.predefinedEvent === 'happy_sabado'}
+                  isFirstEvent={index === 0 || (isSameThemeAllMonth && showSameThemeSwitch && events.filter(e => e.predefinedEvent === 'happy_sabado')[0]?.id === eventData.id)}
                 />
               ))}
                {events.length < MAX_EVENTS && (
@@ -190,7 +197,6 @@ export default function Home() {
               <PrintContainer
                 storeName={storeName}
                 events={enhancedEvents}
-                mainDescription={mainDescriptionForAllMonthTheme}
               />
             </div>
             <Button onClick={handlePrint} className="w-full max-w-xs no-print" size="lg" variant="default">
