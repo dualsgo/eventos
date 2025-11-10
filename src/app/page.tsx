@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { EventForm, type EventData } from '@/components/event-form';
 import { PrintContainer } from '@/components/print-container';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,8 @@ import { PlusCircle, Printer } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 
 const MAX_EVENTS = 4;
+const LOCAL_STORAGE_KEY_STORE = 'eventPrinter.storeName';
+const LOCAL_STORAGE_KEY_EVENTS = 'eventPrinter.events';
 
 const initialEvent: EventData = {
   id: `evt_${Math.random()}`,
@@ -27,6 +29,50 @@ export default function Home() {
   const [storeName, setStoreName] = useState('LOJA X');
   const [events, setEvents] = useState<EventData[]>([initialEvent]);
   const [isSameThemeAllMonth, setIsSameThemeAllMonth] = useState(false);
+  
+  // Load state from localStorage on initial render
+  useEffect(() => {
+    try {
+      const savedStoreName = localStorage.getItem(LOCAL_STORAGE_KEY_STORE);
+      if (savedStoreName) {
+        setStoreName(JSON.parse(savedStoreName));
+      }
+      
+      const savedEvents = localStorage.getItem(LOCAL_STORAGE_KEY_EVENTS);
+      if (savedEvents) {
+        const parsedEvents = JSON.parse(savedEvents);
+        if (parsedEvents && parsedEvents.length > 0) {
+          setEvents(parsedEvents);
+        }
+      }
+    } catch (error) {
+        console.error("Failed to load data from localStorage", error);
+        // If there's an error, we'll just use the default state
+    }
+  }, []);
+
+  // Save state to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY_STORE, JSON.stringify(storeName));
+    } catch (error) {
+        console.error("Failed to save store name to localStorage", error);
+    }
+  }, [storeName]);
+
+  useEffect(() => {
+    try {
+        if(events.length > 0){
+          localStorage.setItem(LOCAL_STORAGE_KEY_EVENTS, JSON.stringify(events));
+        } else {
+          // Clear localStorage if all events are removed
+          localStorage.removeItem(LOCAL_STORAGE_KEY_EVENTS);
+        }
+    } catch (error) {
+        console.error("Failed to save events to localStorage", error);
+    }
+  }, [events]);
+
 
   const showSameThemeSwitch = useMemo(() => {
     return events.some(event => event.predefinedEvent === 'happy_sabado');
