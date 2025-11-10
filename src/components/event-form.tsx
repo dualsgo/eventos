@@ -18,18 +18,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Switch } from "./ui/switch";
-import { Label } from "./ui/label";
 
 const eventFormSchema = z.object({
   id: z.string().optional(),
-  title: z.string().min(2, { message: "O título deve ter pelo menos 2 caracteres." }).max(40, { message: "O título não pode exceder 40 caracteres." }),
+  title: z.string().min(2, { message: "O título deve ter pelo menos 2 caracteres." }).max(50, { message: "O título não pode exceder 50 caracteres." }),
   date: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "Data inválida." }),
   startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Formato de hora inválido (HH:MM)." }),
   endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Formato de hora inválido (HH:MM)." }),
   description: z.string().max(200, { message: "A descrição não pode exceder 200 caracteres." }).optional().default(''),
   predefinedEvent: z.string().optional(),
-  isHappySábado: z.boolean().optional(),
 });
 
 export type EventData = z.infer<typeof eventFormSchema>;
@@ -46,6 +43,10 @@ const PREDEFINED_EVENTS = {
   hotwheels: {
     title: "Abertura de caixas Hot Wheels",
     description: "O momento mais esperado pelos colecionadores",
+  },
+  happy_sabado: {
+    title: "Happy Sábado - ",
+    description: "",
   },
   outro: {
     title: "",
@@ -69,36 +70,32 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
     mode: "onChange",
   });
 
-  const isSaturday = new Date(form.watch('date') + 'T00:00:00').getDay() === 6;
-
   useEffect(() => {
     form.reset(initialData);
   }, [initialData, form]);
 
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
-      let updatedValue = { ...value };
+      let updatedValue = { ...value } as EventData;
       
-      if (name === 'predefinedEvent' && value.predefinedEvent && value.predefinedEvent !== 'outro') {
+      if (name === 'predefinedEvent' && value.predefinedEvent) {
         const eventKey = value.predefinedEvent as keyof typeof PREDEFINED_EVENTS;
-        const predefined = PREDEFINED_EVENTS[eventKey];
+        const predefined = PREDEFINED_EVENTS[eventKey] || PREDEFINED_EVENTS.outro;
+        
         updatedValue.title = predefined.title;
         updatedValue.description = predefined.description;
-        form.reset(updatedValue); // Reset form to apply changes
-      }
 
-      if (name === 'isHappySábado' || name === 'title') {
-         const currentTitle = updatedValue.title || '';
-         if (updatedValue.isHappySábado && !currentTitle.startsWith('Happy Sábado - ')) {
-            updatedValue.title = `Happy Sábado - ${currentTitle}`;
-         } else if (!updatedValue.isHappySábado && currentTitle.startsWith('Happy Sábado - ')) {
-            updatedValue.title = currentTitle.replace('Happy Sábado - ', '');
-         }
-         form.setValue('title', updatedValue.title);
+        // Using reset to update multiple fields and re-validate
+        form.reset(updatedValue);
       }
-
+      
       const result = eventFormSchema.safeParse(updatedValue);
-      onDataChange(result.success ? result.data : updatedValue as EventData);
+      if (result.success) {
+        onDataChange(result.data);
+      } else {
+        // Even if validation fails, pass the current data up so the UI feels responsive
+        onDataChange(updatedValue);
+      }
     });
     return () => subscription.unsubscribe();
   }, [form, onDataChange]);
@@ -139,6 +136,7 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
+                    <SelectItem value="happy_sabado">Happy Sábado</SelectItem>
                     <SelectItem value="pokemon">Troca de cartas POKEMON</SelectItem>
                     <SelectItem value="uno_beyblade">Partidas de UNO e Arena Beyblade</SelectItem>
                     <SelectItem value="hotwheels">Abertura de caixas Hot Wheels</SelectItem>
@@ -163,26 +161,6 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
               </FormItem>
             )}
           />
-
-          {isSaturday && (
-            <FormField
-              control={form.control}
-              name="isHappySábado"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                  <div className="space-y-0.5">
-                    <FormLabel>É um "Happy Sábado"?</FormLabel>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          )}
           
           <FormField
               control={form.control}

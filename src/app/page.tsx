@@ -20,7 +20,6 @@ const initialEvent: EventData = {
   endTime: '18:00',
   description: 'Uma breve descrição do evento que será impresso no papel térmico.',
   predefinedEvent: 'outro',
-  isHappySábado: false,
 };
 
 export default function Home() {
@@ -55,7 +54,6 @@ export default function Home() {
         ...event,
         title: firstEvent.title,
         description: `Todos os sábados do mês de ${monthOfEvents}.\n${firstEvent.description}`,
-        isHappySábado: firstEvent.isHappySábado,
       }));
     }
     return sortedEvents;
@@ -76,7 +74,6 @@ export default function Home() {
         endTime: '18:00',
         description: '',
         predefinedEvent: 'outro',
-        isHappySábado: false,
       };
       setEvents([...events, newEvent]);
     }
@@ -118,7 +115,7 @@ export default function Home() {
                 />
               </div>
 
-               <div className="flex items-center space-x-2">
+               <div className="flex items-center space-x-2 pt-2">
                 <Switch
                   id="same-theme-switch"
                   checked={isSameThemeAllMonth}
@@ -128,7 +125,7 @@ export default function Home() {
                 <Label htmlFor="same-theme-switch">Usar o mesmo tema para todos os sábados do mês</Label>
               </div>
 
-              {events.map((eventData) => (
+              {events.map((eventData, index) => (
                 <EventForm 
                   key={eventData.id}
                   onDataChange={(data) => handleDataChange(eventData.id!, data)} 
@@ -136,7 +133,7 @@ export default function Home() {
                   onRemove={() => handleRemoveEvent(eventData.id!)}
                   showRemoveButton={events.length > 1}
                   isSameThemeAllMonth={isSameThemeAllMonth}
-                  isFirstEvent={events.indexOf(eventData) === 0}
+                  isFirstEvent={index === 0}
                 />
               ))}
                {events.length < MAX_EVENTS && (
