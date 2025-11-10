@@ -12,16 +12,6 @@ import { Switch } from '@/components/ui/switch';
 
 const MAX_EVENTS = 4;
 
-const getNextDayOfWeek = (dayOfWeek: number): string => { // 0=Sunday, 1=Monday, ..., 6=Saturday
-  const today = new Date();
-  const resultDate = new Date(today.getTime());
-  resultDate.setDate(today.getDate() + (dayOfWeek + 7 - today.getDay()) % 7);
-   if (resultDate.getDate() === today.getDate()) {
-    resultDate.setDate(resultDate.getDate() + 7);
-  }
-  return resultDate.toISOString().split('T')[0];
-};
-
 const initialEvent: EventData = {
   id: `evt_${Math.random()}`,
   title: 'Exemplo de Evento',
@@ -81,11 +71,18 @@ export default function Home() {
         id: 'unified_happy_sabado',
         title: themeTitle,
         description: themeDescription,
-        date: '',
-        startTime: '',
+        date: '', // No individual date
+        startTime: '', // No individual time
         endTime: '',
       };
-      processedEvents.push(unifiedHappySabadoEvent);
+      // Add other events and only one unified happy sabado event
+      return [...otherEvents, unifiedHappySabadoEvent].sort((a, b) => {
+        if (a.id === 'unified_happy_sabado') return 1;
+        if (b.id === 'unified_happy_sabado') return -1;
+        const dateA = new Date(`${a.date}T${a.startTime || '00:00'}`);
+        const dateB = new Date(`${b.date}T${b.startTime || '00:00'}`);
+        return dateA.getTime() - dateB.getTime();
+      });
     } else {
         processedEvents.push(...happySabados.map(event => ({
             ...event,
@@ -94,9 +91,6 @@ export default function Home() {
     }
     
     return processedEvents.sort((a, b) => {
-        // Keep unified event at the end or sort by date
-        if (a.id === 'unified_happy_sabado') return 1;
-        if (b.id === 'unified_happy_sabado') return -1;
         const dateA = new Date(`${a.date}T${a.startTime || '00:00'}`);
         const dateB = new Date(`${b.date}T${b.startTime || '00:00'}`);
         return dateA.getTime() - dateB.getTime();
@@ -117,7 +111,7 @@ export default function Home() {
         subtitle: '',
         date: new Date().toISOString().split('T')[0],
         startTime: '14:00',
-        endTime: '18:00',
+        endTime: '20:00',
         description: '',
         predefinedEvent: 'outro',
       };
@@ -157,7 +151,7 @@ export default function Home() {
                   id="storeName" 
                   value={storeName} 
                   onChange={(e) => setStoreName(e.target.value)} 
-                  placeholder="Ex: Shopping Iguatemi"
+                  placeholder="Ex: Carioca Shopping"
                 />
               </div>
               
@@ -179,8 +173,7 @@ export default function Home() {
                   initialData={eventData}
                   onRemove={() => handleRemoveEvent(eventData.id!)}
                   showRemoveButton={events.length > 1}
-                  isSameThemeAllMonth={isSameThemeAllMonth && showSameThemeSwitch && eventData.predefinedEvent === 'happy_sabado'}
-                  isFirstEvent={index === 0 || (isSameThemeAllMonth && showSameThemeSwitch && events.filter(e => e.predefinedEvent === 'happy_sabado')[0]?.id === eventData.id)}
+                  isSameThemeAllMonth={isSameThemeAllMonth && eventData.predefinedEvent === 'happy_sabado'}
                 />
               ))}
                {events.length < MAX_EVENTS && (

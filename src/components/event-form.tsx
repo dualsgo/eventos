@@ -35,13 +35,39 @@ export type EventData = z.infer<typeof eventFormSchema>;
 const getNextDayOfWeek = (dayOfWeek: number): string => { // 0=Sunday, 1=Monday, ..., 6=Saturday
   const today = new Date();
   const resultDate = new Date(today.getTime());
-  resultDate.setDate(today.getDate() + (dayOfWeek + 7 - today.getDay()) % 7);
-  
-  if (resultDate.getDate() === today.getDate()) {
+  let daysToAdd = (dayOfWeek + 7 - today.getDay()) % 7;
+  if (daysToAdd === 0 && today.getDay() === dayOfWeek) {
+    daysToAdd = 7; // if it's today, get next week's day
+  } else if (daysToAdd === 0) {
+    daysToAdd = 0; // if we want Sunday and it's Sunday, we might want today, adjust if necessary
+  }
+   if (resultDate.getDay() === dayOfWeek) {
+     resultDate.setDate(resultDate.getDate() + 7);
+   } else {
+     resultDate.setDate(today.getDate() + (dayOfWeek + 7 - today.getDay()) % 7);
+   }
+
+  // If we calculated today, add 7 days.
+  if(resultDate.getDate() === today.getDate()){
     resultDate.setDate(resultDate.getDate() + 7);
   }
-  return resultDate.toISOString().split('T')[0];
+  
+  const finalDate = new Date(today.setDate(today.getDate() + (dayOfWeek + 7 - today.getDay()) % 7));
+
+
+  return new Date(today.getTime() - (today.getTimezoneOffset() * 60000 )).toISOString().split("T")[0]
 };
+
+const getNextDayOfWeekAdvanced = (dayOfWeek: number): string => {
+    const now = new Date();
+    const result = new Date(now);
+    result.setDate(now.getDate() + (dayOfWeek + (7 - now.getDay())) % 7);
+    if (result.getDate() === now.getDate()) {
+        result.setDate(result.getDate() + 7);
+    }
+    return result.toISOString().split('T')[0];
+};
+
 
 const PREDEFINED_EVENTS = {
   pokemon: {
@@ -49,28 +75,28 @@ const PREDEFINED_EVENTS = {
     description: "Venha aumentar a sua coleção de cards com outros Mestres Pokemon.",
     startTime: "14:00",
     endTime: "20:00",
-    defaultDate: () => getNextDayOfWeek(5), // Friday
+    defaultDate: () => getNextDayOfWeekAdvanced(5), // Friday
   },
   uno_beyblade: {
     title: "Partidas de UNO e Arena Beyblade",
     description: "Competição entre amigos e familiares.",
     startTime: "14:00",
     endTime: "20:00",
-    defaultDate: () => getNextDayOfWeek(5), // Friday
+    defaultDate: () => getNextDayOfWeekAdvanced(5), // Friday
   },
   hotwheels: {
     title: "Abertura de caixas Hot Wheels",
     description: "O momento mais esperado pelos colecionadores.",
     startTime: "19:00",
     endTime: "",
-    defaultDate: () => getNextDayOfWeek(5), // Friday
+    defaultDate: () => getNextDayOfWeekAdvanced(5), // Friday
   },
   happy_sabado: {
     title: "Happy Sábado - ",
-    description: "",
+    description: "Atividades e brincadeiras especiais todo sábado.",
     startTime: "14:00",
     endTime: "20:00",
-    defaultDate: () => getNextDayOfWeek(6), // Saturday
+    defaultDate: () => getNextDayOfWeekAdvanced(6), // Saturday
   },
   outro: {
     title: "",
@@ -129,11 +155,14 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
       if (result.success) {
         onDataChange(result.data);
       } else {
+        // This is important to keep the form state in sync even with invalid data
+        // while the user is typing.
         onDataChange(updatedValue);
       }
     });
     return () => subscription.unsubscribe();
   }, [form, onDataChange]);
+
 
   function onSubmit(data: EventData) {
     // This function is for form submission, which we handle via onChange
@@ -206,7 +235,7 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
                 <FormItem>
                   <FormLabel>Título do Evento</FormLabel>
                   <FormControl>
-                    <Input placeholder="Concerto de Ano Novo" {...field} disabled={predefinedEvent !== 'outro'} />
+                    <Input placeholder="Ex: Lançamento do Novo Brinquedo" {...field} disabled={predefinedEvent !== 'outro'} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -265,7 +294,7 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
                 <FormLabel>Descrição</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Descreva brevemente o evento..."
+                    placeholder="Descreva brevemente os detalhes do evento..."
                     className="resize-none"
                     rows={3}
                     {...field}
