@@ -112,6 +112,8 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
       if (result.success) {
         onDataChange(result.data);
       } else {
+        // This might not be ideal, but it ensures the parent gets some data
+        // even if validation fails temporarily during typing.
         onDataChange(updatedValue);
       }
     });
@@ -119,6 +121,7 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
   }, [form, onDataChange]);
 
   function onSubmit(data: EventData) {
+    // This function is for form submission, which we handle via onChange
     console.log("Form submitted:", data);
   }
 
@@ -127,7 +130,7 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className={`space-y-6 border p-4 rounded-lg relative ${isDisabled ? 'opacity-50' : ''}`}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className={`space-y-6 border p-4 rounded-lg relative`}>
          {showRemoveButton && (
           <Button
             type="button"
@@ -140,7 +143,7 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
             <span className="sr-only">Remover Evento</span>
           </Button>
         )}
-        <fieldset disabled={isDisabled} className="space-y-6">
+        <fieldset disabled={isDisabled} className={`space-y-6 ${isDisabled ? 'opacity-50' : ''}`}>
           <FormField
             control={form.control}
             name="predefinedEvent"
@@ -188,7 +191,7 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
                 <FormItem>
                   <FormLabel>Título do Evento</FormLabel>
                   <FormControl>
-                    <Input placeholder="Concerto de Ano Novo" {...field} disabled={isHappySabado} />
+                    <Input placeholder="Concerto de Ano Novo" {...field} disabled={predefinedEvent !== 'outro'} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -251,6 +254,7 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
                     className="resize-none"
                     rows={3}
                     {...field}
+                    disabled={predefinedEvent !== 'outro' && predefinedEvent !== 'happy_sabado'}
                   />
                 </FormControl>
                 <FormMessage />

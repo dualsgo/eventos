@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { EventForm, type EventData } from '@/components/event-form';
 import { PrintContainer } from '@/components/print-container';
 import { Button } from '@/components/ui/button';
@@ -55,14 +55,16 @@ export default function Home() {
   const enhancedEvents = useMemo(() => {
     if (isSameThemeAllMonth && sortedEvents.length > 0) {
       const firstEvent = sortedEvents[0];
-      const title = firstEvent.predefinedEvent === 'happy_sabado' 
+      const themeTitle = firstEvent.predefinedEvent === 'happy_sabado' 
         ? `Happy Sábado - ${firstEvent.subtitle}`
         : firstEvent.title;
+      const themeDescription = `Todos os sábados do mês de ${monthOfEvents}.\n${firstEvent.description}`;
 
       return sortedEvents.map(event => ({
         ...event,
-        title: title,
-        description: `Todos os sábados do mês de ${monthOfEvents}.\n${firstEvent.description}`,
+        title: themeTitle,
+        subtitle: firstEvent.subtitle,
+        description: themeDescription,
       }));
     }
     return sortedEvents.map(event => {
@@ -136,7 +138,6 @@ export default function Home() {
                     id="same-theme-switch"
                     checked={isSameThemeAllMonth}
                     onCheckedChange={setIsSameThemeAllMonth}
-                    disabled={events.length < 2}
                   />
                   <Label htmlFor="same-theme-switch">Usar o mesmo tema para todos os sábados do mês</Label>
                 </div>
