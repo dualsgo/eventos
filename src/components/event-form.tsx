@@ -36,16 +36,10 @@ const getNextDayOfWeek = (dayOfWeek: number): string => { // 0=Sunday, 1=Monday,
   const today = new Date();
   const resultDate = new Date(today.getTime());
   resultDate.setDate(today.getDate() + (dayOfWeek + 7 - today.getDay()) % 7);
-  if (resultDate.getDate() === today.getDate() && resultDate.getDay() !== today.getDay()) {
-      // It's in the same week, just a few days ahead
-  } else if (resultDate.getDate() <= today.getDate()) {
-     resultDate.setDate(resultDate.getDate() + 7);
-  }
-   if (resultDate.getDay() === today.getDay() && resultDate.getDate() === today.getDate()) {
+  
+  if (resultDate.getDate() === today.getDate()) {
     resultDate.setDate(resultDate.getDate() + 7);
   }
-
-
   return resultDate.toISOString().split('T')[0];
 };
 
@@ -93,10 +87,9 @@ interface EventFormProps {
   onRemove: () => void;
   showRemoveButton: boolean;
   isSameThemeAllMonth: boolean;
-  isFirstEvent: boolean;
 }
 
-export function EventForm({ onDataChange, initialData, onRemove, showRemoveButton, isSameThemeAllMonth, isFirstEvent }: EventFormProps) {
+export function EventForm({ onDataChange, initialData, onRemove, showRemoveButton, isSameThemeAllMonth }: EventFormProps) {
   const form = useForm<EventData>({
     resolver: zodResolver(eventFormSchema),
     defaultValues: initialData,
@@ -136,8 +129,6 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
       if (result.success) {
         onDataChange(result.data);
       } else {
-        // This might not be ideal, but it ensures the parent gets some data
-        // even if validation fails temporarily during typing.
         onDataChange(updatedValue);
       }
     });
@@ -149,7 +140,7 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
     console.log("Form submitted:", data);
   }
 
-  const isDisabled = isSameThemeAllMonth && !isFirstEvent;
+  const isDisabled = isSameThemeAllMonth && predefinedEvent === 'happy_sabado';
   const isHappySabado = predefinedEvent === 'happy_sabado';
 
   return (
@@ -181,11 +172,11 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="happy_sabado">Happy Sábado</SelectItem>
-                    <SelectItem value="pokemon">Troca de cartas POKEMON</SelectItem>
-                    <SelectItem value="uno_beyblade">Partidas de UNO e Arena Beyblade</SelectItem>
-                    <SelectItem value="hotwheels">Abertura de caixas Hot Wheels</SelectItem>
-                    <SelectItem value="outro">Outro (Manual)</SelectItem>
+                    <SelectItem value="happy_sabado">Happy Sábado (Evento temático de sábado)</SelectItem>
+                    <SelectItem value="pokemon">Troca de cartas POKEMON (Evento de sexta)</SelectItem>
+                    <SelectItem value="uno_beyblade">UNO e Beyblade (Evento de sexta)</SelectItem>
+                    <SelectItem value="hotwheels">Caixas Hot Wheels (Evento de sexta)</SelectItem>
+                    <SelectItem value="outro">Outro (Preenchimento manual)</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
