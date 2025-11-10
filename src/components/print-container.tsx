@@ -3,6 +3,7 @@
 import type { EventData } from './event-form';
 import { Card } from '@/components/ui/card';
 import { PrintPreview } from './print-preview';
+import Image from 'next/image';
 
 interface PrintContainerProps {
   events: EventData[];
@@ -14,10 +15,11 @@ const RECEIPT_MIN_HEIGHT_PX = 113;
 
 export function PrintContainer({ events, storeName }: PrintContainerProps) {
   const separator = "----------------------------------------";
+  const qrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://www.rihappy.com.br/super-eventos";
 
   return (
     <Card
-      className="receipt p-3 font-code shadow-lg transition-all relative overflow-hidden bg-gray-50 text-black text-center"
+      className="receipt p-3 font-code shadow-lg transition-all relative overflow-hidden bg-gray-50 text-black"
       style={{ width: `${RECEIPT_WIDTH_PX}px`, minHeight: `${RECEIPT_MIN_HEIGHT_PX}px` }}
     >
       <div className="text-center">
@@ -38,6 +40,15 @@ export function PrintContainer({ events, storeName }: PrintContainerProps) {
 
       <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
       
+      <div className="flex justify-center my-2">
+        <Image 
+          src={qrCodeUrl}
+          alt="QR Code para a página de eventos"
+          width={80}
+          height={80}
+        />
+      </div>
+
       <div className="text-center text-xs mt-2 px-1">
         <p className="font-bold">Chame seus amigos e venha se divertir!</p>
         <p>Nossos eventos são gratuitos. Esperamos por você!</p>
