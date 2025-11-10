@@ -56,11 +56,6 @@ export default function Home() {
     const happySabados = sortedEvents.filter(e => e.predefinedEvent === 'happy_sabado');
     const otherEvents = sortedEvents.filter(e => e.predefinedEvent !== 'happy_sabado');
 
-    let processedEvents = otherEvents.map(event => ({
-      ...event,
-      title: event.predefinedEvent === 'happy_sabado' ? `Happy Sábado - ${event.subtitle}` : event.title
-    }));
-
     if (isSameThemeAllMonth && showSameThemeSwitch && happySabados.length > 0) {
       const firstHappySabado = happySabados[0];
       const themeTitle = `Happy Sábado - ${firstHappySabado.subtitle}`;
@@ -75,26 +70,28 @@ export default function Home() {
         startTime: '', // No individual time
         endTime: '',
       };
-      // Add other events and only one unified happy sabado event
-      return [...otherEvents, unifiedHappySabadoEvent].sort((a, b) => {
-        if (a.id === 'unified_happy_sabado') return 1;
-        if (b.id === 'unified_happy_sabado') return -1;
+      // Combine other events and the single unified happy sabado event
+      let combinedEvents = [...otherEvents, unifiedHappySabadoEvent];
+
+      return combinedEvents.sort((a, b) => {
+        const isAUnified = a.id === 'unified_happy_sabado';
+        const isBUnified = b.id === 'unified_happy_sabado';
+        
+        // Unified event should be sorted based on the month's context, often last.
+        if(isAUnified) return 1;
+        if(isBUnified) return -1;
+        
         const dateA = new Date(`${a.date}T${a.startTime || '00:00'}`);
         const dateB = new Date(`${b.date}T${b.startTime || '00:00'}`);
         return dateA.getTime() - dateB.getTime();
       });
     } else {
-        processedEvents.push(...happySabados.map(event => ({
+        // Return all events, with specific titles for happy sabados
+        return sortedEvents.map(event => ({
             ...event,
-            title: `Happy Sábado - ${event.subtitle}`
-        })));
+            title: event.predefinedEvent === 'happy_sabado' ? `Happy Sábado - ${event.subtitle}` : event.title
+        }));
     }
-    
-    return processedEvents.sort((a, b) => {
-        const dateA = new Date(`${a.date}T${a.startTime || '00:00'}`);
-        const dateB = new Date(`${b.date}T${b.startTime || '00:00'}`);
-        return dateA.getTime() - dateB.getTime();
-    });
 
   }, [sortedEvents, isSameThemeAllMonth, monthOfEvents, showSameThemeSwitch]);
 
@@ -134,8 +131,7 @@ export default function Home() {
     <main className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 sm:p-8">
       <div className="w-full max-w-6xl mx-auto">
         <div className="text-center mb-8 no-print">
-          <h1 className="text-4xl font-headline font-bold text-primary">Event Printer</h1>
-          <p className="text-muted-foreground mt-2 font-body">Crie e imprima os seus eventos em formato de cupom fiscal.</p>
+          <h1 className="text-3xl sm:text-4xl font-headline font-bold text-primary">EVENTOS E HAPPY SABADOS RI HAPPY</h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
@@ -151,7 +147,7 @@ export default function Home() {
                   id="storeName" 
                   value={storeName} 
                   onChange={(e) => setStoreName(e.target.value)} 
-                  placeholder="Ex: Carioca Shopping"
+                  placeholder="Digite o nome da sua loja Ex: Carioca Shopping"
                 />
               </div>
               
