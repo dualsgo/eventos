@@ -39,6 +39,7 @@ export function PrintContainer({ events, storeName }: PrintContainerProps) {
       <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
       
       <div className="text-center text-xs mt-2">
+        <p className="font-bold">EVENTOS GRATUITOS</p>
         <p>OBRIGADO E VOLTE SEMPRE!</p>
       </div>
       
