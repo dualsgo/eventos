@@ -32,36 +32,51 @@ const eventFormSchema = z.object({
 
 export type EventData = z.infer<typeof eventFormSchema>;
 
+const getNextDayOfWeek = (dayOfWeek: number): string => { // 0=Sunday, 1=Monday, ..., 6=Saturday
+  const today = new Date();
+  const resultDate = new Date(today.getTime());
+  resultDate.setDate(today.getDate() + (dayOfWeek + 7 - today.getDay()) % 7);
+  if (resultDate.getDate() === today.getDate()) {
+    resultDate.setDate(resultDate.getDate() + 7);
+  }
+  return resultDate.toISOString().split('T')[0];
+};
+
 const PREDEFINED_EVENTS = {
   pokemon: {
     title: "Troca de cartas POKEMON",
     description: "Venha aumentar a sua coleção de cards com outros Mestres Pokemon.",
     startTime: "14:00",
     endTime: "20:00",
+    defaultDate: () => getNextDayOfWeek(5), // Friday
   },
   uno_beyblade: {
     title: "Partidas de UNO e Arena Beyblade",
     description: "Competição entre amigos e familiares.",
     startTime: "14:00",
     endTime: "20:00",
+    defaultDate: () => getNextDayOfWeek(5), // Friday
   },
   hotwheels: {
     title: "Abertura de caixas Hot Wheels",
     description: "O momento mais esperado pelos colecionadores.",
     startTime: "19:00",
     endTime: "",
+    defaultDate: () => getNextDayOfWeek(5), // Friday
   },
   happy_sabado: {
     title: "Happy Sábado - ",
     description: "",
     startTime: "14:00",
     endTime: "20:00",
+    defaultDate: () => getNextDayOfWeek(6), // Saturday
   },
   outro: {
     title: "",
     description: "",
     startTime: "14:00",
     endTime: "20:00",
+    defaultDate: () => new Date().toISOString().split('T')[0],
   },
 };
 
@@ -99,6 +114,8 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
         updatedValue.description = predefined.description;
         updatedValue.startTime = predefined.startTime;
         updatedValue.endTime = predefined.endTime;
+        updatedValue.date = predefined.defaultDate();
+
         if(eventKey !== 'happy_sabado') {
           updatedValue.subtitle = '';
         }

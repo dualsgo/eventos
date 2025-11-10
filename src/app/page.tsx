@@ -12,6 +12,16 @@ import { Switch } from '@/components/ui/switch';
 
 const MAX_EVENTS = 4;
 
+const getNextDayOfWeek = (dayOfWeek: number): string => { // 0=Sunday, 1=Monday, ..., 6=Saturday
+  const today = new Date();
+  const resultDate = new Date(today.getTime());
+  resultDate.setDate(today.getDate() + (dayOfWeek + 7 - today.getDay()) % 7);
+   if (resultDate.getDate() === today.getDate()) {
+    resultDate.setDate(resultDate.getDate() + 7);
+  }
+  return resultDate.toISOString().split('T')[0];
+};
+
 const initialEvent: EventData = {
   id: `evt_${Math.random()}`,
   title: 'Exemplo de Evento',
@@ -53,11 +63,12 @@ export default function Home() {
   }, [sortedEvents]);
   
   const enhancedEvents = useMemo(() => {
-    if (isSameThemeAllMonth && sortedEvents.length > 0) {
+    if (isSameThemeAllMonth && sortedEvents.length > 0 && showSameThemeSwitch) {
       const firstEvent = sortedEvents[0];
       const themeTitle = firstEvent.predefinedEvent === 'happy_sabado' 
         ? `Happy Sábado - ${firstEvent.subtitle}`
         : firstEvent.title;
+      
       const themeDescription = `Todos os sábados do mês de ${monthOfEvents}.\n${firstEvent.description}`;
 
       return sortedEvents.map(event => ({
@@ -65,6 +76,10 @@ export default function Home() {
         title: themeTitle,
         subtitle: firstEvent.subtitle,
         description: themeDescription,
+        // Remove date and time for unified view
+        date: '', 
+        startTime: '',
+        endTime: '',
       }));
     }
     return sortedEvents.map(event => {
@@ -73,7 +88,14 @@ export default function Home() {
       }
       return event;
     });
-  }, [sortedEvents, isSameThemeAllMonth, monthOfEvents]);
+  }, [sortedEvents, isSameThemeAllMonth, monthOfEvents, showSameThemeSwitch]);
+
+  const mainDescriptionForAllMonthTheme = useMemo(() => {
+     if (isSameThemeAllMonth && showSameThemeSwitch && sortedEvents.length > 0) {
+        return `Todos os sábados do mês de ${monthOfEvents}.\n${sortedEvents[0].description}`;
+    }
+    return null;
+  }, [isSameThemeAllMonth, showSameThemeSwitch, sortedEvents, monthOfEvents]);
 
 
   const handlePrint = () => {
@@ -150,7 +172,7 @@ export default function Home() {
                   initialData={eventData}
                   onRemove={() => handleRemoveEvent(eventData.id!)}
                   showRemoveButton={events.length > 1}
-                  isSameThemeAllMonth={isSameThemeAllMonth}
+                  isSameThemeAllMonth={isSameThemeAllMonth && showSameThemeSwitch}
                   isFirstEvent={index === 0}
                 />
               ))}
@@ -168,6 +190,7 @@ export default function Home() {
               <PrintContainer
                 storeName={storeName}
                 events={enhancedEvents}
+                mainDescription={mainDescriptionForAllMonthTheme}
               />
             </div>
             <Button onClick={handlePrint} className="w-full max-w-xs no-print" size="lg" variant="default">

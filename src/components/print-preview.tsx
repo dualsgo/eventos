@@ -11,7 +11,7 @@ export function PrintPreview({ data }: PrintPreviewProps) {
 
   const formatDateWithWeekday = (dateString: string) => {
     try {
-      if (!dateString) return 'DD/MM/AAAA';
+      if (!dateString) return null;
       const eventDate = new Date(dateString + 'T00:00:00'); // Assume timezone doesn't shift the day
       const weekday = eventDate.toLocaleDateString('pt-BR', { weekday: 'long' });
       const formattedDate = eventDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -31,10 +31,12 @@ export function PrintPreview({ data }: PrintPreviewProps) {
     } else if (startTime) {
       timeText += ' HORAS';
     }
-    return timeText || 'HORÁRIO A DEFINIR';
+    return timeText || null;
   }
 
   const separator = "----------------------------------------";
+  const formattedDate = formatDateWithWeekday(date);
+  const formattedTime = formatTimeRange();
 
   return (
     <>
@@ -42,12 +44,14 @@ export function PrintPreview({ data }: PrintPreviewProps) {
         <h3 className="font-bold text-base break-words uppercase">{title || 'SEU EVENTO AQUI'}</h3>
       </div>
       
-      <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
+      {(formattedDate || formattedTime) && <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>}
       
-      <div className="text-xs px-1 text-center">
-        <p>{formatDateWithWeekday(date)}</p>
-        <p>{formatTimeRange()}</p>
-      </div>
+      {(formattedDate || formattedTime) && (
+        <div className="text-xs px-1 text-center">
+          {formattedDate && <p>{formattedDate}</p>}
+          {formattedTime && <p>{formattedTime}</p>}
+        </div>
+      )}
       
       {description && (
         <>

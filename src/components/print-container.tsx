@@ -7,12 +7,13 @@ import { PrintPreview } from './print-preview';
 interface PrintContainerProps {
   events: EventData[];
   storeName: string;
+  mainDescription: string | null;
 }
 
 const RECEIPT_WIDTH_PX = 302;
 const RECEIPT_MIN_HEIGHT_PX = 113;
 
-export function PrintContainer({ events, storeName }: PrintContainerProps) {
+export function PrintContainer({ events, storeName, mainDescription }: PrintContainerProps) {
   const separator = "----------------------------------------";
 
   return (
@@ -27,14 +28,26 @@ export function PrintContainer({ events, storeName }: PrintContainerProps) {
 
       <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
 
-      {events.map((eventData, index) => (
-        <div key={`${eventData.id}-preview`}>
-          <PrintPreview data={eventData} />
-          {index < events.length -1 && (
-             <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
-          )}
-        </div>
-      ))}
+      {mainDescription ? (
+         <>
+          <div className="text-center">
+            <h3 className="font-bold text-base break-words uppercase">{events[0].title || 'SEU EVENTO AQUI'}</h3>
+          </div>
+          <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
+          <p className="text-xs break-words whitespace-pre-wrap px-1 font-bold text-center">{mainDescription.split('\n')[0]}</p>
+          <p className="text-xs break-words whitespace-pre-wrap px-1">{mainDescription.split('\n').slice(1).join('\n')}</p>
+         </>
+      ) : (
+        events.map((eventData, index) => (
+          <div key={`${eventData.id}-preview`}>
+            <PrintPreview data={eventData} />
+            {index < events.length -1 && (
+               <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
+            )}
+          </div>
+        ))
+      )}
+
 
       <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
       
