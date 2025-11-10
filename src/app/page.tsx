@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { EventForm, type EventData } from '@/components/event-form';
-import { PrintPreview } from '@/components/print-preview';
+import { PrintContainer } from '@/components/print-container';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -111,15 +111,10 @@ export default function Home() {
 
           <div className="flex flex-col items-center justify-center gap-6">
             <div id="print-container">
-                {sortedEvents.map((eventData, index) => (
-                    <div key={`${eventData.title}-${eventData.date}-${index}-preview`} className={index > 0 ? 'mt-4' : ''}>
-                        <PrintPreview 
-                          data={eventData}
-                          storeName={storeName}
-                          isLast={index === sortedEvents.length - 1}
-                        />
-                    </div>
-                ))}
+              <PrintContainer
+                storeName={storeName}
+                events={sortedEvents}
+              />
             </div>
             <Button onClick={handlePrint} className="w-full max-w-xs no-print" size="lg" variant="default">
               <Printer className="mr-2 h-5 w-5" />
