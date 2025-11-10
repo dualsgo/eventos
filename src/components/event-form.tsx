@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Trash2 } from "lucide-react";
 
 import {
   Form,
@@ -15,6 +16,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "./ui/button";
+import { Separator } from "./ui/separator";
 
 const eventFormSchema = z.object({
   title: z.string().min(2, { message: "O título deve ter pelo menos 2 caracteres." }).max(30, { message: "O título não pode exceder 30 caracteres." }),
@@ -28,9 +31,11 @@ export type EventData = z.infer<typeof eventFormSchema>;
 interface EventFormProps {
   onDataChange: (data: EventData) => void;
   initialData: EventData;
+  onRemove: () => void;
+  showRemoveButton: boolean;
 }
 
-export function EventForm({ onDataChange, initialData }: EventFormProps) {
+export function EventForm({ onDataChange, initialData, onRemove, showRemoveButton }: EventFormProps) {
   const form = useForm<EventData>({
     resolver: zodResolver(eventFormSchema),
     defaultValues: initialData,
@@ -38,10 +43,17 @@ export function EventForm({ onDataChange, initialData }: EventFormProps) {
   });
 
   useEffect(() => {
+    form.reset(initialData);
+  }, [initialData, form]);
+
+  useEffect(() => {
     const subscription = form.watch((value) => {
       const result = eventFormSchema.safeParse(value);
       if (result.success) {
         onDataChange(result.data);
+      } else {
+        // To provide partial updates for a better UX
+        onDataChange(value as EventData);
       }
     });
     return () => subscription.unsubscribe();
@@ -55,7 +67,19 @@ export function EventForm({ onDataChange, initialData }: EventFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 border p-4 rounded-lg relative">
+         {showRemoveButton && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute top-2 right-2 h-6 w-6"
+            onClick={onRemove}
+          >
+            <Trash2 className="h-4 w-4 text-destructive" />
+            <span className="sr-only">Remover Evento</span>
+          </Button>
+        )}
         <FormField
           control={form.control}
           name="title"
@@ -107,7 +131,7 @@ export function EventForm({ onDataChange, initialData }: EventFormProps) {
                 <Textarea
                   placeholder="Descreva brevemente o evento..."
                   className="resize-none"
-                  rows={4}
+                  rows={3}
                   {...field}
                 />
               </FormControl>

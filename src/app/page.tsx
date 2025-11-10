@@ -1,24 +1,51 @@
 'use client';
 
 import { useState } from 'react';
-import type { EventData } from '@/components/event-form';
-import { EventForm } from '@/components/event-form';
+import { EventForm, type EventData } from '@/components/event-form';
 import { PrintPreview } from '@/components/print-preview';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Printer } from 'lucide-react';
+import { PlusCircle, Printer } from 'lucide-react';
+
+const MAX_EVENTS = 4;
+
+const initialEvent: EventData = {
+  title: 'Exemplo de Evento',
+  date: new Date().toISOString().split('T')[0],
+  time: '20:00',
+  description: 'Uma breve descrição do evento que será impresso no papel térmico.',
+};
 
 export default function Home() {
-  const [eventData, setEventData] = useState<EventData>({
-    title: 'Exemplo de Evento',
-    date: new Date().toISOString().split('T')[0],
-    time: '20:00',
-    description: 'Uma breve descrição do evento que será impresso no papel térmico.',
-  });
+  const [events, setEvents] = useState<EventData[]>([initialEvent]);
 
   const handlePrint = () => {
     window.print();
   };
+
+  const handleAddEvent = () => {
+    if (events.length < MAX_EVENTS) {
+      const newEvent: EventData = {
+        title: `Evento #${events.length + 1}`,
+        date: new Date().toISOString().split('T')[0],
+        time: '20:00',
+        description: '',
+      };
+      setEvents([...events, newEvent]);
+    }
+  };
+
+  const handleDataChange = (index: number, data: EventData) => {
+    const newEvents = [...events];
+    newEvents[index] = data;
+    setEvents(newEvents);
+  };
+  
+  const handleRemoveEvent = (index: number) => {
+    const newEvents = events.filter((_, i) => i !== index);
+    setEvents(newEvents);
+  };
+
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 sm:p-8">
@@ -34,18 +61,36 @@ export default function Home() {
               <CardTitle className="font-headline">Detalhes do Evento</CardTitle>
               <CardDescription>Preencha os campos para gerar a pré-visualização em tempo real.</CardDescription>
             </CardHeader>
-            <CardContent>
-              <EventForm onDataChange={setEventData} initialData={eventData} />
+            <CardContent className="space-y-4">
+              {events.map((eventData, index) => (
+                <EventForm 
+                  key={index}
+                  onDataChange={(data) => handleDataChange(index, data)} 
+                  initialData={eventData}
+                  onRemove={() => handleRemoveEvent(index)}
+                  showRemoveButton={events.length > 1}
+                />
+              ))}
+               {events.length < MAX_EVENTS && (
+                <Button onClick={handleAddEvent} className="w-full mt-4" variant="outline">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Adicionar Evento
+                </Button>
+              )}
             </CardContent>
           </Card>
 
           <div className="flex flex-col items-center justify-center gap-6">
             <div id="print-container">
-              <PrintPreview data={eventData} />
+                {events.map((eventData, index) => (
+                    <div key={index} className={index > 0 ? 'mt-4' : ''}>
+                        <PrintPreview data={eventData} />
+                    </div>
+                ))}
             </div>
             <Button onClick={handlePrint} className="w-full max-w-xs no-print" size="lg" variant="default">
               <Printer className="mr-2 h-5 w-5" />
-              Imprimir Cupom
+              Imprimir Cupons
             </Button>
           </div>
         </div>
