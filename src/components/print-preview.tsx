@@ -21,6 +21,19 @@ export function PrintPreview({ data }: PrintPreviewProps) {
     }
   };
 
+  const formatTimeRange = () => {
+    let timeText = '';
+    if (startTime) {
+      timeText += `A PARTIR DE: ${startTime}`;
+    }
+    if (endTime) {
+      timeText += ` ATÉ ${endTime} HORAS`;
+    } else if (startTime) {
+      timeText += ' HORAS';
+    }
+    return timeText || 'HORÁRIO A DEFINIR';
+  }
+
   const separator = "----------------------------------------";
 
   return (
@@ -33,7 +46,7 @@ export function PrintPreview({ data }: PrintPreviewProps) {
       
       <div className="text-xs px-1 text-center">
         <p>{formatDateWithWeekday(date)}</p>
-        <p>A PARTIR DE: {startTime || 'HH:MM'} E ATÉ {endTime || 'HH:MM'} HORAS</p>
+        <p>{formatTimeRange()}</p>
       </div>
       
       {description && (

@@ -21,14 +21,14 @@ export function PrintContainer({ events, storeName }: PrintContainerProps) {
       style={{ width: `${RECEIPT_WIDTH_PX}px`, minHeight: `${RECEIPT_MIN_HEIGHT_PX}px` }}
     >
       <div className="text-center">
-        <h1 className="font-bold text-sm break-words">PRÓXIMOS EVENTOS RI HAPPY</h1>
+        <h1 className="font-bold text-sm break-words">PRÓXIMOS EVENTOS NA RI HAPPY</h1>
         <h2 className="font-bold text-sm break-words uppercase">{storeName || 'NOME DA LOJA'}</h2>
       </div>
 
       <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
 
       {events.map((eventData, index) => (
-        <div key={`${eventData.title}-${eventData.date}-${index}-preview`}>
+        <div key={`${eventData.id}-preview`}>
           <PrintPreview data={eventData} />
           {index < events.length -1 && (
              <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
@@ -38,9 +38,9 @@ export function PrintContainer({ events, storeName }: PrintContainerProps) {
 
       <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
       
-      <div className="text-center text-xs mt-2">
-        <p className="font-bold">EVENTOS GRATUITOS</p>
-        <p>OBRIGADO E VOLTE SEMPRE!</p>
+      <div className="text-center text-xs mt-2 px-1">
+        <p className="font-bold">Chame seus amigos e venha se divertir!</p>
+        <p>Nossos eventos são gratuitos. Esperamos por você!</p>
       </div>
       
       <div 

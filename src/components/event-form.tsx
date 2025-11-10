@@ -34,23 +34,33 @@ export type EventData = z.infer<typeof eventFormSchema>;
 const PREDEFINED_EVENTS = {
   pokemon: {
     title: "Troca de cartas POKEMON",
-    description: "Venha aumentar a sua coleção de cards com outros Mestre Pokemon",
+    description: "Venha aumentar a sua coleção de cards com outros Mestres Pokemon.",
+    startTime: "14:00",
+    endTime: "20:00",
   },
   uno_beyblade: {
     title: "Partidas de UNO e Arena Beyblade",
-    description: "Competição entre amigos e familiares",
+    description: "Competição entre amigos e familiares.",
+    startTime: "14:00",
+    endTime: "20:00",
   },
   hotwheels: {
     title: "Abertura de caixas Hot Wheels",
-    description: "O momento mais esperado pelos colecionadores",
+    description: "O momento mais esperado pelos colecionadores.",
+    startTime: "19:00",
+    endTime: "",
   },
   happy_sabado: {
     title: "Happy Sábado - ",
     description: "",
+    startTime: "14:00",
+    endTime: "20:00",
   },
   outro: {
     title: "",
     description: "",
+    startTime: "14:00",
+    endTime: "20:00",
   },
 };
 
@@ -84,6 +94,8 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
         
         updatedValue.title = predefined.title;
         updatedValue.description = predefined.description;
+        updatedValue.startTime = predefined.startTime;
+        updatedValue.endTime = predefined.endTime;
 
         // Using reset to update multiple fields and re-validate
         form.reset(updatedValue);
