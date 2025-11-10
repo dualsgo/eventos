@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { EventForm, type EventData } from '@/components/event-form';
 import { PrintPreview } from '@/components/print-preview';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { PlusCircle, Printer } from 'lucide-react';
 
 const MAX_EVENTS = 4;
@@ -12,12 +14,22 @@ const MAX_EVENTS = 4;
 const initialEvent: EventData = {
   title: 'Exemplo de Evento',
   date: new Date().toISOString().split('T')[0],
-  time: '20:00',
+  startTime: '14:00',
+  endTime: '18:00',
   description: 'Uma breve descrição do evento que será impresso no papel térmico.',
 };
 
 export default function Home() {
+  const [storeName, setStoreName] = useState('LOJA X');
   const [events, setEvents] = useState<EventData[]>([initialEvent]);
+
+  const sortedEvents = useMemo(() => {
+    return [...events].sort((a, b) => {
+      const dateA = new Date(`${a.date}T${a.startTime || '00:00'}`);
+      const dateB = new Date(`${b.date}T${b.startTime || '00:00'}`);
+      return dateA.getTime() - dateB.getTime();
+    });
+  }, [events]);
 
   const handlePrint = () => {
     window.print();
@@ -28,7 +40,8 @@ export default function Home() {
       const newEvent: EventData = {
         title: `Evento #${events.length + 1}`,
         date: new Date().toISOString().split('T')[0],
-        time: '20:00',
+        startTime: '14:00',
+        endTime: '18:00',
         description: '',
       };
       setEvents([...events, newEvent]);
@@ -36,14 +49,20 @@ export default function Home() {
   };
 
   const handleDataChange = (index: number, data: EventData) => {
-    const newEvents = [...events];
-    newEvents[index] = data;
-    setEvents(newEvents);
+    const originalIndex = events.findIndex(e => e.title === sortedEvents[index].title && e.date === sortedEvents[index].date && e.startTime === sortedEvents[index].startTime);
+    if (originalIndex !== -1) {
+      const newEvents = [...events];
+      newEvents[originalIndex] = data;
+      setEvents(newEvents);
+    }
   };
   
   const handleRemoveEvent = (index: number) => {
-    const newEvents = events.filter((_, i) => i !== index);
-    setEvents(newEvents);
+    const originalIndex = events.findIndex(e => e.title === sortedEvents[index].title && e.date === sortedEvents[index].date && e.startTime === sortedEvents[index].startTime);
+    if (originalIndex !== -1) {
+      const newEvents = events.filter((_, i) => i !== originalIndex);
+      setEvents(newEvents);
+    }
   };
 
 
@@ -62,9 +81,19 @@ export default function Home() {
               <CardDescription>Preencha os campos para gerar a pré-visualização em tempo real.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {events.map((eventData, index) => (
+              <div className="space-y-2">
+                <Label htmlFor="storeName">Nome da Loja</Label>
+                <Input 
+                  id="storeName" 
+                  value={storeName} 
+                  onChange={(e) => setStoreName(e.target.value)} 
+                  placeholder="Ex: Shopping Iguatemi"
+                />
+              </div>
+
+              {sortedEvents.map((eventData, index) => (
                 <EventForm 
-                  key={index}
+                  key={`${eventData.title}-${eventData.date}-${index}`}
                   onDataChange={(data) => handleDataChange(index, data)} 
                   initialData={eventData}
                   onRemove={() => handleRemoveEvent(index)}
@@ -82,9 +111,13 @@ export default function Home() {
 
           <div className="flex flex-col items-center justify-center gap-6">
             <div id="print-container">
-                {events.map((eventData, index) => (
-                    <div key={index} className={index > 0 ? 'mt-4' : ''}>
-                        <PrintPreview data={eventData} />
+                {sortedEvents.map((eventData, index) => (
+                    <div key={`${eventData.title}-${eventData.date}-${index}-preview`} className={index > 0 ? 'mt-4' : ''}>
+                        <PrintPreview 
+                          data={eventData}
+                          storeName={storeName}
+                          isLast={index === sortedEvents.length - 1}
+                        />
                     </div>
                 ))}
             </div>

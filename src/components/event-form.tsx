@@ -17,12 +17,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "./ui/button";
-import { Separator } from "./ui/separator";
 
 const eventFormSchema = z.object({
   title: z.string().min(2, { message: "O título deve ter pelo menos 2 caracteres." }).max(30, { message: "O título não pode exceder 30 caracteres." }),
   date: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "Data inválida." }),
-  time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Formato de hora inválido (HH:MM)." }),
+  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Formato de hora inválido (HH:MM)." }),
+  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Formato de hora inválido (HH:MM)." }),
   description: z.string().max(200, { message: "A descrição não pode exceder 200 caracteres." }).optional().default(''),
 });
 
@@ -52,7 +52,6 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
       if (result.success) {
         onDataChange(result.data);
       } else {
-        // To provide partial updates for a better UX
         onDataChange(value as EventData);
       }
     });
@@ -61,7 +60,6 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
 
 
   function onSubmit(data: EventData) {
-    // This is a dummy handler as updates are real-time.
     console.log("Form submitted:", data);
   }
 
@@ -93,8 +91,8 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
             </FormItem>
           )}
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
+        
+        <FormField
             control={form.control}
             name="date"
             render={({ field }) => (
@@ -107,12 +105,27 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
               </FormItem>
             )}
           />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="time"
+            name="startTime"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Hora</FormLabel>
+                <FormLabel>Início</FormLabel>
+                <FormControl>
+                  <Input type="time" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="endTime"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Fim</FormLabel>
                 <FormControl>
                   <Input type="time" {...field} />
                 </FormControl>
