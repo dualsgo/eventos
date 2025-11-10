@@ -19,7 +19,7 @@ export function PrintContainer({ events, storeName }: PrintContainerProps) {
 
   return (
     <Card
-      className="receipt p-3 font-code shadow-lg transition-all relative overflow-hidden bg-gray-50 text-black"
+      className="receipt p-3 font-code shadow-lg transition-all relative overflow-hidden bg-gray-50 text-black text-center"
       style={{ width: `${RECEIPT_WIDTH_PX}px`, minHeight: `${RECEIPT_MIN_HEIGHT_PX}px` }}
     >
       <div className="text-center">
@@ -32,7 +32,7 @@ export function PrintContainer({ events, storeName }: PrintContainerProps) {
       {events.map((eventData, index) => (
         <div key={`${eventData.id}-preview-${index}`}>
           <PrintPreview data={eventData} />
-          {index < events.length -1 && eventData.id !== 'unified_happy_sabado' && (
+          {index < events.length -1 && (
              <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
           )}
         </div>
@@ -48,6 +48,7 @@ export function PrintContainer({ events, storeName }: PrintContainerProps) {
           height={80}
         />
       </div>
+      <p className="text-xs mt-1 mb-2 text-center">Aponte a câmera e veja mais!</p>
 
       <div className="text-center text-xs mt-2 px-1">
         <p className="font-bold">Chame seus amigos e venha se divertir!</p>
