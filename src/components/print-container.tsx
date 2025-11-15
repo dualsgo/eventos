@@ -42,6 +42,11 @@ export function PrintContainer({ events, storeName, whatsapp, instagram }: Print
 
       <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
       
+      <div className="text-center text-xs mt-2 px-1">
+        <p className="font-bold mt-2">Chame seus amigos e venha se divertir!</p>
+        <p>Nossos eventos são gratuitos. Esperamos por você!</p>
+      </div>
+
       <div className="flex justify-center my-2">
         <Image 
           src={qrCodeUrl}
@@ -60,8 +65,6 @@ export function PrintContainer({ events, storeName, whatsapp, instagram }: Print
             {instagram && <p>Instagram: {instagram}</p>}
           </>
         )}
-        <p className="font-bold mt-2">Chame seus amigos e venha se divertir!</p>
-        <p>Nossos eventos são gratuitos. Esperamos por você!</p>
       </div>
       
       <div 
@@ -75,5 +78,3 @@ export function PrintContainer({ events, storeName, whatsapp, instagram }: Print
     </Card>
   );
 }
-
-    
