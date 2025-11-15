@@ -3,11 +3,12 @@
 import { useState, useMemo, useEffect } from 'react';
 import { EventForm, type EventData } from '@/components/event-form';
 import { PrintContainer } from '@/components/print-container';
+import { DiscountCoupon } from '@/components/discount-coupon';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, Printer } from 'lucide-react';
+import { PlusCircle, Printer, Ticket, Calendar as CalendarIcon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,6 +18,7 @@ const LOCAL_STORAGE_KEY_WHATSAPP = 'eventPrinter.whatsapp';
 const LOCAL_STORAGE_KEY_INSTAGRAM = 'eventPrinter.instagram';
 const LOCAL_STORAGE_KEY_EVENTS = 'eventPrinter.events';
 
+type PrintMode = 'events' | 'discount';
 
 const initialEvent: EventData = {
   id: `evt_${Math.random()}`,
@@ -36,6 +38,7 @@ export default function Home() {
   const [instagram, setInstagram] = useState('');
   const [events, setEvents] = useState<EventData[]>([initialEvent]);
   const [isSameThemeAllMonth, setIsSameThemeAllMonth] = useState(false);
+  const [printMode, setPrintMode] = useState<PrintMode>('events');
 
   // Load state from localStorage on initial render
   useEffect(() => {
@@ -134,40 +137,42 @@ export default function Home() {
     const otherEvents = sortedEvents.filter(e => e.predefinedEvent !== 'happy_sabado');
 
     if (isSameThemeAllMonth && happySabados.length > 0) {
-      const firstHappySabado = happySabados[0];
-      const themeTitle = `Happy Sábado - ${firstHappySabado.subtitle}`;
-      const themeDescription = `Todos os sábados do mês de ${monthOfEvents}.\n${firstHappySabado.description}`;
-      
-      const unifiedHappySabadoEvent: EventData = {
-        ...firstHappySabado,
-        id: 'unified_happy_sabado',
-        title: themeTitle,
-        description: themeDescription,
-        date: '', // No individual date
-        startTime: '', // No individual time
-        endTime: '',
-      };
-      
-      const combinedEvents = [...otherEvents, unifiedHappySabadoEvent];
+        const firstHappySabado = happySabados[0];
+        const themeTitle = `Happy Sábado - ${firstHappySabado.subtitle}`;
+        const themeDescription = `Todos os sábados do mês de ${monthOfEvents}.\n${firstHappySabado.description}`;
+        
+        const unifiedHappySabadoEvent: EventData = {
+            ...firstHappySabado,
+            id: 'unified_happy_sabado',
+            title: themeTitle,
+            description: themeDescription,
+            date: '', // No individual date
+            startTime: '', // No individual time
+            endTime: '',
+        };
+        
+        const processedHappySabados = [unifiedHappySabadoEvent];
 
-      return combinedEvents.sort((a, b) => {
-        const isAUnified = a.id === 'unified_happy_sabado';
-        const isBUnified = b.id === 'unified_happy_sabado';
-        
-        if(isAUnified) return 1;
-        if(isBUnified) return -1;
-        
-        const dateA = new Date(`${a.date}T${a.startTime || '00:00'}`);
-        const dateB = new Date(`${b.date}T${b.startTime || '00:00'}`);
-        return dateA.getTime() - dateB.getTime();
-      });
+        const combinedEvents = [...otherEvents, ...processedHappySabados];
+
+        return combinedEvents.sort((a, b) => {
+            const isAUnified = a.id === 'unified_happy_sabado';
+            const isBUnified = b.id === 'unified_happy_sabado';
+            
+            if(isAUnified) return 1;
+            if(isBUnified) return -1;
+            
+            const dateA = new Date(`${a.date}T${a.startTime || '00:00'}`);
+            const dateB = new Date(`${b.date}T${b.startTime || '00:00'}`);
+            return dateA.getTime() - dateB.getTime();
+        });
+
     } else {
         return sortedEvents.map(event => ({
             ...event,
             title: event.predefinedEvent === 'happy_sabado' ? `Happy Sábado - ${event.subtitle}` : event.title
         }));
     }
-
   }, [sortedEvents, isSameThemeAllMonth, monthOfEvents]);
 
   const handleAddEvent = () => {
@@ -219,7 +224,7 @@ export default function Home() {
                   id="storeName" 
                   value={storeName} 
                   onChange={(e) => setStoreName(e.target.value)} 
-                  placeholder="Digite o nome da sua loja Ex: Carioca Shopping"
+                  placeholder="Ex: Carioca Shopping"
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -274,13 +279,25 @@ export default function Home() {
           </Card>
 
           <div className="flex flex-col items-center justify-center gap-6">
+            <div className="no-print flex gap-2 w-full max-w-xs">
+                <Button onClick={() => setPrintMode('events')} variant={printMode === 'events' ? 'default' : 'outline'} className="flex-1">
+                    <CalendarIcon className="mr-2"/> Cupom de Eventos
+                </Button>
+                <Button onClick={() => setPrintMode('discount')} variant={printMode === 'discount' ? 'default' : 'outline'} className="flex-1">
+                    <Ticket className="mr-2"/> Cupom de Desconto
+                </Button>
+            </div>
             <div id="print-container">
-              <PrintContainer
-                storeName={storeName}
-                events={enhancedEvents}
-                whatsapp={whatsapp}
-                instagram={instagram}
-              />
+              {printMode === 'events' ? (
+                <PrintContainer
+                  storeName={storeName}
+                  events={enhancedEvents}
+                  whatsapp={whatsapp}
+                  instagram={instagram}
+                />
+              ) : (
+                <DiscountCoupon storeName={storeName} />
+              )}
             </div>
             <div className="flex w-full max-w-xs items-center gap-2 no-print">
               <Button onClick={() => window.print()} className="flex-grow" size="lg" variant="default">
@@ -295,5 +312,3 @@ export default function Home() {
     </>
   );
 }
-
-    
