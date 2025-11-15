@@ -32,7 +32,7 @@ export function DiscountCoupon({ storeName }: DiscountCouponProps) {
       <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
       
       <div className="text-center text-xs mt-2 px-1">
-        <p>Válido para a compra de qualquer produto na loja.</p>
+        <p>Válido para a compra de qualquer produto na loja na data da retirada do seu pedido</p>
       </div>
       
       <p className="text-xs my-1 mt-4 text-center tracking-tighter">{separator}</p>
