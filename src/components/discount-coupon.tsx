@@ -19,13 +19,13 @@ export function DiscountCoupon({ storeName }: DiscountCouponProps) {
     >
       <div className="text-center">
         <h1 className="font-bold text-sm break-words uppercase">{storeName || 'NOME DA LOJA'}</h1>
-        <h2 className="font-bold text-base break-words uppercase mt-2">UM PRESENTE PARA VOCÊ!</h2>
+        <h2 className="font-bold text-xl break-words uppercase mt-2">VOCÊ GANHOU!</h2>
       </div>
 
       <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
       
       <div className="text-center my-4">
-        <p className="font-bold text-7xl leading-none">10%</p>
+        <p className="font-bold text-8xl leading-none">10%</p>
         <p className="font-bold text-2xl mt-1">DE DESCONTO</p>
       </div>
 
@@ -33,7 +33,6 @@ export function DiscountCoupon({ storeName }: DiscountCouponProps) {
       
       <div className="text-center text-xs mt-2 px-1">
         <p>Válido para a compra de qualquer produto na loja.</p>
-        <p className="font-bold mt-2">Apresente este cupom no caixa.</p>
       </div>
       
       <div 
