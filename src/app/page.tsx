@@ -203,7 +203,7 @@ export default function Home() {
 
   return (
     <>
-    <main className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 sm:p-8">
+    <main className="flex min-h-screen w-full flex-col items-center bg-background p-4 sm:p-8">
       <div className="w-full max-w-6xl mx-auto">
         <div className="text-center mb-8 no-print">
            <h1 className="text-3xl sm:text-4xl font-bold text-primary font-headline">
@@ -278,7 +278,7 @@ export default function Home() {
             </CardContent>
           </Card>
 
-          <div className="flex flex-col items-center justify-center gap-6">
+          <div className="flex flex-col items-center justify-start gap-6 lg:sticky lg:top-8">
             <div className="no-print flex gap-2 w-full max-w-xs">
                 <Button onClick={() => setPrintMode('events')} variant={printMode === 'events' ? 'default' : 'outline'} className="flex-1">
                     <CalendarIcon className="mr-2"/> Cupom de Eventos
