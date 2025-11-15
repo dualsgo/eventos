@@ -298,7 +298,6 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
                     className="resize-none"
                     rows={3}
                     {...field}
-                    disabled={predefinedEvent !== 'outro' && predefinedEvent !== 'happy_sabado'}
                   />
                 </FormControl>
                 <FormMessage />
