@@ -11,7 +11,6 @@ const RECEIPT_MIN_HEIGHT_PX = 113;
 
 export function DiscountCoupon({ storeName }: DiscountCouponProps) {
   const separator = "----------------------------------------";
-  const today = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
   return (
     <Card
@@ -20,21 +19,21 @@ export function DiscountCoupon({ storeName }: DiscountCouponProps) {
     >
       <div className="text-center">
         <h1 className="font-bold text-sm break-words uppercase">{storeName || 'NOME DA LOJA'}</h1>
-        <h2 className="font-bold text-base break-words uppercase mt-2">CUPOM DE DESCONTO</h2>
+        <h2 className="font-bold text-base break-words uppercase mt-2">UM PRESENTE PARA VOCÊ!</h2>
       </div>
 
       <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
       
       <div className="text-center my-4">
-        <p className="font-bold text-4xl">10%</p>
-        <p className="font-bold text-lg">DE DESCONTO</p>
+        <p className="font-bold text-7xl leading-none">10%</p>
+        <p className="font-bold text-2xl mt-1">DE DESCONTO</p>
       </div>
 
       <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
       
       <div className="text-center text-xs mt-2 px-1">
         <p>Válido para a compra de qualquer produto na loja.</p>
-        <p className="font-bold mt-2">Válido apenas para o dia de hoje: {today}</p>
+        <p className="font-bold mt-2">Apresente este cupom no caixa.</p>
       </div>
       
       <div 
