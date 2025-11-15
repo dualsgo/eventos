@@ -35,6 +35,13 @@ export function DiscountCoupon({ storeName }: DiscountCouponProps) {
         <p>Válido para a compra de qualquer produto na loja.</p>
       </div>
       
+      <p className="text-xs my-1 mt-4 text-center tracking-tighter">{separator}</p>
+      <div className="text-left text-xs mt-2 px-1">
+        <p className="font-bold text-center mb-1">USO INTERNO DA LOJA</p>
+        <p>Utilizado: ( &nbsp; ) Sim ( &nbsp; ) Não</p>
+        <p>Adicional de Retirada (Pickup): [ &nbsp; ]</p>
+      </div>
+
       <div 
         className="torn-effect absolute bottom-0 left-0 right-0 h-3 bg-repeat-x"
         style={{
