@@ -10,19 +10,13 @@ import { Label } from '@/components/ui/label';
 import { PlusCircle, Printer } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 
 const MAX_EVENTS = 4;
 const LOCAL_STORAGE_KEY_STORE = 'eventPrinter.storeName';
+const LOCAL_STORAGE_KEY_WHATSAPP = 'eventPrinter.whatsapp';
+const LOCAL_STORAGE_KEY_INSTAGRAM = 'eventPrinter.instagram';
 const LOCAL_STORAGE_KEY_EVENTS = 'eventPrinter.events';
+
 
 const initialEvent: EventData = {
   id: `evt_${Math.random()}`,
@@ -38,10 +32,10 @@ const initialEvent: EventData = {
 export default function Home() {
   const { toast } = useToast();
   const [storeName, setStoreName] = useState('LOJA X');
+  const [whatsapp, setWhatsapp] = useState('');
+  const [instagram, setInstagram] = useState('');
   const [events, setEvents] = useState<EventData[]>([initialEvent]);
   const [isSameThemeAllMonth, setIsSameThemeAllMonth] = useState(false);
-  const [printCopies, setPrintCopies] = useState(1);
-  const [isPrintAlertOpen, setIsPrintAlertOpen] = useState(false);
 
   // Load state from localStorage on initial render
   useEffect(() => {
@@ -49,6 +43,14 @@ export default function Home() {
       const savedStoreName = localStorage.getItem(LOCAL_STORAGE_KEY_STORE);
       if (savedStoreName) {
         setStoreName(JSON.parse(savedStoreName));
+      }
+      const savedWhatsapp = localStorage.getItem(LOCAL_STORAGE_KEY_WHATSAPP);
+      if (savedWhatsapp) {
+        setWhatsapp(JSON.parse(savedWhatsapp));
+      }
+      const savedInstagram = localStorage.getItem(LOCAL_STORAGE_KEY_INSTAGRAM);
+      if (savedInstagram) {
+        setInstagram(JSON.parse(savedInstagram));
       }
       
       const savedEvents = localStorage.getItem(LOCAL_STORAGE_KEY_EVENTS);
@@ -72,6 +74,22 @@ export default function Home() {
         console.error("Failed to save store name to localStorage", error);
     }
   }, [storeName]);
+  
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY_WHATSAPP, JSON.stringify(whatsapp));
+    } catch (error) {
+        console.error("Failed to save whatsapp to localStorage", error);
+    }
+  }, [whatsapp]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY_INSTAGRAM, JSON.stringify(instagram));
+    } catch (error) {
+        console.error("Failed to save instagram to localStorage", error);
+    }
+  }, [instagram]);
 
   useEffect(() => {
     try {
@@ -115,7 +133,7 @@ export default function Home() {
     const happySabados = sortedEvents.filter(e => e.predefinedEvent === 'happy_sabado');
     const otherEvents = sortedEvents.filter(e => e.predefinedEvent !== 'happy_sabado');
 
-    if (isSameThemeAllMonth && showSameThemeSwitch && happySabados.length > 0) {
+    if (isSameThemeAllMonth && happySabados.length > 0) {
       const firstHappySabado = happySabados[0];
       const themeTitle = `Happy Sábado - ${firstHappySabado.subtitle}`;
       const themeDescription = `Todos os sábados do mês de ${monthOfEvents}.\n${firstHappySabado.description}`;
@@ -129,14 +147,13 @@ export default function Home() {
         startTime: '', // No individual time
         endTime: '',
       };
-      // Combine other events and the single unified happy sabado event
-      let combinedEvents = [...otherEvents, unifiedHappySabadoEvent];
+      
+      const combinedEvents = [...otherEvents, unifiedHappySabadoEvent];
 
       return combinedEvents.sort((a, b) => {
         const isAUnified = a.id === 'unified_happy_sabado';
         const isBUnified = b.id === 'unified_happy_sabado';
         
-        // Unified event should be sorted based on the month's context, often last.
         if(isAUnified) return 1;
         if(isBUnified) return -1;
         
@@ -145,41 +162,13 @@ export default function Home() {
         return dateA.getTime() - dateB.getTime();
       });
     } else {
-        // Return all events, with specific titles for happy sabados
         return sortedEvents.map(event => ({
             ...event,
             title: event.predefinedEvent === 'happy_sabado' ? `Happy Sábado - ${event.subtitle}` : event.title
         }));
     }
 
-  }, [sortedEvents, isSameThemeAllMonth, monthOfEvents, showSameThemeSwitch]);
-
-  const handlePrint = async () => {
-    if (printCopies > 1) {
-      setIsPrintAlertOpen(true);
-    } else {
-      window.print();
-    }
-  };
-
-  const startPrintingLoop = () => {
-    setIsPrintAlertOpen(false);
-    let copiesPrinted = 0;
-
-    const printLoop = () => {
-      if (copiesPrinted < printCopies) {
-        window.print();
-        copiesPrinted++;
-        // Browsers block repeated print calls, so we rely on the user to re-initiate.
-        // This setup now just prints once after confirmation.
-        // To truly loop, it would require significant changes and might still be blocked.
-        // For now, the alert serves as a manual instruction.
-      }
-    };
-    
-    // We call it once, the alert has already instructed the user.
-    printLoop();
-  };
+  }, [sortedEvents, isSameThemeAllMonth, monthOfEvents]);
 
   const handleAddEvent = () => {
     if (events.length < MAX_EVENTS) {
@@ -207,7 +196,6 @@ export default function Home() {
     setEvents(newEvents);
   };
 
-
   return (
     <>
     <main className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 sm:p-8">
@@ -233,6 +221,26 @@ export default function Home() {
                   onChange={(e) => setStoreName(e.target.value)} 
                   placeholder="Digite o nome da sua loja Ex: Carioca Shopping"
                 />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="whatsapp">WhatsApp da Loja</Label>
+                  <Input 
+                    id="whatsapp" 
+                    value={whatsapp} 
+                    onChange={(e) => setWhatsapp(e.target.value)} 
+                    placeholder="Ex: (21) 99999-8888"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="instagram">Instagram da Loja</Label>
+                  <Input 
+                    id="instagram" 
+                    value={instagram} 
+                    onChange={(e) => setInstagram(e.target.value)} 
+                    placeholder="Ex: @rihappy"
+                  />
+                </div>
               </div>
               
               {showSameThemeSwitch && (
@@ -270,45 +278,20 @@ export default function Home() {
               <PrintContainer
                 storeName={storeName}
                 events={enhancedEvents}
+                whatsapp={whatsapp}
+                instagram={instagram}
               />
             </div>
             <div className="flex w-full max-w-xs items-center gap-2 no-print">
-              <Button onClick={handlePrint} className="flex-grow" size="lg" variant="default">
+              <Button onClick={() => window.print()} className="flex-grow" size="lg" variant="default">
                 <Printer className="mr-2 h-5 w-5" />
                 Imprimir
               </Button>
-              <Input
-                type="number"
-                id="print-copies"
-                value={printCopies}
-                onChange={(e) => setPrintCopies(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                className="w-20 h-11 text-center"
-                min="1"
-              />
-              <Label htmlFor="print-copies" className="text-sm">
-                Cópia(s)
-              </Label>
             </div>
           </div>
         </div>
       </div>
     </main>
-
-    <AlertDialog open={isPrintAlertOpen} onOpenChange={setIsPrintAlertOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Impressão em Múltiplas Cópias</AlertDialogTitle>
-            <AlertDialogDescription>
-              Devido a restrições do navegador, você precisará confirmar a caixa de diálogo de impressão {printCopies} vezes.
-              Clique em "Continuar" para iniciar a primeira impressão.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={startPrintingLoop}>Continuar</AlertDialogAction>
-            <Button variant="outline" onClick={() => setIsPrintAlertOpen(false)}>Cancelar</Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }

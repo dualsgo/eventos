@@ -8,12 +8,14 @@ import Image from 'next/image';
 interface PrintContainerProps {
   events: EventData[];
   storeName: string;
+  whatsapp?: string;
+  instagram?: string;
 }
 
 const RECEIPT_WIDTH_PX = 302;
 const RECEIPT_MIN_HEIGHT_PX = 113;
 
-export function PrintContainer({ events, storeName }: PrintContainerProps) {
+export function PrintContainer({ events, storeName, whatsapp, instagram }: PrintContainerProps) {
   const separator = "----------------------------------------";
   const qrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://www.rihappy.com.br/super-eventos";
 
@@ -49,9 +51,16 @@ export function PrintContainer({ events, storeName }: PrintContainerProps) {
         />
       </div>
       <p className="text-xs mt-1 mb-2 text-center">Aponte a câmera e veja mais!</p>
-
+      
       <div className="text-center text-xs mt-2 px-1">
-        <p className="font-bold">Chame seus amigos e venha se divertir!</p>
+        {(whatsapp || instagram) && (
+          <>
+            <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
+            {whatsapp && <p>WhatsApp: {whatsapp}</p>}
+            {instagram && <p>Instagram: {instagram}</p>}
+          </>
+        )}
+        <p className="font-bold mt-2">Chame seus amigos e venha se divertir!</p>
         <p>Nossos eventos são gratuitos. Esperamos por você!</p>
       </div>
       
@@ -66,3 +75,5 @@ export function PrintContainer({ events, storeName }: PrintContainerProps) {
     </Card>
   );
 }
+
+    
