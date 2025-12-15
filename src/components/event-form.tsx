@@ -17,61 +17,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "./ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
-import { Switch } from "./ui/switch";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
-const eventFormSchema = z
-  .object({
-    id: z.string().optional(),
-    title: z
-      .string()
-      .max(100, { message: "O título não pode exceder 100 caracteres." })
-      .optional()
-      .default(""),
-    subtitle: z
-      .string()
-      .max(50, { message: "O subtítulo não pode exceder 50 caracteres." })
-      .optional(),
-    date: z
-      .string()
-      .refine((val: string) => val && !isNaN(Date.parse(val)), {
-        message: "Data inválida.",
-      }),
-    timeFormat: z.enum(["range", "from"]).default("range"),
-    startTime: z
-      .string()
-      .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, {
-        message: "Formato de hora inválido (HH:MM).",
-      }),
-    endTime: z
-      .string()
-      .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, {
-        message: "Formato de hora inválido (HH:MM).",
-      })
-      .optional()
-      .default(""),
-    description: z
-      .string()
-      .max(200, { message: "A descrição não pode exceder 200 caracteres." })
-      .optional()
-      .default(""),
-    predefinedEvent: z.string().optional(),
-    isActive: z.boolean().default(true),
-  })
-  .refine(
-    (data: any) => !(data.predefinedEvent === "happy_sabado" && !data.subtitle),
-    {
-      message: "O subtítulo é obrigatório para Happy Sábado.",
-      path: ["subtitle"],
-    },
-  );
+const eventFormSchema = z.object({
+  id: z.string().optional(),
+  title: z.string().max(100, { message: "O título não pode exceder 100 caracteres." }).optional().default(''),
+  subtitle: z.string().max(50, { message: "O subtítulo não pode exceder 50 caracteres." }).optional().default(''),
+  date: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "Data inválida." }),
+  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Formato de hora inválido (HH:MM)." }),
+  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Formato de hora inválido (HH:MM)." }).optional().default(''),
+  description: z.string().max(200, { message: "A descrição não pode exceder 200 caracteres." }).optional().default(''),
+  predefinedEvent: z.string().optional(),
+});
 
 export type EventData = z.infer<typeof eventFormSchema>;
 
@@ -239,11 +196,8 @@ export function EventForm({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 relative"
-      >
-        {showRemoveButton && (
+      <form onSubmit={form.handleSubmit(onSubmit)} className={`space-y-6 border p-4 rounded-lg relative`}>
+         {showRemoveButton && (
           <Button
             type="button"
             variant="ghost"
@@ -255,28 +209,7 @@ export function EventForm({
             <span className="sr-only">Remover Evento</span>
           </Button>
         )}
-        <div className="flex items-center justify-between">
-          <FormField
-            control={form.control}
-            name="isActive"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <FormLabel className="cursor-pointer">Evento Ativo</FormLabel>
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <fieldset
-          disabled={isDisabled}
-          className={`space-y-6 ${isDisabled ? "opacity-50" : ""}`}
-        >
+        <fieldset disabled={isDisabled} className={`space-y-6 ${isDisabled ? 'opacity-50' : ''}`}>
           <FormField
             control={form.control}
             name="predefinedEvent"
