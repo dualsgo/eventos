@@ -19,29 +19,28 @@ export function DiscountCoupon({ storeName }: DiscountCouponProps) {
     >
       <div className="text-center">
         <h1 className="font-bold text-sm break-words uppercase">{storeName || 'NOME DA LOJA'}</h1>
-        <h2 className="font-bold text-sm break-words">CUPOM DE DESCONTO</h2>
+        <h2 className="font-bold text-xl break-words uppercase mt-2">VOCÊ GANHOU!</h2>
       </div>
 
       <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
       
       <div className="text-center my-4">
-        <p className="font-bold text-2xl break-words">VOCÊ GANHOU</p>
-        <p className="font-bold text-8xl leading-none tracking-tighter break-words">10%</p>
-        <p className="font-bold text-3xl break-words uppercase">DE DESCONTO</p>
+        <p className="font-bold text-8xl leading-none">10%</p>
+        <p className="font-bold text-2xl mt-1">DE DESCONTO</p>
       </div>
 
       <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
       
       <div className="text-center text-xs mt-2 px-1">
-        <p>Válido para a compra de qualquer produto na loja na data da retirada do seu pedido.</p>
+        <p>Válido para a compra de qualquer produto na loja na data da retirada do seu pedido</p>
       </div>
       
-      <div className="absolute bottom-3 left-3 right-3 text-xs">
-          <p className="text-xs my-1 text-center tracking-tighter">{separator}</p>
-          <p className="font-bold text-center">USO INTERNO DA LOJA</p>
-          <p className="text-center mt-1">Adicional: [  ] Sim [  ] Não</p>
+      <p className="text-xs my-1 mt-4 text-center tracking-tighter">{separator}</p>
+      <div className="text-left text-xs mt-2 px-1">
+        <p className="font-bold text-center mb-1">USO INTERNO DA LOJA</p>
+        <p>Adicional: ( &nbsp; ) Sim ( &nbsp; ) Não</p>
       </div>
-      
+
       <div 
         className="torn-effect absolute bottom-0 left-0 right-0 h-3 bg-repeat-x"
         style={{
