@@ -22,13 +22,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 const eventFormSchema = z.object({
   id: z.string().optional(),
   title: z.string().max(100, { message: "O título não pode exceder 100 caracteres." }).optional().default(''),
-  subtitle: z.string().max(50, { message: "O subtítulo não pode exceder 50 caracteres." }).optional().default(''),
+  subtitle: z.string().max(50, { message: "O subtítulo não pode exceder 50 caracteres." }).optional(),
   date: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "Data inválida." }),
   startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Formato de hora inválido (HH:MM)." }),
   endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Formato de hora inválido (HH:MM)." }).optional().default(''),
   description: z.string().max(200, { message: "A descrição não pode exceder 200 caracteres." }).optional().default(''),
   predefinedEvent: z.string().optional(),
+  isActive: z.boolean().default(true),
 });
+
 
 export type EventData = z.infer<typeof eventFormSchema>;
 
@@ -103,11 +105,7 @@ export function EventForm({
 }: EventFormProps) {
   const form = useForm<EventData>({
     resolver: zodResolver(eventFormSchema),
-    defaultValues: {
-      ...initialData,
-      subtitle: initialData.subtitle || "",
-      timeFormat: initialData.timeFormat || "range",
-    },
+    defaultValues: initialData,
     mode: "onChange",
   });
 
@@ -117,36 +115,39 @@ export function EventForm({
   onDataChangeRef.current = onDataChange;
 
   useEffect(() => {
-    const subscription = form.watch((_value: any, { name, type }: any) => {
-      // Only react to user interactions to prevent loops
-      if (type === "change") {
-        const currentValues = form.getValues();
-        let updatedValue = { ...currentValues };
+    form.reset(initialData);
+  }, [initialData, form]);
 
-        // Handle derived title for Happy Sabado
-        if (
-          name === "subtitle" &&
-          currentValues.predefinedEvent === "happy_sabado"
-        ) {
-          updatedValue.title =
-            PREDEFINED_EVENTS.happy_sabado.title +
-            (currentValues.subtitle || "");
-          form.setValue("title", updatedValue.title);
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      let updatedValue = { ...value } as EventData;
+      
+      if (name === 'predefinedEvent' && value.predefinedEvent) {
+        const eventKey = value.predefinedEvent as keyof typeof PREDEFINED_EVENTS;
+        const predefined = PREDEFINED_EVENTS[eventKey] || PREDEFINED_EVENTS.outro;
+        
+        updatedValue.title = predefined.title;
+        updatedValue.description = predefined.description;
+        updatedValue.startTime = predefined.startTime;
+        updatedValue.endTime = predefined.endTime;
+        updatedValue.date = predefined.defaultDate();
+
+        if(eventKey !== 'happy_sabado') {
+          updatedValue.subtitle = '';
         }
 
-        // Clear end time if format changes to 'from'
-        if (name === "timeFormat" && currentValues.timeFormat === "from") {
-          updatedValue.endTime = "";
-          form.setValue("endTime", "");
-        }
-
-        const result = eventFormSchema.safeParse(updatedValue);
-        if (result.success) {
-          onDataChangeRef.current(result.data);
-        } else {
-          // Send the current data even if invalid for live preview purposes
-          onDataChangeRef.current(updatedValue as EventData);
-        }
+        form.reset(updatedValue);
+      } else if (name === 'subtitle' && value.predefinedEvent === 'happy_sabado') {
+        updatedValue.title = PREDEFINED_EVENTS.happy_sabado.title + (value.subtitle || '');
+      }
+      
+      const result = eventFormSchema.safeParse(updatedValue);
+      if (result.success) {
+        onDataChange(result.data);
+      } else {
+        // This is important to keep the form state in sync even with invalid data
+        // while the user is typing.
+        onDataChange(updatedValue);
       }
     });
     return () => subscription.unsubscribe();
@@ -259,11 +260,7 @@ export function EventForm({
                 <FormItem>
                   <FormLabel>Subtítulo do Happy Sábado</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Ex: Oficina de Slime"
-                      {...field}
-                      value={field.value ?? ""}
-                    />
+                    <Input placeholder="Ex: Oficina de Slime" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
