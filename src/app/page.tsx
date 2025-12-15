@@ -4,12 +4,11 @@ import { useState, useMemo, useEffect } from 'react';
 import { EventForm, type EventData } from '@/components/event-form';
 import { PrintContainer } from '@/components/print-container';
 import { DiscountCoupon } from '@/components/discount-coupon';
-import { ChristmasLetterCoupon } from '@/components/christmas-letter-coupon';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, Printer, Ticket, Calendar as CalendarIcon, Mail } from 'lucide-react';
+import { PlusCircle, Printer, Ticket, Calendar as CalendarIcon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 
@@ -19,7 +18,7 @@ const LOCAL_STORAGE_KEY_WHATSAPP = 'eventPrinter.whatsapp';
 const LOCAL_STORAGE_KEY_INSTAGRAM = 'eventPrinter.instagram';
 const LOCAL_STORAGE_KEY_EVENTS = 'eventPrinter.events';
 
-type PrintMode = 'events' | 'discount' | 'christmas_letter';
+type PrintMode = 'events' | 'discount';
 
 const initialEvent: EventData = {
   id: `evt_${Math.random()}`,
@@ -201,26 +200,6 @@ export default function Home() {
     const newEvents = events.filter((e) => e.id !== id);
     setEvents(newEvents);
   };
-  
-  const renderPrintContent = () => {
-    switch(printMode) {
-      case 'events':
-        return (
-          <PrintContainer
-            storeName={storeName}
-            events={enhancedEvents}
-            whatsapp={whatsapp}
-            instagram={instagram}
-          />
-        );
-      case 'discount':
-        return <DiscountCoupon storeName={storeName} />;
-      case 'christmas_letter':
-        return <ChristmasLetterCoupon storeName={storeName} />;
-      default:
-        return null;
-    }
-  }
 
   return (
     <>
@@ -300,19 +279,25 @@ export default function Home() {
           </Card>
 
           <div className="flex flex-col items-center justify-start gap-6 lg:sticky lg:top-8">
-            <div className="no-print flex flex-col sm:flex-row gap-2 w-full max-w-xs sm:max-w-md flex-wrap justify-center">
+            <div className="no-print flex flex-col sm:flex-row gap-2 w-full max-w-xs">
                 <Button onClick={() => setPrintMode('events')} variant={printMode === 'events' ? 'default' : 'outline'} className="flex-1">
                     <CalendarIcon className="mr-2"/> Cupom de Eventos
                 </Button>
                 <Button onClick={() => setPrintMode('discount')} variant={printMode === 'discount' ? 'default' : 'outline'} className="flex-1">
                     <Ticket className="mr-2"/> Cupom de Desconto
                 </Button>
-                <Button onClick={() => setPrintMode('christmas_letter')} variant={printMode === 'christmas_letter' ? 'default' : 'outline'} className="flex-1 basis-full sm:basis-auto mt-2 sm:mt-0">
-                    <Mail className="mr-2"/> Cartinha de Natal
-                </Button>
             </div>
             <div id="print-container">
-              {renderPrintContent()}
+              {printMode === 'events' ? (
+                <PrintContainer
+                  storeName={storeName}
+                  events={enhancedEvents}
+                  whatsapp={whatsapp}
+                  instagram={instagram}
+                />
+              ) : (
+                <DiscountCoupon storeName={storeName} />
+              )}
             </div>
             <div className="flex w-full max-w-xs items-center gap-2 no-print">
               <Button onClick={() => window.print()} className="flex-grow" size="lg" variant="default">
