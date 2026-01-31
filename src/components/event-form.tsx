@@ -110,9 +110,6 @@ export function EventForm({
   });
 
   const predefinedEvent = form.watch("predefinedEvent");
-  const timeFormat = form.watch("timeFormat");
-  const onDataChangeRef = useRef(onDataChange);
-  onDataChangeRef.current = onDataChange;
 
   useEffect(() => {
     form.reset(initialData);
@@ -143,15 +140,16 @@ export function EventForm({
       
       const result = eventFormSchema.safeParse(updatedValue);
       if (result.success) {
-        onDataChange(result.data);
+        onDataChangeRef.current(result.data);
       } else {
         // This is important to keep the form state in sync even with invalid data
         // while the user is typing.
-        onDataChange(updatedValue);
+        onDataChangeRef.current(updatedValue);
       }
     });
     return () => subscription.unsubscribe();
-  }, [form]);
+  }, [form, onDataChange]);
+
 
   function onSubmit(data: EventData) {
     // This function is for form submission, which we handle via onChange
