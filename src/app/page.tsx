@@ -42,7 +42,6 @@ const initialEvent: EventData = {
     "Uma breve descrição do evento que será impresso no papel térmico.",
   predefinedEvent: "outro",
   isActive: true,
-  timeFormat: "range",
 };
 
 export default function Home() {
@@ -77,7 +76,6 @@ export default function Home() {
           const eventsWithActiveState = parsedEvents.map((e: any) => ({
             ...e,
             isActive: e.isActive !== undefined ? e.isActive : true,
-            timeFormat: e.timeFormat || "range",
           }));
           setEvents(eventsWithActiveState);
         }
@@ -222,7 +220,6 @@ export default function Home() {
         description: "",
         predefinedEvent: "outro",
         isActive: true,
-        timeFormat: "range",
       };
       setEvents([...events, newEvent]);
     }

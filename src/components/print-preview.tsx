@@ -32,18 +32,17 @@ export function PrintPreview({ data }: PrintPreviewProps) {
   };
 
   const formatTimeRange = () => {
-    if (!startTime) return null;
-
-    if (timeFormat === "from" || !endTime) {
-      return `A PARTIR DE: ${startTime} HORAS`;
+    let timeText = '';
+    if (startTime) {
+      timeText += `A PARTIR DE: ${startTime}`;
     }
-
-    if (timeFormat === "range" && endTime) {
-      return `DAS ${startTime} ÀS ${endTime} HORAS`;
+    if (endTime) {
+      timeText += ` ATÉ ${endTime} HORAS`;
+    } else if (startTime) {
+      timeText += ' HORAS';
     }
-
-    return null;
-  };
+    return timeText || null;
+  }
 
   const separator = "----------------------------------------";
   const formattedDate = formatDateWithWeekday(date);

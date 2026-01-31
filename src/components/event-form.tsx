@@ -17,20 +17,61 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "./ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { Switch } from "./ui/switch";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
-const eventFormSchema = z.object({
-  id: z.string().optional(),
-  title: z.string().max(100, { message: "O título não pode exceder 100 caracteres." }).optional().default(''),
-  subtitle: z.string().max(50, { message: "O subtítulo não pode exceder 50 caracteres." }).optional(),
-  date: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "Data inválida." }),
-  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Formato de hora inválido (HH:MM)." }),
-  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Formato de hora inválido (HH:MM)." }).optional().default(''),
-  description: z.string().max(200, { message: "A descrição não pode exceder 200 caracteres." }).optional().default(''),
-  predefinedEvent: z.string().optional(),
-  isActive: z.boolean().default(true),
-});
-
+const eventFormSchema = z
+  .object({
+    id: z.string().optional(),
+    title: z
+      .string()
+      .max(100, { message: "O título não pode exceder 100 caracteres." })
+      .optional()
+      .default(""),
+    subtitle: z
+      .string()
+      .max(50, { message: "O subtítulo não pode exceder 50 caracteres." })
+      .optional(),
+    date: z
+      .string()
+      .refine((val: string) => val && !isNaN(Date.parse(val)), {
+        message: "Data inválida.",
+      }),
+    timeFormat: z.enum(["range", "from"]).default("range"),
+    startTime: z
+      .string()
+      .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, {
+        message: "Formato de hora inválido (HH:MM).",
+      }),
+    endTime: z
+      .string()
+      .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, {
+        message: "Formato de hora inválido (HH:MM).",
+      })
+      .optional()
+      .default(""),
+    description: z
+      .string()
+      .max(200, { message: "A descrição não pode exceder 200 caracteres." })
+      .optional()
+      .default(""),
+    predefinedEvent: z.string().optional(),
+    isActive: z.boolean().default(true),
+  })
+  .refine(
+    (data: any) => !(data.predefinedEvent === "happy_sabado" && !data.subtitle),
+    {
+      message: "O subtítulo é obrigatório para Happy Sábado.",
+      path: ["subtitle"],
+    },
+  );
 
 export type EventData = z.infer<typeof eventFormSchema>;
 
@@ -105,51 +146,54 @@ export function EventForm({
 }: EventFormProps) {
   const form = useForm<EventData>({
     resolver: zodResolver(eventFormSchema),
-    defaultValues: initialData,
+    defaultValues: {
+      ...initialData,
+      subtitle: initialData.subtitle || "",
+      timeFormat: initialData.timeFormat || "range",
+    },
     mode: "onChange",
   });
 
   const predefinedEvent = form.watch("predefinedEvent");
+  const timeFormat = form.watch("timeFormat");
+  const onDataChangeRef = useRef(onDataChange);
+  onDataChangeRef.current = onDataChange;
 
   useEffect(() => {
-    form.reset(initialData);
-  }, [initialData, form]);
+    const subscription = form.watch((_value: any, { name, type }: any) => {
+      // Only react to user interactions to prevent loops
+      if (type === "change") {
+        const currentValues = form.getValues();
+        let updatedValue = { ...currentValues };
 
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      let updatedValue = { ...value } as EventData;
-      
-      if (name === 'predefinedEvent' && value.predefinedEvent) {
-        const eventKey = value.predefinedEvent as keyof typeof PREDEFINED_EVENTS;
-        const predefined = PREDEFINED_EVENTS[eventKey] || PREDEFINED_EVENTS.outro;
-        
-        updatedValue.title = predefined.title;
-        updatedValue.description = predefined.description;
-        updatedValue.startTime = predefined.startTime;
-        updatedValue.endTime = predefined.endTime;
-        updatedValue.date = predefined.defaultDate();
-
-        if(eventKey !== 'happy_sabado') {
-          updatedValue.subtitle = '';
+        // Handle derived title for Happy Sabado
+        if (
+          name === "subtitle" &&
+          currentValues.predefinedEvent === "happy_sabado"
+        ) {
+          updatedValue.title =
+            PREDEFINED_EVENTS.happy_sabado.title +
+            (currentValues.subtitle || "");
+          form.setValue("title", updatedValue.title);
         }
 
-        form.reset(updatedValue);
-      } else if (name === 'subtitle' && value.predefinedEvent === 'happy_sabado') {
-        updatedValue.title = PREDEFINED_EVENTS.happy_sabado.title + (value.subtitle || '');
-      }
-      
-      const result = eventFormSchema.safeParse(updatedValue);
-      if (result.success) {
-        onDataChangeRef.current(result.data);
-      } else {
-        // This is important to keep the form state in sync even with invalid data
-        // while the user is typing.
-        onDataChangeRef.current(updatedValue);
+        // Clear end time if format changes to 'from'
+        if (name === "timeFormat" && currentValues.timeFormat === "from") {
+          updatedValue.endTime = "";
+          form.setValue("endTime", "");
+        }
+
+        const result = eventFormSchema.safeParse(updatedValue);
+        if (result.success) {
+          onDataChangeRef.current(result.data);
+        } else {
+          // Send the aiven if invalid for live preview purposes
+          onDataChangeRef.current(updatedValue as EventData);
+        }
       }
     });
     return () => subscription.unsubscribe();
-  }, [form, onDataChange]);
-
+  }, [form]);
 
   function onSubmit(data: EventData) {
     // This function is for form submission, which we handle via onChange
@@ -195,8 +239,11 @@ export function EventForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className={`space-y-6 border p-4 rounded-lg relative`}>
-         {showRemoveButton && (
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-6 relative"
+      >
+        {showRemoveButton && (
           <Button
             type="button"
             variant="ghost"
@@ -208,7 +255,28 @@ export function EventForm({
             <span className="sr-only">Remover Evento</span>
           </Button>
         )}
-        <fieldset disabled={isDisabled} className={`space-y-6 ${isDisabled ? 'opacity-50' : ''}`}>
+        <div className="flex items-center justify-between">
+          <FormField
+            control={form.control}
+            name="isActive"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormLabel className="cursor-pointer">Evento Ativo</FormLabel>
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <fieldset
+          disabled={isDisabled}
+          className={`space-y-6 ${isDisabled ? "opacity-50" : ""}`}
+        >
           <FormField
             control={form.control}
             name="predefinedEvent"
@@ -258,7 +326,11 @@ export function EventForm({
                 <FormItem>
                   <FormLabel>Subtítulo do Happy Sábado</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: Oficina de Slime" {...field} />
+                    <Input
+                      placeholder="Ex: Oficina de Slime"
+                      {...field}
+                      value={field.value ?? ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
