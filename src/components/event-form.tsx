@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -17,65 +17,83 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "./ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { Switch } from "./ui/switch";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
-const eventFormSchema = z.object({
-  id: z.string().optional(),
-  title: z.string().max(100, { message: "O título não pode exceder 100 caracteres." }).optional().default(''),
-  subtitle: z.string().max(50, { message: "O subtítulo não pode exceder 50 caracteres." }).optional().default(''),
-  date: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "Data inválida." }),
-  startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Formato de hora inválido (HH:MM)." }),
-  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, { message: "Formato de hora inválido (HH:MM)." }).optional().default(''),
-  description: z.string().max(200, { message: "A descrição não pode exceder 200 caracteres." }).optional().default(''),
-  predefinedEvent: z.string().optional(),
-});
+const eventFormSchema = z
+  .object({
+    id: z.string().optional(),
+    title: z
+      .string()
+      .max(100, { message: "O título não pode exceder 100 caracteres." })
+      .optional()
+      .default(""),
+    subtitle: z
+      .string()
+      .max(50, { message: "O subtítulo não pode exceder 50 caracteres." })
+      .optional(),
+    date: z
+      .string()
+      .refine((val: string) => val && !isNaN(Date.parse(val)), {
+        message: "Data inválida.",
+      }),
+    timeFormat: z.enum(["range", "from"]).default("range"),
+    startTime: z
+      .string()
+      .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, {
+        message: "Formato de hora inválido (HH:MM).",
+      }),
+    endTime: z
+      .string()
+      .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, {
+        message: "Formato de hora inválido (HH:MM).",
+      })
+      .optional()
+      .default(""),
+    description: z
+      .string()
+      .max(200, { message: "A descrição não pode exceder 200 caracteres." })
+      .optional()
+      .default(""),
+    predefinedEvent: z.string().optional(),
+    isActive: z.boolean().default(true),
+  })
+  .refine(
+    (data: any) => !(data.predefinedEvent === "happy_sabado" && !data.subtitle),
+    {
+      message: "O subtítulo é obrigatório para Happy Sábado.",
+      path: ["subtitle"],
+    },
+  );
 
 export type EventData = z.infer<typeof eventFormSchema>;
 
-const getNextDayOfWeek = (dayOfWeek: number): string => { // 0=Sunday, 1=Monday, ..., 6=Saturday
-  const today = new Date();
-  const resultDate = new Date(today.getTime());
-  let daysToAdd = (dayOfWeek + 7 - today.getDay()) % 7;
-  if (daysToAdd === 0 && today.getDay() === dayOfWeek) {
-    daysToAdd = 7; // if it's today, get next week's day
-  } else if (daysToAdd === 0) {
-    daysToAdd = 0; // if we want Sunday and it's Sunday, we might want today, adjust if necessary
-  }
-   if (resultDate.getDay() === dayOfWeek) {
-     resultDate.setDate(resultDate.getDate() + 7);
-   } else {
-     resultDate.setDate(today.getDate() + (dayOfWeek + 7 - today.getDay()) % 7);
-   }
-
-  // If we calculated today, add 7 days.
-  if(resultDate.getDate() === today.getDate()){
-    resultDate.setDate(resultDate.getDate() + 7);
-  }
-  
-  const finalDate = new Date(today.setDate(today.getDate() + (dayOfWeek + 7 - today.getDay()) % 7));
-
-
-  return new Date(today.getTime() - (today.getTimezoneOffset() * 60000 )).toISOString().split("T")[0]
-};
-
 const getNextDayOfWeekAdvanced = (dayOfWeek: number): string => {
-    const now = new Date();
-    const result = new Date(now);
-    result.setDate(now.getDate() + (dayOfWeek + (7 - now.getDay())) % 7);
-    if (result.getDate() === now.getDate()) {
-        result.setDate(result.getDate() + 7);
-    }
-    return result.toISOString().split('T')[0];
+  const now = new Date();
+  const result = new Date(now);
+  result.setDate(now.getDate() + ((dayOfWeek + (7 - now.getDay())) % 7));
+  if (result.getDate() === now.getDate()) {
+    result.setDate(result.getDate() + 7);
+  }
+  return result.toISOString().split("T")[0];
 };
-
 
 const PREDEFINED_EVENTS = {
   pokemon: {
     title: "Troca de cartas POKEMON",
-    description: "Venha aumentar a sua coleção de cards com outros Mestres Pokemon.",
+    description:
+      "Venha aumentar a sua coleção de cards com outros Mestres Pokemon.",
     startTime: "14:00",
     endTime: "20:00",
     defaultDate: () => getNextDayOfWeekAdvanced(5), // Friday
+    timeFormat: "range" as const,
   },
   uno_beyblade: {
     title: "Partidas de UNO e Arena Beyblade",
@@ -83,6 +101,7 @@ const PREDEFINED_EVENTS = {
     startTime: "14:00",
     endTime: "20:00",
     defaultDate: () => getNextDayOfWeekAdvanced(5), // Friday
+    timeFormat: "range" as const,
   },
   hotwheels: {
     title: "Abertura de caixas Hot Wheels",
@@ -90,6 +109,7 @@ const PREDEFINED_EVENTS = {
     startTime: "19:00",
     endTime: "",
     defaultDate: () => getNextDayOfWeekAdvanced(5), // Friday
+    timeFormat: "from" as const,
   },
   happy_sabado: {
     title: "Happy Sábado - ",
@@ -97,13 +117,15 @@ const PREDEFINED_EVENTS = {
     startTime: "14:00",
     endTime: "20:00",
     defaultDate: () => getNextDayOfWeekAdvanced(6), // Saturday
+    timeFormat: "range" as const,
   },
   outro: {
     title: "",
     description: "",
     startTime: "14:00",
     endTime: "20:00",
-    defaultDate: () => new Date().toISOString().split('T')[0],
+    defaultDate: () => new Date().toISOString().split("T")[0],
+    timeFormat: "range" as const,
   },
 };
 
@@ -115,97 +137,180 @@ interface EventFormProps {
   isSameThemeAllMonth: boolean;
 }
 
-export function EventForm({ onDataChange, initialData, onRemove, showRemoveButton, isSameThemeAllMonth }: EventFormProps) {
+export function EventForm({
+  onDataChange,
+  initialData,
+  onRemove,
+  showRemoveButton,
+  isSameThemeAllMonth,
+}: EventFormProps) {
   const form = useForm<EventData>({
     resolver: zodResolver(eventFormSchema),
-    defaultValues: initialData,
+    defaultValues: {
+      ...initialData,
+      subtitle: initialData.subtitle || "",
+      timeFormat: initialData.timeFormat || "range",
+    },
     mode: "onChange",
   });
 
   const predefinedEvent = form.watch("predefinedEvent");
+  const timeFormat = form.watch("timeFormat");
+  const onDataChangeRef = useRef(onDataChange);
+  onDataChangeRef.current = onDataChange;
 
   useEffect(() => {
-    form.reset(initialData);
-  }, [initialData, form]);
+    const subscription = form.watch((_value: any, { name, type }: any) => {
+      // Only react to user interactions to prevent loops
+      if (type === "change") {
+        const currentValues = form.getValues();
+        let updatedValue = { ...currentValues };
 
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      let updatedValue = { ...value } as EventData;
-      
-      if (name === 'predefinedEvent' && value.predefinedEvent) {
-        const eventKey = value.predefinedEvent as keyof typeof PREDEFINED_EVENTS;
-        const predefined = PREDEFINED_EVENTS[eventKey] || PREDEFINED_EVENTS.outro;
-        
-        updatedValue.title = predefined.title;
-        updatedValue.description = predefined.description;
-        updatedValue.startTime = predefined.startTime;
-        updatedValue.endTime = predefined.endTime;
-        updatedValue.date = predefined.defaultDate();
-
-        if(eventKey !== 'happy_sabado') {
-          updatedValue.subtitle = '';
+        // Handle derived title for Happy Sabado
+        if (
+          name === "subtitle" &&
+          currentValues.predefinedEvent === "happy_sabado"
+        ) {
+          updatedValue.title =
+            PREDEFINED_EVENTS.happy_sabado.title +
+            (currentValues.subtitle || "");
+          form.setValue("title", updatedValue.title);
         }
 
-        form.reset(updatedValue);
-      } else if (name === 'subtitle' && value.predefinedEvent === 'happy_sabado') {
-        updatedValue.title = PREDEFINED_EVENTS.happy_sabado.title + (value.subtitle || '');
-      }
-      
-      const result = eventFormSchema.safeParse(updatedValue);
-      if (result.success) {
-        onDataChange(result.data);
-      } else {
-        // This is important to keep the form state in sync even with invalid data
-        // while the user is typing.
-        onDataChange(updatedValue);
+        // Clear end time if format changes to 'from'
+        if (name === "timeFormat" && currentValues.timeFormat === "from") {
+          updatedValue.endTime = "";
+          form.setValue("endTime", "");
+        }
+
+        const result = eventFormSchema.safeParse(updatedValue);
+        if (result.success) {
+          onDataChangeRef.current(result.data);
+        } else {
+          // Send the current data even if invalid for live preview purposes
+          onDataChangeRef.current(updatedValue as EventData);
+        }
       }
     });
     return () => subscription.unsubscribe();
-  }, [form, onDataChange]);
-
+  }, [form]);
 
   function onSubmit(data: EventData) {
     // This function is for form submission, which we handle via onChange
     console.log("Form submitted:", data);
   }
 
-  const isDisabled = isSameThemeAllMonth && predefinedEvent === 'happy_sabado';
-  const isHappySabado = predefinedEvent === 'happy_sabado';
+  const handlePredefinedChange = (val: any) => {
+    const eventKey = val as keyof typeof PREDEFINED_EVENTS;
+    const predefined = PREDEFINED_EVENTS[eventKey] || PREDEFINED_EVENTS.outro;
+
+    const currentValues = form.getValues();
+    const newSubtitle =
+      eventKey === "happy_sabado" ? currentValues.subtitle || "" : "";
+    const newTitle =
+      eventKey === "happy_sabado"
+        ? predefined.title + newSubtitle
+        : predefined.title;
+
+    const newValues: EventData = {
+      ...currentValues,
+      predefinedEvent: val,
+      title: newTitle,
+      description: predefined.description,
+      startTime: predefined.startTime,
+      endTime: predefined.endTime,
+      date: predefined.defaultDate(),
+      timeFormat: predefined.timeFormat,
+      subtitle: newSubtitle,
+    };
+
+    form.reset(newValues);
+
+    const result = eventFormSchema.safeParse(newValues);
+    if (result.success) {
+      onDataChangeRef.current(result.data);
+    } else {
+      onDataChangeRef.current(newValues as EventData);
+    }
+  };
+
+  const isDisabled = isSameThemeAllMonth && predefinedEvent === "happy_sabado";
+  const isHappySabado = predefinedEvent === "happy_sabado";
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className={`space-y-6 border p-4 rounded-lg relative`}>
-         {showRemoveButton && (
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-6 relative"
+      >
+        {showRemoveButton && (
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="absolute top-2 right-2 h-6 w-6"
+            className="absolute top-0 right-0 h-8 w-8"
             onClick={onRemove}
           >
             <Trash2 className="h-4 w-4 text-destructive" />
             <span className="sr-only">Remover Evento</span>
           </Button>
         )}
-        <fieldset disabled={isDisabled} className={`space-y-6 ${isDisabled ? 'opacity-50' : ''}`}>
+        <div className="flex items-center justify-between">
+          <FormField
+            control={form.control}
+            name="isActive"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormLabel className="cursor-pointer">Evento Ativo</FormLabel>
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <fieldset
+          disabled={isDisabled}
+          className={`space-y-6 ${isDisabled ? "opacity-50" : ""}`}
+        >
           <FormField
             control={form.control}
             name="predefinedEvent"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Evento Predefinido</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={(val) => {
+                    field.onChange(val);
+                    handlePredefinedChange(val);
+                  }}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione um evento predefinido" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="happy_sabado">Happy Sábado (Evento temático de sábado)</SelectItem>
-                    <SelectItem value="pokemon">Troca de cartas POKEMON (Evento de sexta)</SelectItem>
-                    <SelectItem value="uno_beyblade">UNO e Beyblade (Evento de sexta)</SelectItem>
-                    <SelectItem value="hotwheels">Caixas Hot Wheels (Evento de sexta)</SelectItem>
-                    <SelectItem value="outro">Outro (Preenchimento manual)</SelectItem>
+                    <SelectItem value="happy_sabado">
+                      Happy Sábado (Evento temático de sábado)
+                    </SelectItem>
+                    <SelectItem value="pokemon">
+                      Troca de cartas POKEMON (Evento de sexta)
+                    </SelectItem>
+                    <SelectItem value="uno_beyblade">
+                      UNO e Beyblade (Evento de sexta)
+                    </SelectItem>
+                    <SelectItem value="hotwheels">
+                      Caixas Hot Wheels (Evento de sexta)
+                    </SelectItem>
+                    <SelectItem value="outro">
+                      Outro (Preenchimento manual)
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -221,7 +326,11 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
                 <FormItem>
                   <FormLabel>Subtítulo do Happy Sábado</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: Oficina de Slime" {...field} />
+                    <Input
+                      placeholder="Ex: Oficina de Slime"
+                      {...field}
+                      value={field.value ?? ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -235,7 +344,11 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
                 <FormItem>
                   <FormLabel>Título do Evento</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: Lançamento do Novo Brinquedo" {...field} disabled={predefinedEvent !== 'outro'} />
+                    <Input
+                      placeholder="Ex: Lançamento do Novo Brinquedo"
+                      {...field}
+                      disabled={predefinedEvent !== "outro"}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -243,20 +356,54 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
             />
           )}
 
-          
           <FormField
-              control={form.control}
-              name="date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Data</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            control={form.control}
+            name="date"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Data</FormLabel>
+                <FormControl>
+                  <Input type="date" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="timeFormat"
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <FormLabel>Formato do Horário</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="flex items-center space-x-4"
+                  >
+                    <FormItem className="flex items-center space-x-2 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="range" />
+                      </FormControl>
+                      <FormLabel className="font-normal cursor-pointer">
+                        Intervalo
+                      </FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-2 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="from" />
+                      </FormControl>
+                      <FormLabel className="font-normal cursor-pointer">
+                        A partir de
+                      </FormLabel>
+                    </FormItem>
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
@@ -264,7 +411,9 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
               name="startTime"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Início</FormLabel>
+                  <FormLabel>
+                    {timeFormat === "from" ? "Horário" : "Início"}
+                  </FormLabel>
                   <FormControl>
                     <Input type="time" {...field} />
                   </FormControl>
@@ -272,19 +421,21 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="endTime"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Fim</FormLabel>
-                  <FormControl>
-                    <Input type="time" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {timeFormat === "range" && (
+              <FormField
+                control={form.control}
+                name="endTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Fim</FormLabel>
+                    <FormControl>
+                      <Input type="time" {...field} value={field.value ?? ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
           <FormField
             control={form.control}
@@ -298,6 +449,7 @@ export function EventForm({ onDataChange, initialData, onRemove, showRemoveButto
                     className="resize-none"
                     rows={3}
                     {...field}
+                    disabled={predefinedEvent !== "outro" && !field.value}
                   />
                 </FormControl>
                 <FormMessage />
