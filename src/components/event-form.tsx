@@ -146,108 +146,41 @@ export function EventForm({
 }: EventFormProps) {
   const form = useForm<EventData>({
     resolver: zodResolver(eventFormSchema),
-    defaultValues: {
-      ...initialData,
-      subtitle: initialData.subtitle || "",
-      timeFormat: initialData.timeFormat || "range",
-    },
+    defaultValues: initialData,
     mode: "onChange",
   });
 
-  const predefinedEvent = form.watch("predefinedEvent");
   const timeFormat = form.watch("timeFormat");
+  const predefinedEvent = form.watch("predefinedEvent");
+  
   const onDataChangeRef = useRef(onDataChange);
   onDataChangeRef.current = onDataChange;
 
+  // Sync internal state with external updates (but only if ID or basic values change to avoid loops)
   useEffect(() => {
-    form.reset({ ...initialData, subtitle: initialData.subtitle || '', timeFormat: initialData.timeFormat || 'range' });
+    if (initialData.id !== form.getValues('id')) {
+        form.reset(initialData);
+    }
   }, [initialData, form]);
 
+  // Monitor all changes and notify parent
   useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      let updatedValue = { ...value } as EventData;
-      
-      if (name === 'predefinedEvent' && value.predefinedEvent) {
-        const eventKey = value.predefinedEvent as keyof typeof PREDEFINED_EVENTS;
-        const predefined = PREDEFINED_EVENTS[eventKey] || PREDEFINED_EVENTS.outro;
-        
-        updatedValue.title = predefined.title;
-        updatedValue.description = predefined.description;
-        updatedValue.startTime = predefined.startTime;
-        updatedValue.endTime = predefined.endTime;
-        updatedValue.date = predefined.defaultDate();
-        updatedValue.timeFormat = predefined.timeFormat;
-
-        if(eventKey !== 'happy_sabado') {
-          updatedValue.subtitle = '';
-        } else {
-            updatedValue.subtitle = form.getValues('subtitle') || '';
-        }
-
-        form.reset(updatedValue);
-      } else if (name === 'subtitle' && value.predefinedEvent === 'happy_sabado') {
-        updatedValue.title = PREDEFINED_EVENTS.happy_sabado.title + (value.subtitle || '');
-      } else if (name === 'timeFormat' && value.timeFormat === 'from') {
-          form.setValue('endTime', ''); // Do not include in updatedValue to avoid loop
-      }
-      
-      const result = eventFormSchema.safeParse(updatedValue);
+    const subscription = form.watch((value) => {
+      const result = eventFormSchema.safeParse(value);
       if (result.success) {
-        onDataChangeRef.current(result.data);
-      } else {
-        onDataChangeRef.current(updatedValue);
+        onDataChangeRef.current(result.data as EventData);
       }
     });
     return () => subscription.unsubscribe();
   }, [form]);
 
-  function onSubmit(data: EventData) {
-    // This function is for form submission, which we handle via onChange
-    console.log("Form submitted:", data);
-  }
-
   const handlePredefinedChange = (val: string) => {
-      const eventKey = val as keyof typeof PREDEFINED_EVENTS;
-      const predefined = PREDEFINED_EVENTS[eventKey] || PREDEFINED_EVENTS.outro;
-
-      const currentValues = form.getValues();
-      const newSubtitle = eventKey === 'happy_sabado' ? currentValues.subtitle || '' : '';
-      const newTitle = eventKey === 'happy_sabado' ? predefined.title + newSubtitle : predefined.title;
-      
-      const newValues: EventData = {
-        ...currentValues,
-        predefinedEvent: val,
-        title: newTitle,
-        description: predefined.description,
-        startTime: predefined.startTime,
-        endTime: predefined.endTime,
-        date: predefined.defaultDate(),
-        timeFormat: predefined.timeFormat,
-        subtitle: newSubtitle,
-      };
-
-      form.reset(newValues);
-      
-      const result = eventFormSchema.safeParse(newValues);
-       if (result.success) {
-          onDataChangeRef.current(result.data);
-        } else {
-          onDataChangeRef.current(newValues as EventData);
-        }
-  }
-
-
-  const handlePredefinedChange = (val: any) => {
     const eventKey = val as keyof typeof PREDEFINED_EVENTS;
     const predefined = PREDEFINED_EVENTS[eventKey] || PREDEFINED_EVENTS.outro;
 
     const currentValues = form.getValues();
-    const newSubtitle =
-      eventKey === "happy_sabado" ? currentValues.subtitle || "" : "";
-    const newTitle =
-      eventKey === "happy_sabado"
-        ? predefined.title + newSubtitle
-        : predefined.title;
+    const newSubtitle = eventKey === "happy_sabado" ? currentValues.subtitle || "" : "";
+    const newTitle = eventKey === "happy_sabado" ? predefined.title + newSubtitle : predefined.title;
 
     const newValues: EventData = {
       ...currentValues,
@@ -262,13 +195,7 @@ export function EventForm({
     };
 
     form.reset(newValues);
-
-    const result = eventFormSchema.safeParse(newValues);
-    if (result.success) {
-      onDataChangeRef.current(result.data);
-    } else {
-      onDataChangeRef.current(newValues as EventData);
-    }
+    onDataChangeRef.current(newValues);
   };
 
   const isDisabled = isSameThemeAllMonth && predefinedEvent === "happy_sabado";
@@ -276,10 +203,7 @@ export function EventForm({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 relative"
-      >
+      <form className="space-y-6 relative">
         {showRemoveButton && (
           <Button
             type="button"
@@ -320,7 +244,13 @@ export function EventForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Evento Predefinido</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select 
+                  onValueChange={(val) => {
+                    field.onChange(val);
+                    handlePredefinedChange(val);
+                  }} 
+                  value={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione um evento predefinido" />
@@ -360,6 +290,10 @@ export function EventForm({
                     <Input
                       placeholder="Ex: Oficina de Slime"
                       {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        form.setValue('title', PREDEFINED_EVENTS.happy_sabado.title + e.target.value);
+                      }}
                       value={field.value ?? ""}
                     />
                   </FormControl>
@@ -409,8 +343,11 @@ export function EventForm({
                 <FormLabel>Formato do Horário</FormLabel>
                 <FormControl>
                   <RadioGroup
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    onValueChange={(val) => {
+                      field.onChange(val);
+                      if (val === 'from') form.setValue('endTime', '');
+                    }}
+                    value={field.value}
                     className="flex items-center space-x-4"
                   >
                     <FormItem className="flex items-center space-x-2 space-y-0">

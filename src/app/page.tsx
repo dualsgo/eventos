@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, Printer, CalendarDays, TicketPercent, Store as StoreIcon, Info } from 'lucide-react';
+import { PlusCircle, Printer, CalendarDays, TicketPercent, Info } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 
@@ -30,6 +30,7 @@ const initialEvent: EventData = {
   description: 'Uma breve descrição do evento que será impresso no papel térmico.',
   predefinedEvent: 'outro',
   isActive: true,
+  timeFormat: 'range',
 };
 
 export default function Home() {
@@ -47,19 +48,13 @@ export default function Home() {
       const savedWhatsapp = localStorage.getItem(LOCAL_STORAGE_KEY_WHATSAPP);
       if (savedWhatsapp) setWhatsapp(JSON.parse(savedWhatsapp));
       const savedInstagram = localStorage.getItem(LOCAL_STORAGE_KEY_INSTAGRAM);
-      if (savedInstagram) {
-        setInstagram(JSON.parse(savedInstagram));
-      }
+      if (savedInstagram) setInstagram(JSON.parse(savedInstagram));
       
       const savedEvents = localStorage.getItem(LOCAL_STORAGE_KEY_EVENTS);
       if (savedEvents) {
         const parsedEvents = JSON.parse(savedEvents);
         if (parsedEvents && parsedEvents.length > 0) {
-          const eventsWithActiveState = parsedEvents.map((e: any) => ({
-            ...e,
-            isActive: e.isActive !== undefined ? e.isActive : true,
-          }));
-          setEvents(eventsWithActiveState);
+          setEvents(parsedEvents);
         }
       }
     } catch (error) {
@@ -68,41 +63,11 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY_STORE, JSON.stringify(storeName));
-    } catch (error) {
-        console.error("Failed to save store name to localStorage", error);
-    }
-  }, [storeName]);
-  
-  useEffect(() => {
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY_WHATSAPP, JSON.stringify(whatsapp));
-    } catch (error) {
-        console.error("Failed to save whatsapp to localStorage", error);
-    }
-  }, [whatsapp]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY_INSTAGRAM, JSON.stringify(instagram));
-    } catch (error) {
-        console.error("Failed to save instagram to localStorage", error);
-    }
-  }, [instagram]);
-
-  useEffect(() => {
-    try {
-        if(events.length > 0){
-          localStorage.setItem(LOCAL_STORAGE_KEY_EVENTS, JSON.stringify(events));
-        } else {
-          localStorage.removeItem(LOCAL_STORAGE_KEY_EVENTS);
-        }
-    } catch (error) {
-        console.error("Failed to save events to localStorage", error);
-    }
-  }, [events]);
-
+    localStorage.setItem(LOCAL_STORAGE_KEY_STORE, JSON.stringify(storeName));
+    localStorage.setItem(LOCAL_STORAGE_KEY_WHATSAPP, JSON.stringify(whatsapp));
+    localStorage.setItem(LOCAL_STORAGE_KEY_INSTAGRAM, JSON.stringify(instagram));
+    localStorage.setItem(LOCAL_STORAGE_KEY_EVENTS, JSON.stringify(events));
+  }, [storeName, whatsapp, instagram, events]);
 
   const showSameThemeSwitch = useMemo(() => {
     return events.some(event => event.predefinedEvent === 'happy_sabado');
@@ -150,42 +115,30 @@ export default function Home() {
             id: 'unified_happy_sabado',
             title: themeTitle,
             description: themeDescription,
-            date: '', // No individual date
-            startTime: '', // No individual time
+            date: '',
+            startTime: '',
             endTime: '',
             isActive: true,
         };
         
-        const processedHappySabados = [unifiedHappySabadoEvent];
-
-        const combinedEvents = [...otherEvents, ...processedHappySabados];
-
-        return combinedEvents.sort((a, b) => {
-            const isAUnified = a.id === 'unified_happy_sabado';
-            const isBUnified = b.id === 'unified_happy_sabado';
-            
-            if(isAUnified) return 1;
-            if(isBUnified) return -1;
-            
+        return [...otherEvents, unifiedHappySabadoEvent].sort((a, b) => {
+            if(a.id === 'unified_happy_sabado') return 1;
+            if(b.id === 'unified_happy_sabado') return -1;
             const dateA = new Date(`${a.date}T${a.startTime || '00:00'}`);
             const dateB = new Date(`${b.date}T${b.startTime || '00:00'}`);
             return dateA.getTime() - dateB.getTime();
         });
-
     } else {
       return sortedEvents.map((event: EventData) => ({
         ...event,
-        title:
-          event.predefinedEvent === "happy_sabado"
-            ? `Happy Sábado - ${event.subtitle}`
-            : event.title,
+        title: event.predefinedEvent === "happy_sabado" ? `Happy Sábado - ${event.subtitle}` : event.title,
       }));
     }
   }, [sortedEvents, isSameThemeAllMonth, monthOfEvents]);
 
   const handleAddEvent = () => {
     if (events.length < MAX_EVENTS) {
-      setEvents([...events, {
+      const newEvent: EventData = {
         id: `evt_${Math.random()}`,
         title: ``,
         subtitle: '',
@@ -202,13 +155,11 @@ export default function Home() {
   };
 
   const handleDataChange = (id: string, data: EventData) => {
-    const newEvents = events.map(e => e.id === id ? data : e);
-    setEvents(newEvents);
+    setEvents(prev => prev.map(e => e.id === id ? data : e));
   };
 
   const handleRemoveEvent = (id: string) => {
-    const newEvents = events.filter((e) => e.id !== id);
-    setEvents(newEvents);
+    setEvents(prev => prev.filter((e) => e.id !== id));
   };
 
   return (
@@ -218,7 +169,6 @@ export default function Home() {
            <h1 className="text-3xl sm:text-4xl font-bold text-[#E10098] font-headline drop-shadow-sm">
              Gerador de Cupons Ri Happy
            </h1>
-           <p className="text-muted-foreground mt-2 font-medium">Crie informativos profissionais para sua loja.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
@@ -290,18 +240,15 @@ export default function Home() {
                     </div>
                   )}
                   
-                  <Accordion type="multiple" defaultValue={events.map(e => e.id!)} className="w-full space-y-3">
+                  <Accordion type="multiple" className="w-full space-y-3">
                     {events.map((eventData) => (
                       <AccordionItem value={eventData.id!} key={eventData.id} className="border-none">
                         <div className={`border rounded-xl transition-all ${eventData.isActive ? 'border-gray-200 bg-white' : 'border-dashed border-gray-300 bg-gray-50 opacity-80'}`}>
                             <AccordionTrigger className="p-4 hover:no-underline">
                               <div className="flex-1 text-left flex items-center gap-3">
-                                <div className={`h-3 w-3 rounded-full ${eventData.isActive ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-gray-400'}`} />
+                                <div className={`h-3 w-3 rounded-full ${eventData.isActive ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
                                 <div>
                                   <p className="font-bold text-gray-800">{eventData.title || "Novo Evento"}</p>
-                                  <p className="text-xs text-muted-foreground mt-0.5">
-                                      {eventData.isActive ? 'Evento visível no cupom' : 'Oculto na impressão'}
-                                  </p>
                                 </div>
                               </div>
                             </AccordionTrigger>
@@ -343,16 +290,15 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="pt-4">
                     <div className="bg-[#E10098]/5 rounded-2xl p-6 border border-[#E10098]/10 text-[#E10098]">
-                      <p className="font-bold flex items-center gap-2">
+                      <p className="font-bold flex items-center gap-2 mb-4">
                          <TicketPercent className="h-5 w-5" />
-                         Estratégia de Vendas
+                         Boas Práticas
                       </p>
                       <ul className="space-y-3 text-sm font-medium leading-tight list-disc pl-5">
                         <li>Avise o cliente sobre o desconto assim que identificar que se trata de uma retirada de pedido online.</li>
-                        <li>Se possível, verifique o produto que está sendo retirado antes de buscá-lo no estoque, permitindo que você já ofereça um complemento ou brinquedo relacionado.</li>
-                        <li>Grampeie o cupom de desconto na frente do termo de retirada: o cliente visualizará a oferta enquanto assina os documentos.</li>
-                        <li>Reforce que o benefício é <strong>exclusivo e imediato</strong>, válido apenas para o momento da retirada.</li>
-                        <li>Mantenha o cupom impresso e pronto próximo ao balcão de retirada para agilizar o processo.</li>
+                        <li>Se possível, verifique o produto que está sendo retirado antes de buscá-lo no estoque para oferecer um complemento.</li>
+                        <li>Grampeie o cupom na frente do termo de retirada para o cliente visualizar enquanto assina.</li>
+                        <li>Reforce que o benefício é exclusivo e imediato, válido apenas para o momento.</li>
                       </ul>
                     </div>
                 </CardContent>
@@ -391,17 +337,20 @@ export default function Home() {
               )}
             </div>
 
-            <div className="flex w-full max-w-sm flex-col gap-3 no-print">
+            <div className="flex w-full max-w-sm flex-col gap-4 no-print">
+              <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-100 rounded-xl text-blue-700 text-xs font-medium">
+                <Info className="h-4 w-4 shrink-0" />
+                <p>Dica: Entregue o informativo junto com a nota fiscal ao fim de cada atendimento.</p>
+              </div>
+              
               <Button onClick={() => window.print()} className="w-full bg-[#E10098] hover:bg-[#C00082] text-white py-8 rounded-2xl shadow-lg shadow-[#E10098]/20" size="lg">
                 <Printer className="mr-3 h-6 w-6" />
                 <span className="text-lg font-bold">Imprimir Informativo</span>
               </Button>
-              <p className="text-center text-xs text-muted-foreground font-medium">O documento será formatado automaticamente para sua impressora térmica.</p>
             </div>
           </div>
         </div>
       </div>
     </main>
-    </>
   );
 }
