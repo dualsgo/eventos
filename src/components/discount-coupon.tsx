@@ -19,14 +19,16 @@ export function DiscountCoupon({ storeName }: DiscountCouponProps) {
     >
       {/* Header Estilo Fiscal */}
       <div className="text-center mb-2">
-        <h1 className="font-bold text-sm uppercase leading-tight">RI HAPPY - {storeName || 'LOJA'}</h1>
-        <p className="text-[10px] opacity-70">CUPOM DE DESCONTO EXCLUSIVO</p>
+        <h1 className="font-bold text-sm uppercase leading-tight tracking-tight">RI HAPPY - {storeName || 'LOJA'}</h1>
+        <p className="text-[10px] opacity-70 px-2 mt-1 leading-tight uppercase">
+          CUPOM DE DESCONTO EXCLUSIVO PARA COMPRA ADICIONAL NA RETIRADA DO PEDIDO ONLINE
+        </p>
       </div>
 
       <p className="text-xs my-1 text-center opacity-30">{separator}</p>
       
       <div className="py-4 flex flex-col items-center">
-        <h2 className="font-bold text-xl uppercase tracking-widest leading-none mb-2">VOCÊ GANHOU!</h2>
+        <h2 className="font-bold text-sm uppercase tracking-widest leading-none mb-2 text-gray-500">VOCÊ GANHOU!</h2>
         
         {/* Desconto em Destaque Massivo */}
         <div className="flex flex-col items-center justify-center my-2">
@@ -35,7 +37,7 @@ export function DiscountCoupon({ storeName }: DiscountCouponProps) {
         </div>
 
         {/* Call to Action em Destaque */}
-        <div className="border-2 border-black border-dashed p-2 my-3 w-full">
+        <div className="border-2 border-black border-dashed p-2 my-3 w-full bg-gray-50">
            <p className="font-bold text-xs uppercase leading-tight">Aproveite para completar a brincadeira!</p>
         </div>
         
@@ -51,19 +53,12 @@ export function DiscountCoupon({ storeName }: DiscountCouponProps) {
       <p className="text-xs my-1 mt-4 text-center opacity-30">{separator}</p>
       
       {/* Controle Interno Simplificado */}
-      <div className="text-left text-[10px] mt-2 px-1 border border-black p-3 rounded-md">
-        <p className="font-bold text-center mb-2 text-xs border-b border-black pb-1">USO INTERNO - CONTROLE</p>
-        <div className="space-y-2 mt-2">
-          <p>PEDIDO Nº: ________________________</p>
-          <div className="flex justify-between">
-            <p>DATA: ____/____/____</p>
-            <p className="font-bold">ADICIONAL: ( ) S ( ) N</p>
-          </div>
-        </div>
+      <div className="text-center text-[11px] mt-2 py-1">
+        <p className="font-bold uppercase tracking-tight">Adicional ( ) Sim ( ) Não</p>
       </div>
 
       <div className="mt-6">
-          <p className="text-[9px] italic opacity-60">Consulte condições de uso com o gerente da loja.</p>
+          <p className="text-[9px] italic opacity-60 uppercase">Consulte condições de uso com UM DE NOSSOS ATENDENTES da loja.</p>
       </div>
 
       {/* Efeito de papel rasgado (visual apenas na tela) */}
