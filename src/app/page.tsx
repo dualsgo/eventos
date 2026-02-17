@@ -349,12 +349,24 @@ export default function Home() {
                 </div>
                 </>
               )}
+
+              {viewMode === 'discount' && (
+                <div className="border-t pt-4 mt-4">
+                   <CardDescription>Visualizando o cupom de 10% de desconto para retirada em loja.</CardDescription>
+                </div>
+              )}
+
+              {viewMode === 'pickup' && (
+                <div className="border-t pt-4 mt-4">
+                   <CardDescription>Visualizando o informativo sobre como funciona a Retirada em Loja.</CardDescription>
+                </div>
+              )}
             </CardContent>
           </Card>
 
           <div className="flex flex-col items-center justify-start gap-6 lg:sticky lg:top-8">
-            <div className="no-print flex flex-col sm:flex-row items-center gap-2 w-full max-w-xs">
-                <Button onClick={() => setViewMode('events')} variant={viewMode === 'events' ? 'default' : 'outline'} className="w-full">
+            <div className="no-print grid grid-cols-1 sm:grid-cols-3 gap-2 w-full max-w-lg">
+                <Button onClick={() => setViewMode('events')} variant={viewMode === 'events' ? 'default' : 'outline'} className="w-full text-xs sm:text-sm">
                     Eventos
                 </Button>
                 <Button onClick={() => setViewMode('discount')} variant={viewMode === 'discount' ? 'default' : 'outline'} className="w-full">

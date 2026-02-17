@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Card } from '@/components/ui/card';
@@ -43,7 +42,7 @@ export function DiscountCoupon({ storeName }: DiscountCouponProps) {
         
         <div className="bg-[#00B5E2] text-white rounded-lg p-2 my-3">
           <p className="text-xs font-bold uppercase leading-tight">
-            Válido para qualquer produto na loja no dia da retirada do seu pedido!
+            Válido para a compra de qualquer produto na loja na data da retirada do seu pedido!
           </p>
         </div>
         
