@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, Printer, CalendarDays, TicketPercent, Store as StoreIcon } from 'lucide-react';
+import { PlusCircle, Printer, CalendarDays, TicketPercent, Store as StoreIcon, Info } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 
@@ -274,7 +274,7 @@ export default function Home() {
                     <div className="h-8 w-1.5 bg-[#E10098] rounded-full" />
                     Gerenciar Eventos
                   </CardTitle>
-                  <CardDescription>Adicione até {MAX_EVENTS} eventos para o cupom de programação.</CardDescription>
+                  <CardDescription>Crie até {MAX_EVENTS} eventos. Apenas os ativos serão impressos.</CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6">
                   {showSameThemeSwitch && (
@@ -347,9 +347,13 @@ export default function Home() {
                          <TicketPercent className="h-5 w-5" />
                          Estratégia de Vendas
                       </p>
-                      <p className="mt-2 text-sm leading-relaxed font-medium">
-                        Ofereça este cupom como um bônus imediato para o cliente completar a brincadeira com mais um presente da loja física.
-                      </p>
+                      <ul className="space-y-3 text-sm font-medium leading-tight list-disc pl-5">
+                        <li>Avise o cliente sobre o desconto assim que identificar que se trata de uma retirada de pedido online.</li>
+                        <li>Se possível, verifique o produto que está sendo retirado antes de buscá-lo no estoque, permitindo que você já ofereça um complemento ou brinquedo relacionado.</li>
+                        <li>Grampeie o cupom de desconto na frente do termo de retirada: o cliente visualizará a oferta enquanto assina os documentos.</li>
+                        <li>Reforce que o benefício é <strong>exclusivo e imediato</strong>, válido apenas para o momento da retirada.</li>
+                        <li>Mantenha o cupom impresso e pronto próximo ao balcão de retirada para agilizar o processo.</li>
+                      </ul>
                     </div>
                 </CardContent>
               </Card>
