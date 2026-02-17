@@ -1,27 +1,16 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { EventForm, type EventData } from "@/components/event-form";
-import { PrintContainer } from "@/components/print-container";
-import { DiscountCoupon } from "@/components/discount-coupon";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { PlusCircle, Printer } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { useState, useMemo, useEffect } from 'react';
+import { EventForm, type EventData } from '@/components/event-form';
+import { PrintContainer } from '@/components/print-container';
+import { DiscountCoupon } from '@/components/discount-coupon';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { PlusCircle, Printer } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const MAX_EVENTS = 4;
 const LOCAL_STORAGE_KEY_STORE = "eventPrinter.storeName";
@@ -29,7 +18,7 @@ const LOCAL_STORAGE_KEY_WHATSAPP = "eventPrinter.whatsapp";
 const LOCAL_STORAGE_KEY_INSTAGRAM = "eventPrinter.instagram";
 const LOCAL_STORAGE_KEY_EVENTS = "eventPrinter.events";
 
-type ViewMode = "events" | "discount";
+type ViewMode = 'events' | 'discount';
 
 const initialEvent: EventData = {
   id: `evt_${Math.random()}`,
@@ -72,7 +61,6 @@ export default function Home() {
       if (savedEvents) {
         const parsedEvents = JSON.parse(savedEvents);
         if (parsedEvents && parsedEvents.length > 0) {
-          // Ensure isActive and timeFormat property exists
           const eventsWithActiveState = parsedEvents.map((e: any) => ({
             ...e,
             isActive: e.isActive !== undefined ? e.isActive : true,
@@ -81,8 +69,8 @@ export default function Home() {
         }
       }
     } catch (error) {
-      console.error("Failed to load data from localStorage", error);
-      // If there's an error, we'll just use the default state
+        console.error("Failed to load data from localStorage", error);
+        // If there's an error, we'll just use the default state
     }
   }, []);
 
@@ -119,12 +107,12 @@ export default function Home() {
 
   useEffect(() => {
     try {
-      if (events.length > 0) {
-        localStorage.setItem(LOCAL_STORAGE_KEY_EVENTS, JSON.stringify(events));
-      } else {
-        // Clear localStorage if all events are removed
-        localStorage.removeItem(LOCAL_STORAGE_KEY_EVENTS);
-      }
+        if(events.length > 0){
+          localStorage.setItem(LOCAL_STORAGE_KEY_EVENTS, JSON.stringify(events));
+        } else {
+          // Clear localStorage if all events are removed
+          localStorage.removeItem(LOCAL_STORAGE_KEY_EVENTS);
+        }
     } catch (error) {
       console.error("Failed to save events to localStorage", error);
     }
@@ -167,22 +155,22 @@ export default function Home() {
     );
 
     if (isSameThemeAllMonth && happySabados.length > 0) {
-      const firstHappySabado = happySabados[0];
-      const themeTitle = `Happy Sábado - ${firstHappySabado.subtitle}`;
-      const themeDescription = `Todos os sábados do mês de ${monthOfEvents}.\n${firstHappySabado.description}`;
-
-      const unifiedHappySabadoEvent: EventData = {
-        ...firstHappySabado,
-        id: "unified_happy_sabado",
-        title: themeTitle,
-        description: themeDescription,
-        date: "", // No individual date
-        startTime: "", // No individual time
-        endTime: "",
-        isActive: true,
-      };
-
-      const processedHappySabados = [unifiedHappySabadoEvent];
+        const firstHappySabado = happySabados[0];
+        const themeTitle = `Happy Sábado - ${firstHappySabado.subtitle}`;
+        const themeDescription = `Todos os sábados do mês de ${monthOfEvents}.\n${firstHappySabado.description}`;
+        
+        const unifiedHappySabadoEvent: EventData = {
+            ...firstHappySabado,
+            id: 'unified_happy_sabado',
+            title: themeTitle,
+            description: themeDescription,
+            date: '', // No individual date
+            startTime: '', // No individual time
+            endTime: '',
+            isActive: true,
+        };
+        
+        const processedHappySabados = [unifiedHappySabadoEvent];
 
       const combinedEvents = [...otherEvents, ...processedHappySabados];
 
@@ -301,31 +289,21 @@ export default function Home() {
                         </CardDescription>
                       </CardHeader>
 
-                      {showSameThemeSwitch && (
-                        <div className="flex items-center space-x-2 pt-2">
-                          <Switch
-                            id="same-theme-switch"
-                            checked={isSameThemeAllMonth}
-                            onCheckedChange={setIsSameThemeAllMonth}
-                          />
-                          <Label htmlFor="same-theme-switch">
-                            Usar o mesmo tema para todos os sábados do mês
-                          </Label>
-                        </div>
-                      )}
-
-                      <Accordion
-                        type="multiple"
-                        defaultValue={events.map((e: EventData) => e.id!)}
-                        className="w-full pt-4"
-                      >
-                        {events.map((eventData: EventData) => (
-                          <AccordionItem
-                            value={eventData.id!}
-                            key={eventData.id}
-                            className="border-b-0"
-                          >
-                            <div className="border rounded-lg mb-4">
+                    {showSameThemeSwitch && (
+                      <div className="flex items-center space-x-2 pt-2">
+                        <Switch
+                          id="same-theme-switch"
+                          checked={isSameThemeAllMonth}
+                          onCheckedChange={setIsSameThemeAllMonth}
+                        />
+                        <Label htmlFor="same-theme-switch">Usar o mesmo tema para todos os sábados do mês</Label>
+                      </div>
+                    )}
+                    
+                    <Accordion type="multiple" defaultValue={events.map(e => e.id!)} className="w-full pt-4">
+                      {events.map((eventData) => (
+                        <AccordionItem value={eventData.id!} key={eventData.id} className="border-b-0">
+                          <div className="border rounded-lg mb-4">
                               <AccordionTrigger className="p-4 hover:no-underline">
                                 <div className="flex-1 text-left">
                                   <p className="font-semibold">
@@ -362,52 +340,40 @@ export default function Home() {
                         ))}
                       </Accordion>
 
-                      {events.length < MAX_EVENTS && (
-                        <Button
-                          onClick={handleAddEvent}
-                          className="w-full mt-4"
-                          variant="outline"
-                        >
-                          <PlusCircle className="mr-2 h-4 w-4" />
-                          Adicionar Evento
-                        </Button>
-                      )}
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
+                    {events.length < MAX_EVENTS && (
+                      <Button onClick={handleAddEvent} className="w-full mt-4" variant="outline">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Adicionar Evento
+                      </Button>
+                    )}
+                </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
 
-            <div className="flex flex-col items-center justify-start gap-6 lg:sticky lg:top-8">
-              <div className="no-print flex flex-col sm:flex-row items-center gap-2 w-full max-w-xs">
-                <Button
-                  onClick={() => setViewMode("events")}
-                  variant={viewMode === "events" ? "default" : "outline"}
-                  className="w-full"
-                >
-                  Eventos
+          <div className="flex flex-col items-center justify-start gap-6 lg:sticky lg:top-8">
+            <div className="no-print flex flex-col sm:flex-row items-center gap-2 w-full max-w-xs">
+                <Button onClick={() => setViewMode('events')} variant={viewMode === 'events' ? 'default' : 'outline'} className="w-full">
+                    Eventos
                 </Button>
-                <Button
-                  onClick={() => setViewMode("discount")}
-                  variant={viewMode === "discount" ? "default" : "outline"}
-                  className="w-full"
-                >
-                  Cupom Desconto
+                <Button onClick={() => setViewMode('discount')} variant={viewMode === 'discount' ? 'default' : 'outline'} className="w-full">
+                    Cupom Desconto
                 </Button>
-              </div>
+            </div>
 
-              <div id="print-container">
-                {viewMode === "events" ? (
+            <div id="print-container">
+              {viewMode === 'events' ? (
                   <PrintContainer
                     storeName={storeName}
                     events={enhancedEvents}
                     whatsapp={whatsapp}
                     instagram={instagram}
                   />
-                ) : (
+              ) : (
                   <DiscountCoupon storeName={storeName} />
-                )}
-              </div>
+              )}
+            </div>
 
               <div className="flex w-full max-w-xs items-center gap-2 no-print">
                 <Button
