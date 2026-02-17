@@ -341,6 +341,17 @@ export default function Home() {
                    <CardTitle className="text-[#E10098]">Cupom de 10% OFF</CardTitle>
                    <CardDescription>Ideal para oferecer como bônus na retirada de pedidos online.</CardDescription>
                 </CardHeader>
+                <CardContent className="pt-4">
+                    <div className="bg-[#E10098]/5 rounded-2xl p-6 border border-[#E10098]/10 text-[#E10098]">
+                      <p className="font-bold flex items-center gap-2">
+                         <TicketPercent className="h-5 w-5" />
+                         Estratégia de Vendas
+                      </p>
+                      <p className="mt-2 text-sm leading-relaxed font-medium">
+                        Ofereça este cupom como um bônus imediato para o cliente completar a brincadeira com mais um presente da loja física.
+                      </p>
+                    </div>
+                </CardContent>
               </Card>
             )}
           </div>
