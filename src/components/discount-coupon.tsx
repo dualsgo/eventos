@@ -17,50 +17,44 @@ export function DiscountCoupon({ storeName }: DiscountCouponProps) {
       className="receipt p-4 font-code shadow-lg transition-all relative overflow-hidden bg-white text-black text-center border-none"
       style={{ width: `${RECEIPT_WIDTH_PX}px`, minHeight: `${RECEIPT_MIN_HEIGHT_PX}px` }}
     >
-      {/* Cabeçalho Institucional */}
+      {/* Cabeçalho */}
       <div className="text-center mb-2">
         <h1 className="font-bold text-sm uppercase leading-tight tracking-tight">RI HAPPY - {storeName || 'LOJA'}</h1>
-        <p className="text-[10px] opacity-70 px-2 mt-1 leading-tight uppercase font-bold">
-          CUPOM DE DESCONTO EXCLUSIVO PARA COMPRA ADICIONAL NA RETIRADA DO PEDIDO ONLINE
-        </p>
+        <p className="text-[10px] font-bold mt-1 uppercase">Cupom Retirada Online</p>
       </div>
 
       <p className="text-xs my-1 text-center opacity-30">{separator}</p>
       
-      <div className="py-4 flex flex-col items-center">
-        <h2 className="font-bold text-base uppercase tracking-widest leading-none mb-2">VOCÊ GANHOU!</h2>
+      <div className="py-2 flex flex-col items-center">
+        <h2 className="font-bold text-sm uppercase tracking-widest mb-1">VOCÊ GANHOU!</h2>
         
-        {/* Desconto Massivo */}
-        <div className="flex flex-col items-center justify-center my-1">
-          <span className="font-bold text-[100px] leading-none tracking-tighter">10%</span>
-          <span className="font-bold text-4xl -mt-3 tracking-widest uppercase">OFF</span>
+        {/* Desconto Massivo - O Coração do Cupom */}
+        <div className="flex flex-col items-center justify-center">
+          <span className="font-bold text-[110px] leading-none tracking-tighter">10%</span>
+          <span className="font-bold text-4xl -mt-4 tracking-[0.2em] uppercase">OFF</span>
         </div>
 
-        {/* Mensagem de Incentivo em Destaque */}
-        <div className="border-2 border-black border-dashed p-2 my-4 w-full bg-gray-50">
-           <p className="font-bold text-sm uppercase leading-tight">Aproveite para completar a brincadeira!</p>
+        {/* Regra de Ouro */}
+        <div className="border-2 border-black border-dashed p-2 my-3 w-full">
+           <p className="font-bold text-xs uppercase leading-tight">Válido para compra adicional</p>
+           <p className="font-bold text-xs uppercase leading-tight">NA RETIRADA DO SEU PEDIDO</p>
         </div>
         
-        <p className="text-xs font-bold uppercase mt-1">NA RETIRADA DO SEU PEDIDO ONLINE</p>
+        <p className="text-[11px] font-bold italic uppercase">Aproveite para completar a brincadeira!</p>
       </div>
 
       <p className="text-xs my-1 text-center opacity-30">{separator}</p>
       
-      {/* Condições Claras */}
-      <div className="text-center text-[10px] mt-2 px-1 leading-tight font-medium">
-        <p>Válido para a compra de qualquer produto na loja na data da retirada do seu pedido.</p>
+      {/* Controle Interno Ultra-Simples */}
+      <div className="text-center py-2">
+        <p className="font-bold uppercase text-base tracking-tighter">ADICIONAL: ( ) SIM ( ) NÃO</p>
       </div>
       
-      <p className="text-xs my-1 mt-6 text-center opacity-30">{separator}</p>
+      <p className="text-xs my-1 text-center opacity-30">{separator}</p>
       
-      {/* Controle Interno Simplificado */}
-      <div className="text-center text-[12px] mt-2 py-1">
-        <p className="font-bold uppercase tracking-tight text-base">Adicional ( ) Sim ( ) Não</p>
-      </div>
-
-      <div className="mt-6 mb-2">
-          <p className="text-[10px] font-bold uppercase">Consulte condições de uso com</p>
-          <p className="text-[10px] font-bold uppercase underline">UM DE NOSSOS ATENDENTES da loja.</p>
+      <div className="mt-2 text-center">
+          <p className="text-[9px] font-bold uppercase leading-tight">Consulte um de nossos atendentes.</p>
+          <p className="text-[8px] uppercase mt-2 opacity-50">Informativo Interno - Ri Happy</p>
       </div>
 
       {/* Efeito visual de papel rasgado (apenas para tela) */}
