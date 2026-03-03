@@ -186,13 +186,13 @@ export function EventForm({
     }
   }, [initialData, form]);
 
-  // Monitor all changes and notify parent
+  // Monitor all changes and notify parent instantly for real-time preview
   useEffect(() => {
     const subscription = form.watch((value) => {
-      const result = eventFormSchema.safeParse(value);
-      if (result.success) {
-        onDataChangeRef.current(result.data as EventData);
-      }
+      // Send raw data directly for real-time sync instead of waiting for full validation
+      // Ensure we always have the ID since form.watch might sometimes omit unregistered fields depending on the moment
+      const payload = { ...value, id: form.getValues('id') } as EventData;
+      onDataChangeRef.current(payload);
     });
     return () => subscription.unsubscribe();
   }, [form]);
@@ -269,14 +269,15 @@ export function EventForm({
             control={form.control}
             name="isActive"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+              <FormItem className="flex flex-row items-center space-x-3 space-y-0 bg-white/50 p-3 rounded-xl border border-zinc-200/50 w-full sm:w-auto">
                 <FormControl>
                   <Switch
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    className="data-[state=checked]:bg-emerald-500"
                   />
                 </FormControl>
-                <FormLabel className="cursor-pointer">Evento Ativo</FormLabel>
+                <FormLabel className="cursor-pointer font-semibold text-zinc-700">Evento Ativo</FormLabel>
               </FormItem>
             )}
           />
@@ -291,7 +292,7 @@ export function EventForm({
             name="predefinedEvent"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Evento Predefinido</FormLabel>
+                <FormLabel className="font-semibold text-zinc-700">Evento Predefinido</FormLabel>
                 <Select 
                   onValueChange={(val) => {
                     field.onChange(val);
@@ -300,7 +301,7 @@ export function EventForm({
                   value={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-zinc-200 rounded-xl h-11">
                       <SelectValue placeholder="Selecione um evento predefinido" />
                     </SelectTrigger>
                   </FormControl>
@@ -333,7 +334,7 @@ export function EventForm({
               name="subtitle"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Subtítulo do Happy Sábado</FormLabel>
+                  <FormLabel className="font-semibold text-zinc-700">Subtítulo do Happy Sábado</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Ex: Oficina de Slime"
@@ -343,6 +344,7 @@ export function EventForm({
                         form.setValue('title', PREDEFINED_EVENTS.happy_sabado.title + e.target.value);
                       }}
                       value={field.value ?? ""}
+                      className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-zinc-200 transition-all rounded-xl h-11"
                     />
                   </FormControl>
                   <FormMessage />
@@ -355,12 +357,13 @@ export function EventForm({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Título do Evento</FormLabel>
+                  <FormLabel className="font-semibold text-zinc-700">Título do Evento</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Ex: Lançamento do Novo Brinquedo"
                       {...field}
                       disabled={predefinedEvent !== "outro"}
+                      className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-zinc-200 transition-all rounded-xl h-11 disabled:opacity-50"
                     />
                   </FormControl>
                   <FormMessage />
@@ -374,7 +377,7 @@ export function EventForm({
             name="date"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Data</FormLabel>
+                <FormLabel className="font-semibold text-zinc-700">Data</FormLabel>
                 {suggestedDates.length > 0 && !isCustomDate ? (
                   <div className="flex flex-col gap-2">
                     <Select
@@ -388,7 +391,7 @@ export function EventForm({
                       }}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-zinc-200 rounded-xl h-11">
                           <SelectValue placeholder="Selecione uma data..." />
                         </SelectTrigger>
                       </FormControl>
@@ -405,7 +408,7 @@ export function EventForm({
                 ) : (
                   <div className="flex flex-col gap-2">
                      <FormControl>
-                       <Input type="date" {...field} />
+                       <Input type="date" {...field} className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-zinc-200 transition-all rounded-xl h-11" />
                      </FormControl>
                      {suggestedDates.length > 0 && (
                        <Button 
@@ -432,8 +435,8 @@ export function EventForm({
             control={form.control}
             name="timeFormat"
             render={({ field }) => (
-              <FormItem className="space-y-2">
-                <FormLabel>Formato do Horário</FormLabel>
+              <FormItem className="space-y-3">
+                <FormLabel className="font-semibold text-zinc-700">Formato do Horário</FormLabel>
                 <FormControl>
                   <RadioGroup
                     onValueChange={(val) => {
@@ -472,11 +475,11 @@ export function EventForm({
               name="startTime"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
+                  <FormLabel className="font-semibold text-zinc-700">
                     {timeFormat === "from" ? "Horário" : "Início"}
                   </FormLabel>
                   <FormControl>
-                    <Input type="time" {...field} />
+                    <Input type="time" {...field} className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-zinc-200 transition-all rounded-xl h-11" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -488,9 +491,9 @@ export function EventForm({
                 name="endTime"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Fim</FormLabel>
+                    <FormLabel className="font-semibold text-zinc-700">Fim</FormLabel>
                     <FormControl>
-                      <Input type="time" {...field} value={field.value ?? ""} />
+                      <Input type="time" {...field} value={field.value ?? ""} className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-zinc-200 transition-all rounded-xl h-11" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -503,11 +506,11 @@ export function EventForm({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Descrição</FormLabel>
+                <FormLabel className="font-semibold text-zinc-700">Descrição</FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="Descreva brevemente os detalhes do evento..."
-                    className="resize-none"
+                    className="resize-none bg-white/50 border-zinc-200 focus:ring-2 focus:ring-zinc-200 transition-all rounded-xl disabled:opacity-50"
                     rows={3}
                     {...field}
                     disabled={predefinedEvent !== "outro" && !field.value}

@@ -163,54 +163,49 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center bg-gray-50 p-4 sm:p-8">
+    <main className="flex min-h-screen w-full flex-col items-center bg-zinc-50/50 p-4 sm:p-8 font-sans">
       <div className="w-full max-w-6xl mx-auto">
-        <div className="text-center mb-8 no-print">
-           <h1 className="text-3xl sm:text-4xl font-bold text-[#E10098] font-headline drop-shadow-sm">
-             Gerador de Cupons Ri Happy
-           </h1>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          <div className="no-print space-y-6">
-            <Card className="shadow-sm border-none ring-1 ring-gray-200">
-              <CardHeader className="bg-white rounded-t-lg border-b pb-4">
-                <CardTitle className="text-xl font-headline flex items-center gap-2">
-                  <div className="h-8 w-1.5 bg-[#FFD700] rounded-full" />
+
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr,450px] gap-8 xl:gap-12 items-start">
+          <div className="no-print space-y-8">
+            <Card className="shadow-none border border-zinc-200/60 bg-white/60 backdrop-blur-xl transition-all hover:bg-white/80 rounded-2xl">
+              <CardHeader className="border-b border-zinc-100 pb-5">
+                <CardTitle className="text-lg font-bold flex items-center gap-2 text-zinc-800">
                   Informações da Loja
                 </CardTitle>
-                <CardDescription>Estes dados serão usados em todos os cupons.</CardDescription>
+                <CardDescription className="text-zinc-500">Estes dados serão usados no cabeçalho dos cupons.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 pt-6">
                 <div className="space-y-2">
-                  <Label htmlFor="storeName" className="text-gray-700">Nome da Unidade</Label>
+                  <Label htmlFor="storeName" className="text-zinc-700 font-semibold text-sm">Nome da Unidade</Label>
                   <Input 
                     id="storeName" 
                     value={storeName} 
                     onChange={(e) => setStoreName(e.target.value)} 
                     placeholder="Ex: Carioca Shopping"
-                    className="bg-gray-50 border-gray-200 focus:ring-[#E10098]"
+                    className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-11"
                   />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="space-y-2">
-                    <Label htmlFor="whatsapp" className="text-gray-700">WhatsApp</Label>
+                    <Label htmlFor="whatsapp" className="text-zinc-700 font-semibold text-sm">WhatsApp</Label>
                     <Input 
                       id="whatsapp" 
                       value={whatsapp} 
                       onChange={(e) => setWhatsapp(e.target.value)} 
                       placeholder="(21) 99999-8888"
-                      className="bg-gray-50 border-gray-200"
+                      className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-11"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="instagram" className="text-gray-700">Instagram</Label>
+                    <Label htmlFor="instagram" className="text-zinc-700 font-semibold text-sm">Instagram</Label>
                     <Input 
                       id="instagram" 
                       value={instagram} 
                       onChange={(e) => setInstagram(e.target.value)} 
                       placeholder="@rihappy"
-                      className="bg-gray-50 border-gray-200"
+                      className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-11"
                     />
                   </div>
                 </div>
@@ -218,13 +213,12 @@ export default function Home() {
             </Card>
 
             {viewMode === 'events' && (
-              <Card className="shadow-sm border-none ring-1 ring-gray-200">
-                <CardHeader className="bg-white rounded-t-lg border-b pb-4">
-                  <CardTitle className="text-xl font-headline flex items-center gap-2">
-                    <div className="h-8 w-1.5 bg-[#E10098] rounded-full" />
+              <Card className="shadow-none border border-zinc-200/60 bg-white/60 backdrop-blur-xl rounded-2xl">
+                <CardHeader className="border-b border-zinc-100 pb-5">
+                  <CardTitle className="text-lg font-bold flex items-center gap-2 text-zinc-800">
                     Gerenciar Eventos
                   </CardTitle>
-                  <CardDescription>Crie até {MAX_EVENTS} eventos. Apenas os ativos serão impressos.</CardDescription>
+                  <CardDescription className="text-zinc-500">Adicione até {MAX_EVENTS} eventos. Apenas os ativos serão impressos.</CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6">
                   {showSameThemeSwitch && (
@@ -240,15 +234,15 @@ export default function Home() {
                     </div>
                   )}
                   
-                  <Accordion type="multiple" className="w-full space-y-3">
+                  <Accordion type="multiple" className="w-full space-y-4">
                     {events.map((eventData) => (
                       <AccordionItem value={eventData.id!} key={eventData.id} className="border-none">
-                        <div className={`border rounded-xl transition-all ${eventData.isActive ? 'border-gray-200 bg-white' : 'border-dashed border-gray-300 bg-gray-50 opacity-80'}`}>
-                            <AccordionTrigger className="p-4 hover:no-underline">
-                              <div className="flex-1 text-left flex items-center gap-3">
-                                <div className={`h-3 w-3 rounded-full ${eventData.isActive ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+                        <div className={`border rounded-2xl transition-all shadow-sm ${eventData.isActive ? 'border-zinc-200 bg-white' : 'border-dashed border-zinc-200 bg-zinc-50/50 opacity-70'}`}>
+                            <AccordionTrigger className="px-5 py-4 hover:no-underline rounded-2xl">
+                              <div className="flex-1 text-left flex items-center gap-4">
+                                <div className={`h-2.5 w-2.5 rounded-full ${eventData.isActive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-zinc-300'}`} />
                                 <div>
-                                  <p className="font-bold text-gray-800">{eventData.title || "Novo Evento"}</p>
+                                  <p className="font-semibold text-zinc-800 text-sm">{eventData.title || "Novo Evento"}</p>
                                 </div>
                               </div>
                             </AccordionTrigger>
@@ -271,11 +265,11 @@ export default function Home() {
                   {events.length < MAX_EVENTS && (
                     <Button 
                       onClick={handleAddEvent} 
-                      className="w-full mt-8 py-8 border-dashed border-2 bg-white text-gray-500 hover:bg-[#E10098]/5 hover:text-[#E10098] hover:border-[#E10098] transition-all rounded-2xl" 
+                      className="w-full mt-6 py-6 border-dashed border-2 bg-transparent text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800 hover:border-zinc-300 transition-all rounded-2xl shadow-none" 
                       variant="outline"
                     >
-                      <PlusCircle className="mr-3 h-6 w-6" />
-                      <span className="text-base font-bold">Adicionar Novo Evento</span>
+                      <PlusCircle className="mr-2 h-5 w-5" />
+                      <span className="text-sm font-semibold">Adicionar Novo Evento</span>
                     </Button>
                   )}
                 </CardContent>
@@ -284,10 +278,7 @@ export default function Home() {
 
             {viewMode === 'discount' && (
               <Card className="shadow-sm border-none ring-1 ring-gray-200 bg-[#E10098]/5">
-                <CardHeader>
-                   <CardTitle className="text-[#E10098]">Cupom de 10% OFF</CardTitle>
-                   <CardDescription>Ideal para oferecer como bônus na retirada de pedidos online.</CardDescription>
-                </CardHeader>
+
                 <CardContent className="pt-4">
                     <div className="bg-[#E10098]/5 rounded-2xl p-6 border border-[#E10098]/10 text-[#E10098]">
                       <p className="font-bold flex items-center gap-2 mb-4">
@@ -306,25 +297,25 @@ export default function Home() {
             )}
           </div>
 
-          <div className="flex flex-col items-center justify-start gap-8 lg:sticky lg:top-8">
-            <div className="no-print flex flex-col sm:flex-row p-1 bg-gray-200 rounded-2xl w-full max-w-md gap-1">
+          <div className="flex flex-col items-center justify-start gap-6 lg:sticky lg:top-8 w-full">
+            <div className="no-print flex p-1.5 bg-zinc-200/50 backdrop-blur-md rounded-2xl w-full max-w-sm gap-1 border border-zinc-200/50 shadow-inner">
                 <button 
                   onClick={() => setViewMode('events')} 
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${viewMode === 'events' ? 'bg-white shadow-sm text-[#E10098]' : 'text-gray-600 hover:text-gray-900'}`}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${viewMode === 'events' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
                 >
                     <CalendarDays className="h-4 w-4" />
                     Eventos
                 </button>
                 <button 
                   onClick={() => setViewMode('discount')} 
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${viewMode === 'discount' ? 'bg-white shadow-sm text-[#E10098]' : 'text-gray-600 hover:text-gray-900'}`}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${viewMode === 'discount' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
                 >
                     <TicketPercent className="h-4 w-4" />
                     Cupom 10%
                 </button>
             </div>
 
-            <div id="print-container" className="shadow-2xl rounded-sm">
+            <div id="print-container" className="w-[380px] origin-top md:scale-100 flex justify-center shrink-0">
               {viewMode === 'events' ? (
                   <PrintContainer
                     storeName={storeName}
@@ -337,15 +328,12 @@ export default function Home() {
               )}
             </div>
 
-            <div className="flex w-full max-w-sm flex-col gap-4 no-print">
-              <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-100 rounded-xl text-blue-700 text-xs font-medium">
-                <Info className="h-4 w-4 shrink-0" />
-                <p>Dica: Entregue o informativo junto com a nota fiscal ao fim de cada atendimento.</p>
-              </div>
+            <div className="flex w-full max-w-[380px] flex-col gap-4 no-print mt-2">
+
               
-              <Button onClick={() => window.print()} className="w-full bg-[#E10098] hover:bg-[#C00082] text-white py-8 rounded-2xl shadow-lg shadow-[#E10098]/20" size="lg">
-                <Printer className="mr-3 h-6 w-6" />
-                <span className="text-lg font-bold">Imprimir Informativo</span>
+              <Button onClick={() => window.print()} className="w-full bg-zinc-900 hover:bg-zinc-800 text-white py-6 rounded-2xl shadow-lg transition-transform active:scale-[0.98]" size="lg">
+                <Printer className="mr-3 h-5 w-5" />
+                <span className="text-base font-semibold">Imprimir Agora</span>
               </Button>
             </div>
           </div>

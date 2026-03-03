@@ -33,13 +33,20 @@ export function PrintPreview({ data }: PrintPreviewProps) {
 
   const formatTimeRange = () => {
     let timeText = '';
-    if (startTime) {
-      timeText += `A PARTIR DE: ${startTime}`;
-    }
-    if (endTime) {
-      timeText += ` ATÉ ${endTime} HORAS`;
-    } else if (startTime) {
-      timeText += ' HORAS';
+    
+    const formatTimeStr = (timeStr: string) => {
+      if (!timeStr) return '';
+      const [hours, minutes] = timeStr.split(':');
+      if (minutes === '00') {
+        return `${hours}h`;
+      }
+      return `${hours}h${minutes}`;
+    };
+
+    if (startTime && !endTime) {
+      timeText = `A partir das ${formatTimeStr(startTime)}`;
+    } else if (startTime && endTime) {
+      timeText = `Das ${formatTimeStr(startTime)} às ${formatTimeStr(endTime)}`;
     }
     return timeText || null;
   }

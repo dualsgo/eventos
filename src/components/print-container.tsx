@@ -58,10 +58,7 @@ export function PrintContainer({ events, storeName, whatsapp, instagram }: Print
         </>
       )}
 
-      <div className="mt-4 pt-2 border-t border-dotted border-black">
-         <p className="text-[8px] uppercase font-bold opacity-60">Informativo Interno - Ri Happy Brinquedos</p>
-      </div>
-      
+
       {/* Efeito visual de papel rasgado (apenas tela) */}
       <div 
         className="torn-effect absolute bottom-0 left-0 right-0 h-3 bg-repeat-x no-print"
