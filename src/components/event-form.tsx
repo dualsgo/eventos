@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -85,6 +85,27 @@ const getNextDayOfWeekAdvanced = (dayOfWeek: number): string => {
   return result.toISOString().split("T")[0];
 };
 
+const getUpcomingDates = (dayOfWeek: number, count: number = 4): string[] => {
+  const dates = [];
+  const now = new Date();
+  const result = new Date(now);
+  result.setDate(now.getDate() + ((dayOfWeek + (7 - now.getDay())) % 7));
+  if (result.getDate() === now.getDate()) {
+    result.setDate(result.getDate() + 7);
+  }
+  for (let i = 0; i < count; i++) {
+    dates.push(new Date(result));
+    result.setDate(result.getDate() + 7);
+  }
+  return dates.map((d) => d.toISOString().split("T")[0]);
+};
+
+const formatDateToBr = (dateStr: string) => {
+  if (!dateStr) return "";
+  const [year, month, day] = dateStr.split("-");
+  return `${day}/${month}/${year}`;
+};
+
 const PREDEFINED_EVENTS = {
   pokemon: {
     title: "Troca de cartas POKEMON",
@@ -150,6 +171,8 @@ export function EventForm({
     mode: "onChange",
   });
 
+  const [isCustomDate, setIsCustomDate] = useState(false);
+
   const timeFormat = form.watch("timeFormat");
   const predefinedEvent = form.watch("predefinedEvent");
   
@@ -178,6 +201,8 @@ export function EventForm({
     const eventKey = val as keyof typeof PREDEFINED_EVENTS;
     const predefined = PREDEFINED_EVENTS[eventKey] || PREDEFINED_EVENTS.outro;
 
+    setIsCustomDate(false);
+
     const currentValues = form.getValues();
     const newSubtitle = eventKey === "happy_sabado" ? currentValues.subtitle || "" : "";
     const newTitle = eventKey === "happy_sabado" ? predefined.title + newSubtitle : predefined.title;
@@ -201,6 +226,29 @@ export function EventForm({
   const isDisabled = isSameThemeAllMonth && predefinedEvent === "happy_sabado";
   const isHappySabado = predefinedEvent === "happy_sabado";
 
+  const suggestedDates = useMemo(() => {
+    if (predefinedEvent === "pokemon" || predefinedEvent === "uno_beyblade" || predefinedEvent === "hotwheels") {
+      return getUpcomingDates(5, 5); // Fridays
+    }
+    if (predefinedEvent === "happy_sabado") {
+      return getUpcomingDates(6, 5); // Saturdays
+    }
+    return [];
+  }, [predefinedEvent]);
+
+  // Check if current date is in suggested dates
+  const dateValue = form.watch("date");
+  const isCurrentDateSuggested = suggestedDates.includes(dateValue);
+  
+  // Update custom date state if user has a valid initial data that isn't suggested
+  useEffect(() => {
+    if (suggestedDates.length > 0 && dateValue && !isCurrentDateSuggested && !isCustomDate) {
+      if (initialData.id === form.getValues('id')) {
+         setIsCustomDate(true);
+      }
+    }
+  }, [suggestedDates, dateValue, isCurrentDateSuggested, initialData.id, form, isCustomDate]);
+  
   return (
     <Form {...form}>
       <form className="space-y-6 relative">
@@ -327,9 +375,54 @@ export function EventForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Data</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
+                {suggestedDates.length > 0 && !isCustomDate ? (
+                  <div className="flex flex-col gap-2">
+                    <Select
+                      value={isCurrentDateSuggested ? field.value : "custom"}
+                      onValueChange={(val) => {
+                        if (val === "custom") {
+                          setIsCustomDate(true);
+                        } else {
+                          field.onChange(val);
+                        }
+                      }}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione uma data..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {suggestedDates.map((d) => (
+                          <SelectItem key={d} value={d}>
+                            {formatDateToBr(d)} {predefinedEvent === "happy_sabado" ? "(Sábado)" : "(Sexta)"}
+                          </SelectItem>
+                        ))}
+                        <SelectItem value="custom">Outra data...</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                     <FormControl>
+                       <Input type="date" {...field} />
+                     </FormControl>
+                     {suggestedDates.length > 0 && (
+                       <Button 
+                         type="button" 
+                         variant="link" 
+                         size="sm" 
+                         onClick={() => {
+                           setIsCustomDate(false);
+                           field.onChange(suggestedDates[0]);
+                         }}
+                         className="self-start px-0 text-xs h-auto"
+                       >
+                         Voltar para datas sugeridas
+                       </Button>
+                     )}
+                  </div>
+                )}
                 <FormMessage />
               </FormItem>
             )}
