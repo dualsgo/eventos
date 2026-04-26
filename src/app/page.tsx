@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label';
 import { PlusCircle, Printer, CalendarDays, TicketPercent, Info } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
+import { ExchangeSeal } from '@/components/exchange-seal';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const MAX_EVENTS = 4;
 const LOCAL_STORAGE_KEY_STORE = "eventPrinter.storeName";
@@ -18,7 +20,32 @@ const LOCAL_STORAGE_KEY_WHATSAPP = "eventPrinter.whatsapp";
 const LOCAL_STORAGE_KEY_INSTAGRAM = "eventPrinter.instagram";
 const LOCAL_STORAGE_KEY_EVENTS = "eventPrinter.events";
 
-type ViewMode = 'events' | 'discount';
+type ViewMode = 'events' | 'discount' | 'exchange_seal';
+
+export const STORES = [
+  { code: "1030", name: "NOVA AMÉRICA" },
+  { code: "1033", name: "NORTESHOPPING" },
+  { code: "1052", name: "BANGU" },
+  { code: "1057", name: "IGUATEMI RJ" },
+  { code: "1058", name: "VIA PARQUE" },
+  { code: "1072", name: "GRANDE RIO" },
+  { code: "1078", name: "ILHA PLAZA" },
+  { code: "1101", name: "PARTEGE SÃO GONÇALO" },
+  { code: "1106", name: "SHOPPING METROPOLITANO BARRA" },
+  { code: "1141", name: "AMÉRICA SHOPPING" },
+  { code: "1169", name: "NOVA IGUAÇU" },
+  { code: "1187", name: "CARIOCA SHOPPING" },
+  { code: "1224", name: "TOP SHOPPING" },
+  { code: "1232", name: "BARRA SHOPPING" },
+  { code: "1239", name: "SHOPPING RECREIO" },
+  { code: "1300", name: "ECO VILLA" },
+  { code: "1301", name: "IPANEMA" },
+  { code: "1304", name: "PARK JACAREPAGUÁ" },
+  { code: "1335", name: "PLAZA NITERÓI" },
+  { code: "1337", name: "PARQUE CAMPO GRANDE" },
+  { code: "9014", name: "RIO DESIGN" },
+  { code: "9094", name: "BARRA SHOPPING" },
+];
 
 const initialEvent: EventData = {
   id: `evt_${Math.random()}`,
@@ -40,6 +67,8 @@ export default function Home() {
   const [events, setEvents] = useState<EventData[]>([initialEvent]);
   const [isSameThemeAllMonth, setIsSameThemeAllMonth] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("events");
+  const [exchangeOrigin, setExchangeOrigin] = useState<'Ifood' | 'Rappi' | 'Site'>('Ifood');
+  const [exchangeStore, setExchangeStore] = useState('1030');
 
   useEffect(() => {
     try {
@@ -295,6 +324,49 @@ export default function Home() {
                 </CardContent>
               </Card>
             )}
+
+            {viewMode === 'exchange_seal' && (
+              <Card className="shadow-none border border-zinc-200/60 bg-white/60 backdrop-blur-xl rounded-2xl">
+                <CardHeader className="border-b border-zinc-100 pb-5">
+                  <CardTitle className="text-lg font-bold flex items-center gap-2 text-zinc-800">
+                    Configurar Selo Troca
+                  </CardTitle>
+                  <CardDescription className="text-zinc-500">Selecione a origem e a unidade da loja.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6 pt-6">
+                  <div className="space-y-2">
+                    <Label className="text-zinc-700 font-semibold text-sm">Origem</Label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {(['Ifood', 'Rappi', 'Site'] as const).map((origin) => (
+                        <button
+                          key={origin}
+                          onClick={() => setExchangeOrigin(origin)}
+                          className={`py-3 px-4 rounded-xl text-sm font-bold border-2 transition-all ${exchangeOrigin === origin ? 'border-[#E10098] bg-[#E10098]/10 text-[#E10098]' : 'border-zinc-200 text-zinc-500 hover:border-zinc-300'}`}
+                        >
+                          {origin}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="exchangeStore" className="text-zinc-700 font-semibold text-sm">Loja (4 dígitos)</Label>
+                    <Select value={exchangeStore} onValueChange={setExchangeStore}>
+                      <SelectTrigger className="h-11 bg-white/50 border-zinc-200 rounded-xl">
+                        <SelectValue placeholder="Selecione a loja" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {STORES.map((store) => (
+                          <SelectItem key={store.code} value={store.code}>
+                            {store.code} - {store.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           <div className="flex flex-col items-center justify-start gap-6 lg:sticky lg:top-8 w-full">
@@ -313,9 +385,16 @@ export default function Home() {
                     <TicketPercent className="h-4 w-4" />
                     Cupom 10%
                 </button>
+                <button 
+                  onClick={() => setViewMode('exchange_seal')} 
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${viewMode === 'exchange_seal' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
+                >
+                    <Info className="h-4 w-4" />
+                    Selo Troca
+                </button>
             </div>
 
-            <div id="print-container" className="w-[380px] origin-top md:scale-100 flex justify-center shrink-0">
+            <div id="print-container" className="w-full lg:w-[450px] overflow-x-auto no-scrollbar origin-top md:scale-100 flex justify-center shrink-0 py-4">
               {viewMode === 'events' ? (
                   <PrintContainer
                     storeName={storeName}
@@ -323,12 +402,14 @@ export default function Home() {
                     whatsapp={whatsapp}
                     instagram={instagram}
                   />
-              ) : (
+              ) : viewMode === 'discount' ? (
                   <DiscountCoupon storeName={storeName} />
+              ) : (
+                  <ExchangeSeal origin={exchangeOrigin} storeCode={exchangeStore} />
               )}
             </div>
 
-            <div className="flex w-full max-w-[380px] flex-col gap-4 no-print mt-2">
+            <div className="flex w-full max-w-[450px] flex-col gap-4 no-print mt-2">
 
               
               <Button onClick={() => window.print()} className="w-full bg-zinc-900 hover:bg-zinc-800 text-white py-6 rounded-2xl shadow-lg transition-transform active:scale-[0.98]" size="lg">

@@ -1,4 +1,4 @@
-# **App Name**: Event Printer
+# **App Name**: Ferramentas Ri Happy
 
 ## Core Features:
 

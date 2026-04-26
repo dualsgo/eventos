@@ -86,11 +86,12 @@
 @layer utilities {
   @media print {
     @page {
-      size: 80mm;
-      margin: 5mm;
+      size: 10.2cm 4.9cm;
+      margin: 0;
     }
     body {
       background-color: white !important;
+      overflow: hidden !important;
     }
     .no-print {
       display: none !important;
@@ -102,23 +103,35 @@
       visibility: visible;
       box-shadow: none !important;
       border: none !important;
+      overflow: visible !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
     #print-container {
       position: absolute;
       left: 0;
       top: 0;
-      width: 100%;
+      width: auto !important;
+      padding: 0 !important;
+      margin: 0 !important;
     }
     #print-container .receipt {
       background: white !important;
       color: black !important;
     }
-    #print-container .font-code {
-       font-size: 9pt !important;
-       line-height: 1.2 !important;
-    }
     #print-container .torn-effect {
       display: none;
+    }
+    /* Esconde scrollbars em navegadores baseados em Webkit */
+    #print-container::-webkit-scrollbar,
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    /* Esconde scrollbars em Firefox e IE/Edge */
+    #print-container,
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
   }
 }
