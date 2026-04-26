@@ -66,8 +66,8 @@ export default function Home() {
   const [instagram, setInstagram] = useState('');
   const [events, setEvents] = useState<EventData[]>([initialEvent]);
   const [isSameThemeAllMonth, setIsSameThemeAllMonth] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>("events");
-  const [exchangeOrigin, setExchangeOrigin] = useState<'Ifood' | 'Rappi' | 'Site'>('Ifood');
+  const [viewMode, setViewMode] = useState<ViewMode>("exchange_seal");
+  const [exchangeOrigin, setExchangeOrigin] = useState<'Pick-Up' | 'Site'>('Pick-Up');
   const [exchangeStore, setExchangeStore] = useState('1030');
 
   useEffect(() => {
@@ -97,6 +97,11 @@ export default function Home() {
     localStorage.setItem(LOCAL_STORAGE_KEY_INSTAGRAM, JSON.stringify(instagram));
     localStorage.setItem(LOCAL_STORAGE_KEY_EVENTS, JSON.stringify(events));
   }, [storeName, whatsapp, instagram, events]);
+
+  useEffect(() => {
+    document.body.classList.remove('print-events', 'print-discount', 'print-exchange_seal');
+    document.body.classList.add(`print-${viewMode}`);
+  }, [viewMode]);
 
   const showSameThemeSwitch = useMemo(() => {
     return events.some(event => event.predefinedEvent === 'happy_sabado');
@@ -337,7 +342,7 @@ export default function Home() {
                   <div className="space-y-2">
                     <Label className="text-zinc-700 font-semibold text-sm">Origem</Label>
                     <div className="grid grid-cols-3 gap-3">
-                      {(['Ifood', 'Rappi', 'Site'] as const).map((origin) => (
+                      {(['Pick-Up', 'Site'] as const).map((origin) => (
                         <button
                           key={origin}
                           onClick={() => setExchangeOrigin(origin)}
@@ -395,6 +400,27 @@ export default function Home() {
             </div>
 
             <div id="print-container" className="w-full lg:w-[450px] overflow-x-auto no-scrollbar origin-top md:scale-100 flex justify-center shrink-0 py-4">
+              {viewMode === 'exchange_seal' && (
+                <style>{`
+                  @media print {
+                    @page { 
+                      size: 110mm 50mm !important; 
+                      margin: 0 !important;
+                    }
+                    #print-container {
+                      width: 110mm !important;
+                      height: 50mm !important;
+                      display: flex !important;
+                      justify-content: center !important;
+                      align-items: center !important;
+                      position: absolute !important;
+                      left: 0 !important;
+                      top: 0 !important;
+                      overflow: hidden !important;
+                    }
+                  }
+                `}</style>
+              )}
               {viewMode === 'events' ? (
                   <PrintContainer
                     storeName={storeName}

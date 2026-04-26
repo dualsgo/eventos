@@ -86,7 +86,7 @@
 @layer utilities {
   @media print {
     @page {
-      size: 10.2cm 4.9cm;
+      size: 80mm auto;
       margin: 0;
     }
     body {
@@ -95,6 +95,12 @@
     }
     .no-print {
       display: none !important;
+    }
+    main {
+      min-height: 0 !important;
+      height: auto !important;
+      padding: 0 !important;
+      margin: 0 !important;
     }
     body * {
       visibility: hidden;
@@ -111,7 +117,7 @@
       position: absolute;
       left: 0;
       top: 0;
-      width: auto !important;
+      width: 80mm !important;
       padding: 0 !important;
       margin: 0 !important;
     }
