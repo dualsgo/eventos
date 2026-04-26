@@ -3,7 +3,7 @@
 import { Card } from '@/components/ui/card';
 
 interface ExchangeSealProps {
-  origin: 'Pick-Up' | 'Site';
+  origin: 'ADD PICKUP' | 'Site';
   storeCode: string;
 }
 
