@@ -61,19 +61,24 @@ const initialEvent: EventData = {
 };
 
 export default function Home() {
-  const [storeName, setStoreName] = useState('LOJA X');
+  const [selectedStoreCode, setSelectedStoreCode] = useState<string>('');
   const [whatsapp, setWhatsapp] = useState('');
   const [instagram, setInstagram] = useState('');
   const [events, setEvents] = useState<EventData[]>([initialEvent]);
   const [isSameThemeAllMonth, setIsSameThemeAllMonth] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("exchange_seal");
   const [exchangeOrigin, setExchangeOrigin] = useState<'ADD PICKUP' | 'Site'>('ADD PICKUP');
-  const [exchangeStore, setExchangeStore] = useState('1030');
+
+  // Derive store name for components that need it
+  const storeName = useMemo(() => {
+    const store = STORES.find(s => s.code === selectedStoreCode);
+    return store ? store.name : '';
+  }, [selectedStoreCode]);
 
   useEffect(() => {
     try {
-      const savedStoreName = localStorage.getItem(LOCAL_STORAGE_KEY_STORE);
-      if (savedStoreName) setStoreName(JSON.parse(savedStoreName));
+      const savedStoreCode = localStorage.getItem(LOCAL_STORAGE_KEY_STORE);
+      if (savedStoreCode) setSelectedStoreCode(JSON.parse(savedStoreCode));
       const savedWhatsapp = localStorage.getItem(LOCAL_STORAGE_KEY_WHATSAPP);
       if (savedWhatsapp) setWhatsapp(JSON.parse(savedWhatsapp));
       const savedInstagram = localStorage.getItem(LOCAL_STORAGE_KEY_INSTAGRAM);
@@ -92,11 +97,11 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_STORE, JSON.stringify(storeName));
+    localStorage.setItem(LOCAL_STORAGE_KEY_STORE, JSON.stringify(selectedStoreCode));
     localStorage.setItem(LOCAL_STORAGE_KEY_WHATSAPP, JSON.stringify(whatsapp));
     localStorage.setItem(LOCAL_STORAGE_KEY_INSTAGRAM, JSON.stringify(instagram));
     localStorage.setItem(LOCAL_STORAGE_KEY_EVENTS, JSON.stringify(events));
-  }, [storeName, whatsapp, instagram, events]);
+  }, [selectedStoreCode, whatsapp, instagram, events]);
 
   useEffect(() => {
     document.body.classList.remove('print-events', 'print-discount', 'print-exchange_seal');
@@ -197,73 +202,148 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center bg-zinc-50/50 p-4 sm:p-8 font-sans">
-      <div className="w-full max-w-6xl mx-auto">
+    <main className="flex min-h-screen w-full flex-col items-center bg-[#FFD200]/5 p-4 sm:p-8 font-sans relative overflow-hidden">
+      {/* Background Decorations */}
+      <div className="absolute top-[-5%] right-[-5%] opacity-[0.03] pointer-events-none no-print">
+        <img src="/assets/elemento-52.png" alt="" className="w-[500px]" />
+      </div>
+      <div className="absolute bottom-[-10%] left-[-5%] opacity-[0.03] pointer-events-none no-print">
+        <img src="/assets/elemento-30.png" alt="" className="w-[600px]" />
+      </div>
+      <div className="absolute top-[20%] left-[-10%] opacity-[0.02] pointer-events-none no-print rotate-12">
+        <img src="/assets/elemento-18.png" alt="" className="w-[400px]" />
+      </div>
 
+      <div className="w-full max-w-[1400px] mx-auto relative z-10">
+        
+        {/* HEADER BRANDING */}
+        <div className="flex flex-col md:flex-row items-center justify-between mb-10 no-print gap-6">
+          <div className="flex items-center gap-6">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-black text-zinc-800 tracking-tighter uppercase">Gerador de <span className="text-[#E10098]">Cupons</span></h1>
+            </div>
+          </div>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr,450px] gap-8 xl:gap-12 items-start">
-          <div className="no-print space-y-8">
-            <Card className="shadow-none border border-zinc-200/60 bg-white/60 backdrop-blur-xl transition-all hover:bg-white/80 rounded-2xl">
-              <CardHeader className="border-b border-zinc-100 pb-5">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 xl:gap-10 items-start">
+          
+          {/* COLUNA 1: IDENTIFICAÇÃO */}
+          <div className="no-print space-y-6">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="h-8 w-8 rounded-lg bg-[#E10098] flex items-center justify-center text-white font-bold text-lg shadow-[0_4px_10px_rgba(225,0,152,0.3)]">1</div>
+              <h2 className="text-xl font-bold text-zinc-800">Identificação</h2>
+            </div>
+            
+            <Card className="shadow-xl shadow-zinc-200/50 border-none bg-white/80 backdrop-blur-xl transition-all hover:bg-white rounded-3xl overflow-hidden relative">
+              <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                <img src="/assets/elemento-19.png" alt="" className="w-20" />
+              </div>
+              <CardHeader className="border-b border-zinc-100 pb-5 bg-white/50">
                 <CardTitle className="text-lg font-bold flex items-center gap-2 text-zinc-800">
-                  Informações da Loja
+                  Unidade
                 </CardTitle>
-                <CardDescription className="text-zinc-500">Estes dados serão usados no cabeçalho dos cupons.</CardDescription>
+                <CardDescription className="text-zinc-500">Dados obrigatórios para o cabeçalho.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4 pt-6">
+              <CardContent className="space-y-5 pt-6">
                 <div className="space-y-2">
-                  <Label htmlFor="storeName" className="text-zinc-700 font-semibold text-sm">Nome da Unidade</Label>
-                  <Input 
-                    id="storeName" 
-                    value={storeName} 
-                    onChange={(e) => setStoreName(e.target.value)} 
-                    placeholder="Ex: Carioca Shopping"
-                    className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-11"
-                  />
+                  <Label htmlFor="storeSelect" className="text-zinc-700 font-bold text-xs uppercase tracking-wider">Loja Ri Happy</Label>
+                  <Select value={selectedStoreCode} onValueChange={setSelectedStoreCode}>
+                    <SelectTrigger id="storeSelect" className="h-12 bg-white border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-2xl shadow-sm font-semibold">
+                      <SelectValue placeholder="Selecione a unidade..." />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl border-zinc-200 shadow-xl">
+                      {STORES.map((store) => (
+                        <SelectItem key={store.code} value={store.code} className="py-3 focus:bg-[#E10098]/5 focus:text-[#E10098] rounded-xl cursor-pointer">
+                          {store.code} - {store.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+                <div className="pt-2 space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="whatsapp" className="text-zinc-700 font-semibold text-sm">WhatsApp</Label>
+                    <Label htmlFor="whatsapp" className="text-zinc-700 font-bold text-xs uppercase tracking-wider">WhatsApp da Unidade</Label>
                     <Input 
                       id="whatsapp" 
                       value={whatsapp} 
                       onChange={(e) => setWhatsapp(e.target.value)} 
                       placeholder="(21) 99999-8888"
-                      className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-11"
+                      className="bg-white border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-2xl h-12 shadow-sm font-medium"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="instagram" className="text-zinc-700 font-semibold text-sm">Instagram</Label>
+                    <Label htmlFor="instagram" className="text-zinc-700 font-bold text-xs uppercase tracking-wider">Instagram</Label>
                     <Input 
                       id="instagram" 
                       value={instagram} 
                       onChange={(e) => setInstagram(e.target.value)} 
                       placeholder="@rihappy"
-                      className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-11"
+                      className="bg-white border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-2xl h-12 shadow-sm font-medium"
                     />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
+            {!selectedStoreCode && (
+              <div className="p-5 bg-amber-50 border border-amber-200 rounded-3xl flex gap-4 text-amber-800 shadow-sm animate-pulse">
+                <Info className="h-6 w-6 shrink-0 mt-0.5 text-amber-600" />
+                <p className="text-sm font-bold leading-tight uppercase tracking-tight">Atenção: Selecione uma loja para começar.</p>
+              </div>
+            )}
+          </div>
+
+          {/* COLUNA 2: CONFIGURAÇÃO */}
+          <div className="no-print space-y-6">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="h-8 w-8 rounded-lg bg-[#E10098] flex items-center justify-center text-white font-bold text-lg shadow-[0_4px_10px_rgba(225,0,152,0.3)]">2</div>
+              <h2 className="text-xl font-bold text-zinc-800">Configuração</h2>
+            </div>
+
+            <div className="no-print flex p-2 bg-zinc-200/40 backdrop-blur-md rounded-[24px] w-full gap-2 border border-white shadow-xl">
+                <button 
+                  onClick={() => setViewMode('exchange_seal')} 
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-black uppercase tracking-tighter transition-all duration-300 ${viewMode === 'exchange_seal' ? 'bg-[#E10098] text-white shadow-lg shadow-[#E10098]/30 scale-[1.02]' : 'text-zinc-500 hover:text-zinc-800 hover:bg-white/50'}`}
+                >
+                    <Info className="h-4 w-4" />
+                    Selo Troca
+                </button>
+                <button 
+                  onClick={() => setViewMode('events')} 
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-black uppercase tracking-tighter transition-all duration-300 ${viewMode === 'events' ? 'bg-[#E10098] text-white shadow-lg shadow-[#E10098]/30 scale-[1.02]' : 'text-zinc-500 hover:text-zinc-800 hover:bg-white/50'}`}
+                >
+                    <CalendarDays className="h-4 w-4" />
+                    Eventos
+                </button>
+                <button 
+                  onClick={() => setViewMode('discount')} 
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-black uppercase tracking-tighter transition-all duration-300 ${viewMode === 'discount' ? 'bg-[#E10098] text-white shadow-lg shadow-[#E10098]/30 scale-[1.02]' : 'text-zinc-500 hover:text-zinc-800 hover:bg-white/50'}`}
+                >
+                    <TicketPercent className="h-4 w-4" />
+                    Cupom
+                </button>
+            </div>
+
             {viewMode === 'events' && (
-              <Card className="shadow-none border border-zinc-200/60 bg-white/60 backdrop-blur-xl rounded-2xl">
+              <Card className="shadow-xl shadow-zinc-200/50 border-none bg-white/80 backdrop-blur-xl rounded-3xl overflow-hidden">
                 <CardHeader className="border-b border-zinc-100 pb-5">
                   <CardTitle className="text-lg font-bold flex items-center gap-2 text-zinc-800">
                     Gerenciar Eventos
                   </CardTitle>
-                  <CardDescription className="text-zinc-500">Adicione até {MAX_EVENTS} eventos. Apenas os ativos serão impressos.</CardDescription>
+                  <CardDescription className="text-zinc-500">Adicione até {MAX_EVENTS} eventos.</CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6">
                   {showSameThemeSwitch && (
-                    <div className="flex items-center space-x-2 py-3 mb-6 bg-yellow-50 border border-yellow-100 px-4 rounded-xl">
+                    <div className="flex items-center space-x-2 py-4 mb-6 bg-yellow-50 border border-yellow-200 px-5 rounded-2xl shadow-sm">
                       <Switch
                         id="same-theme-switch"
                         checked={isSameThemeAllMonth}
                         onCheckedChange={setIsSameThemeAllMonth}
+                        className="data-[state=checked]:bg-[#E10098]"
                       />
-                      <Label htmlFor="same-theme-switch" className="cursor-pointer text-sm font-semibold text-yellow-800">
-                        Unificar todos os sábados em um único bloco temático
+                      <Label htmlFor="same-theme-switch" className="cursor-pointer text-sm font-bold text-yellow-800 uppercase tracking-tight">
+                        Unificar todos os sábados do mês
                       </Label>
                     </div>
                   )}
@@ -271,17 +351,17 @@ export default function Home() {
                   <Accordion type="multiple" className="w-full space-y-4">
                     {events.map((eventData) => (
                       <AccordionItem value={eventData.id!} key={eventData.id} className="border-none">
-                        <div className={`border rounded-2xl transition-all shadow-sm ${eventData.isActive ? 'border-zinc-200 bg-white' : 'border-dashed border-zinc-200 bg-zinc-50/50 opacity-70'}`}>
-                            <AccordionTrigger className="px-5 py-4 hover:no-underline rounded-2xl">
+                        <div className={`border-2 rounded-[22px] transition-all duration-300 ${eventData.isActive ? 'border-zinc-100 bg-white shadow-sm' : 'border-dashed border-zinc-200 bg-zinc-50/50 opacity-70'}`}>
+                            <AccordionTrigger className="px-5 py-4 hover:no-underline rounded-[20px] group">
                               <div className="flex-1 text-left flex items-center gap-4">
-                                <div className={`h-2.5 w-2.5 rounded-full ${eventData.isActive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-zinc-300'}`} />
+                                <div className={`h-3 w-3 rounded-full transition-all duration-300 ${eventData.isActive ? 'bg-[#E10098] shadow-[0_0_12px_rgba(225,0,152,0.6)] scale-110' : 'bg-zinc-300'}`} />
                                 <div>
-                                  <p className="font-semibold text-zinc-800 text-sm">{eventData.title || "Novo Evento"}</p>
+                                  <p className="font-bold text-zinc-800 text-sm group-hover:text-[#E10098] transition-colors">{eventData.title || "Novo Evento"}</p>
                                 </div>
                               </div>
                             </AccordionTrigger>
                             <AccordionContent>
-                              <div className="border-t border-gray-100 p-4">
+                              <div className="border-t border-zinc-50 p-5 bg-zinc-50/30">
                                 <EventForm 
                                   onDataChange={(data) => handleDataChange(eventData.id!, data)} 
                                   initialData={eventData}
@@ -299,11 +379,11 @@ export default function Home() {
                   {events.length < MAX_EVENTS && (
                     <Button 
                       onClick={handleAddEvent} 
-                      className="w-full mt-6 py-6 border-dashed border-2 bg-transparent text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800 hover:border-zinc-300 transition-all rounded-2xl shadow-none" 
+                      className="w-full mt-6 py-7 border-dashed border-2 bg-zinc-50/50 text-zinc-500 hover:bg-white hover:text-[#E10098] hover:border-[#E10098] transition-all rounded-[22px] shadow-none group" 
                       variant="outline"
                     >
-                      <PlusCircle className="mr-2 h-5 w-5" />
-                      <span className="text-sm font-semibold">Adicionar Novo Evento</span>
+                      <PlusCircle className="mr-2 h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
+                      <span className="text-sm font-bold uppercase tracking-wider">Novo Evento</span>
                     </Button>
                   )}
                 </CardContent>
@@ -311,19 +391,38 @@ export default function Home() {
             )}
 
             {viewMode === 'discount' && (
-              <Card className="shadow-sm border-none ring-1 ring-gray-200 bg-[#E10098]/5">
-
-                <CardContent className="pt-4">
-                    <div className="bg-[#E10098]/5 rounded-2xl p-6 border border-[#E10098]/10 text-[#E10098]">
-                      <p className="font-bold flex items-center gap-2 mb-4">
+              <Card className="shadow-xl shadow-zinc-200/50 border-none bg-white/80 backdrop-blur-xl rounded-3xl overflow-hidden relative">
+                <div className="absolute top-[-20px] right-[-20px] opacity-10 pointer-events-none">
+                  <img src="/assets/elemento-32.png" alt="" className="w-40" />
+                </div>
+                <CardHeader className="border-b border-zinc-100 pb-5">
+                  <CardTitle className="text-lg font-bold flex items-center gap-2 text-zinc-800 uppercase tracking-tighter">
+                    Instruções de Uso
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6">
+                    <div className="bg-[#E10098]/5 rounded-3xl p-6 border border-[#E10098]/10 text-[#E10098] relative overflow-hidden">
+                      <p className="font-black flex items-center gap-2 mb-5 text-sm uppercase tracking-widest">
                          <TicketPercent className="h-5 w-5" />
-                         Boas Práticas
+                         Checklist do Sucesso
                       </p>
-                      <ul className="space-y-3 text-sm font-medium leading-tight list-disc pl-5">
-                        <li>Avise o cliente sobre o desconto assim que identificar que se trata de uma retirada de pedido online.</li>
-                        <li>Se possível, verifique o produto que está sendo retirado antes de buscá-lo no estoque para oferecer um complemento.</li>
-                        <li>Grampeie o cupom na frente do termo de retirada para o cliente visualizar enquanto assina.</li>
-                        <li>Reforce que o benefício é exclusivo e imediato, válido apenas para o momento.</li>
+                      <ul className="space-y-5 text-sm font-bold leading-tight">
+                        <li className="flex gap-3 items-start italic">
+                          <span className="h-5 w-5 rounded-full bg-[#E10098] text-white flex items-center justify-center text-[10px] shrink-0 mt-0.5 shadow-lg shadow-[#E10098]/20">1</span>
+                          Avise o cliente sobre o desconto assim que identificar a retirada.
+                        </li>
+                        <li className="flex gap-3 items-start italic">
+                          <span className="h-5 w-5 rounded-full bg-[#E10098] text-white flex items-center justify-center text-[10px] shrink-0 mt-0.5 shadow-lg shadow-[#E10098]/20">2</span>
+                          Verifique o produto antes de buscá-lo para oferecer complemento.
+                        </li>
+                        <li className="flex gap-3 items-start italic">
+                          <span className="h-5 w-5 rounded-full bg-[#E10098] text-white flex items-center justify-center text-[10px] shrink-0 mt-0.5 shadow-lg shadow-[#E10098]/20">3</span>
+                          Grampeie o cupom na frente do termo de retirada.
+                        </li>
+                        <li className="flex gap-3 items-start italic">
+                          <span className="h-5 w-5 rounded-full bg-[#E10098] text-white flex items-center justify-center text-[10px] shrink-0 mt-0.5 shadow-lg shadow-[#E10098]/20">4</span>
+                          Reforce que o benefício é exclusivo e imediato.
+                        </li>
                       </ul>
                     </div>
                 </CardContent>
@@ -331,22 +430,25 @@ export default function Home() {
             )}
 
             {viewMode === 'exchange_seal' && (
-              <Card className="shadow-none border border-zinc-200/60 bg-white/60 backdrop-blur-xl rounded-2xl">
+              <Card className="shadow-xl shadow-zinc-200/50 border-none bg-white/80 backdrop-blur-xl rounded-3xl overflow-hidden relative">
+                <div className="absolute top-[-10px] left-[-10px] opacity-10 pointer-events-none rotate-180">
+                  <img src="/assets/elemento-48.png" alt="" className="w-32" />
+                </div>
                 <CardHeader className="border-b border-zinc-100 pb-5">
                   <CardTitle className="text-lg font-bold flex items-center gap-2 text-zinc-800">
-                    Configurar Selo Troca
+                    Selo Troca
                   </CardTitle>
-                  <CardDescription className="text-zinc-500">Selecione a origem e a unidade da loja.</CardDescription>
+                  <CardDescription className="text-zinc-500 font-medium">Configuração rápida da origem.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6 pt-6">
-                  <div className="space-y-2">
-                    <Label className="text-zinc-700 font-semibold text-sm">Origem</Label>
-                    <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-3">
+                    <Label className="text-zinc-700 font-bold text-xs uppercase tracking-wider">Origem da Mercadoria</Label>
+                    <div className="grid grid-cols-2 gap-4">
                       {(['ADD PICKUP', 'Site'] as const).map((origin) => (
                         <button
                           key={origin}
                           onClick={() => setExchangeOrigin(origin)}
-                          className={`py-3 px-4 rounded-xl text-sm font-bold border-2 transition-all ${exchangeOrigin === origin ? 'border-[#E10098] bg-[#E10098]/10 text-[#E10098]' : 'border-zinc-200 text-zinc-500 hover:border-zinc-300'}`}
+                          className={`py-4 px-4 rounded-2xl text-sm font-black uppercase tracking-tighter border-2 transition-all duration-300 ${exchangeOrigin === origin ? 'border-[#E10098] bg-[#E10098]/10 text-[#E10098] shadow-md scale-[1.02]' : 'border-zinc-200 text-zinc-400 hover:border-zinc-300 hover:text-zinc-600 bg-white'}`}
                         >
                           {origin}
                         </button>
@@ -354,52 +456,33 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="exchangeStore" className="text-zinc-700 font-semibold text-sm">Loja (4 dígitos)</Label>
-                    <Select value={exchangeStore} onValueChange={setExchangeStore}>
-                      <SelectTrigger className="h-11 bg-white/50 border-zinc-200 rounded-xl">
-                        <SelectValue placeholder="Selecione a loja" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {STORES.map((store) => (
-                          <SelectItem key={store.code} value={store.code}>
-                            {store.code} - {store.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
                 </CardContent>
               </Card>
             )}
           </div>
 
+          {/* COLUNA 3: PREVIEW & PRINT */}
           <div className="flex flex-col items-center justify-start gap-6 lg:sticky lg:top-8 w-full">
-            <div className="no-print flex p-1.5 bg-zinc-200/50 backdrop-blur-md rounded-2xl w-full max-w-sm gap-1 border border-zinc-200/50 shadow-inner">
-                <button 
-                  onClick={() => setViewMode('events')} 
-                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${viewMode === 'events' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
-                >
-                    <CalendarDays className="h-4 w-4" />
-                    Eventos
-                </button>
-                <button 
-                  onClick={() => setViewMode('discount')} 
-                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${viewMode === 'discount' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
-                >
-                    <TicketPercent className="h-4 w-4" />
-                    Cupom 10%
-                </button>
-                <button 
-                  onClick={() => setViewMode('exchange_seal')} 
-                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${viewMode === 'exchange_seal' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
-                >
-                    <Info className="h-4 w-4" />
-                    Selo Troca
-                </button>
+            <div className="flex items-center gap-3 self-start mb-2 no-print">
+              <div className="h-8 w-8 rounded-lg bg-[#E10098] flex items-center justify-center text-white font-bold text-lg shadow-[0_4px_10px_rgba(225,0,152,0.3)]">3</div>
+              <h2 className="text-xl font-bold text-zinc-800">Visualização</h2>
             </div>
 
-            <div id="print-container" className="w-full lg:w-[450px] overflow-x-auto no-scrollbar origin-top md:scale-100 flex justify-center shrink-0 py-4">
+            <div id="print-container" className="w-full overflow-x-auto no-scrollbar origin-top md:scale-100 flex justify-center shrink-0 py-6 relative bg-white rounded-[40px] shadow-2xl border-8 border-zinc-50">
+              {!selectedStoreCode && (
+                <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex flex-col items-center justify-center p-12 text-center rounded-[32px] no-print">
+                  <div className="h-24 w-24 bg-[#FFD200]/20 rounded-full flex items-center justify-center mb-6 animate-bounce">
+                    <Printer className="h-10 w-10 text-[#E10098]" />
+                  </div>
+                  <h3 className="text-xl font-black text-zinc-800 mb-3 uppercase tracking-tighter">Aguardando Seleção</h3>
+                  <p className="text-sm text-zinc-500 font-medium leading-relaxed">Olá! Para gerar seu cupom, primeiro selecione sua unidade na coluna <span className="text-[#E10098] font-bold">Identificação</span>.</p>
+                  
+                  <div className="mt-8 opacity-20 grayscale">
+                    <img src="/assets/elemento-54.png" alt="" className="w-24" />
+                  </div>
+                </div>
+              )}
+              
               {viewMode === 'exchange_seal' && (
                 <style>{`
                   @media print {
@@ -431,21 +514,40 @@ export default function Home() {
               ) : viewMode === 'discount' ? (
                   <DiscountCoupon storeName={storeName} />
               ) : (
-                  <ExchangeSeal origin={exchangeOrigin} storeCode={exchangeStore} />
+                  <ExchangeSeal origin={exchangeOrigin} storeCode={selectedStoreCode} />
               )}
             </div>
 
-            <div className="flex w-full max-w-[450px] flex-col gap-4 no-print mt-2">
-
-              
-              <Button onClick={() => window.print()} className="w-full bg-zinc-900 hover:bg-zinc-800 text-white py-6 rounded-2xl shadow-lg transition-transform active:scale-[0.98]" size="lg">
-                <Printer className="mr-3 h-5 w-5" />
-                <span className="text-base font-semibold">Imprimir Agora</span>
+            <div className="flex w-full flex-col gap-4 no-print mt-2">
+              <Button 
+                onClick={() => window.print()} 
+                disabled={!selectedStoreCode}
+                className={`w-full py-8 rounded-[28px] shadow-2xl shadow-[#E10098]/20 transition-all active:scale-[0.98] ${selectedStoreCode ? 'bg-[#E10098] hover:bg-[#C00080] text-white scale-[1.01]' : 'bg-zinc-200 text-zinc-400 cursor-not-allowed'}`} 
+                size="lg"
+              >
+                <Printer className="mr-3 h-6 w-6" />
+                <span className="text-xl font-black uppercase tracking-tighter">Imprimir Agora</span>
               </Button>
+              
+              <div className="flex items-center justify-center gap-3 mt-2 text-zinc-400">
+                 <div className="h-[1px] flex-1 bg-zinc-100" />
+                 <p className="text-[10px] font-black uppercase tracking-[0.2em]">Dica Técnica</p>
+                 <div className="h-[1px] flex-1 bg-zinc-100" />
+              </div>
+              <p className="text-center text-[11px] text-zinc-400 font-bold leading-tight px-6 italic">
+                "Confirme se a impressora térmica está pronta. Use papéis de 80mm para melhor resultado."
+              </p>
             </div>
           </div>
         </div>
       </div>
+      
+      {/* Footer Decoration */}
+      <div className="w-full mt-20 py-10 no-print flex flex-col items-center gap-4 relative">
+         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-zinc-200 to-transparent" />
+         <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-[0.4em]">Gerador de Materiais de Ponto de Venda</p>
+      </div>
     </main>
   );
 }
+
