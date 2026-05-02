@@ -61,14 +61,14 @@ const initialEvent: EventData = {
 };
 
 export default function Home() {
-  const [storeName, setStoreName] = useState('LOJA X');
+  const [storeName, setStoreName] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
   const [instagram, setInstagram] = useState('');
   const [events, setEvents] = useState<EventData[]>([initialEvent]);
   const [isSameThemeAllMonth, setIsSameThemeAllMonth] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("exchange_seal");
   const [exchangeOrigin, setExchangeOrigin] = useState<'ADD PICKUP' | 'Site'>('ADD PICKUP');
-  const [exchangeStore, setExchangeStore] = useState('1030');
+  const [exchangeStore, setExchangeStore] = useState('');
 
   useEffect(() => {
     try {
@@ -421,6 +421,15 @@ export default function Home() {
                   }
                 `}</style>
               )}
+              {!((viewMode === 'exchange_seal' && exchangeStore) || (viewMode !== 'exchange_seal' && storeName)) && (
+                <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-8 text-center no-print">
+                  <div className="h-16 w-16 bg-[#E10098]/10 rounded-full flex items-center justify-center mb-4">
+                    <Info className="h-8 w-8 text-[#E10098]" />
+                  </div>
+                  <h3 className="text-lg font-bold text-zinc-900 mb-2">Atenção!</h3>
+                  <p className="text-sm text-zinc-500">Por favor, identifique a sua <b>unidade/loja</b> primeiro para habilitar a impressão.</p>
+                </div>
+              )}
               {viewMode === 'events' ? (
                   <PrintContainer
                     storeName={storeName}
@@ -438,7 +447,12 @@ export default function Home() {
             <div className="flex w-full max-w-[450px] flex-col gap-4 no-print mt-2">
 
               
-              <Button onClick={() => window.print()} className="w-full bg-zinc-900 hover:bg-zinc-800 text-white py-6 rounded-2xl shadow-lg transition-transform active:scale-[0.98]" size="lg">
+              <Button 
+                onClick={() => window.print()} 
+                disabled={!((viewMode === 'exchange_seal' && exchangeStore) || (viewMode !== 'exchange_seal' && storeName))}
+                className={`w-full py-6 rounded-2xl shadow-lg transition-all active:scale-[0.98] ${((viewMode === 'exchange_seal' && exchangeStore) || (viewMode !== 'exchange_seal' && storeName)) ? 'bg-zinc-900 hover:bg-zinc-800 text-white' : 'bg-zinc-200 text-zinc-400 cursor-not-allowed'}`} 
+                size="lg"
+              >
                 <Printer className="mr-3 h-5 w-5" />
                 <span className="text-base font-semibold">Imprimir Agora</span>
               </Button>
