@@ -499,7 +499,9 @@ export default function Home() {
                       position: absolute !important;
                       left: 0 !important;
                       top: 0 !important;
-                      overflow: hidden !important;
+                      visibility: visible !important;
+                      background: white !important;
+                      transform: none !important;
                     }
                   }
                 `}</style>

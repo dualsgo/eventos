@@ -89,9 +89,13 @@
       size: 80mm auto;
       margin: 0;
     }
-    body {
+    html, body {
       background-color: white !important;
-      overflow: hidden !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      height: auto !important;
+      min-height: 0 !important;
+      overflow: visible !important;
     }
     .no-print {
       display: none !important;
@@ -101,12 +105,34 @@
       height: auto !important;
       padding: 0 !important;
       margin: 0 !important;
+      display: block !important;
+      width: 100% !important;
     }
-    body * {
+    /* Ensure parents don't offset the absolute container */
+    main > div, 
+    main > div > div,
+    main > div > div > div {
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+      max-width: none !important;
+      position: static !important;
+    }
+    /* Hide everything in the body */
+    body > * {
+      display: none !important;
+    }
+    /* Except the main content area */
+    body > main {
+      display: block !important;
+    }
+    /* Hide everything inside main */
+    main * {
       visibility: hidden;
     }
+    /* Show only the print container and its contents */
     #print-container, #print-container * {
-      visibility: visible;
+      visibility: visible !important;
       box-shadow: none !important;
       border: none !important;
       overflow: visible !important;
@@ -114,30 +140,38 @@
       print-color-adjust: exact !important;
     }
     #print-container {
-      position: absolute;
-      left: 0;
-      top: 0;
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
       width: 80mm !important;
-      padding: 0 !important;
       margin: 0 !important;
+      padding: 0 !important;
+      background: white !important;
+      transform: none !important;
+      display: block !important;
+      z-index: 9999 !important;
     }
     #print-container .receipt {
       background: white !important;
       color: black !important;
+      width: 80mm !important;
+      margin: 0 !important;
+      padding: 10mm 5mm !important;
+      box-shadow: none !important;
+      border: none !important;
     }
     #print-container .torn-effect {
-      display: none;
+      display: none !important;
     }
-    /* Esconde scrollbars em navegadores baseados em Webkit */
+    /* Reset scrollbars */
     #print-container::-webkit-scrollbar,
     .no-scrollbar::-webkit-scrollbar {
-      display: none;
+      display: none !important;
     }
-    /* Esconde scrollbars em Firefox e IE/Edge */
     #print-container,
     .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
+      -ms-overflow-style: none !important;
+      scrollbar-width: none !important;
     }
   }
 }
