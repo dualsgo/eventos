@@ -63,6 +63,7 @@ const eventFormSchema = z
       .optional()
       .default(""),
     predefinedEvent: z.string().optional(),
+    brand: z.enum(["ri_happy", "pb_kids"]).default("ri_happy"),
     isActive: z.boolean().default(true),
   })
   .refine(
@@ -167,7 +168,10 @@ export function EventForm({
 }: EventFormProps) {
   const form = useForm<EventData>({
     resolver: zodResolver(eventFormSchema),
-    defaultValues: initialData,
+    defaultValues: {
+      ...initialData,
+      brand: initialData.brand ?? "ri_happy",
+    },
     mode: "onChange",
   });
 
@@ -217,6 +221,7 @@ export function EventForm({
       date: predefined.defaultDate(),
       timeFormat: predefined.timeFormat,
       subtitle: newSubtitle,
+      brand: currentValues.brand || "ri_happy",
     };
 
     form.reset(newValues);
@@ -287,6 +292,31 @@ export function EventForm({
           disabled={isDisabled}
           className={`space-y-6 ${isDisabled ? "opacity-50" : ""}`}
         >
+          <FormField
+            control={form.control}
+            name="brand"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-semibold text-zinc-700">Rede</FormLabel>
+                <Select
+                  onValueChange={(val) => field.onChange(val)}
+                  value={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-zinc-200 rounded-xl h-11">
+                      <SelectValue placeholder="Selecione a rede" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="ri_happy">Ri Happy</SelectItem>
+                    <SelectItem value="pb_kids">PB Kids</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="predefinedEvent"

@@ -9,13 +9,20 @@ interface PrintContainerProps {
   storeName: string;
   whatsapp?: string;
   instagram?: string;
+  brand?: 'ri_happy' | 'pb_kids';
 }
 
 const RECEIPT_WIDTH_PX = 302;
 const RECEIPT_MIN_HEIGHT_PX = 113;
 
-export function PrintContainer({ events, storeName, whatsapp, instagram }: PrintContainerProps) {
+const BRAND_LABELS: Record<'ri_happy' | 'pb_kids', string> = {
+  ri_happy: 'RI HAPPY',
+  pb_kids: 'PB KIDS',
+};
+
+export function PrintContainer({ events, storeName, whatsapp, instagram, brand }: PrintContainerProps) {
   const separator = "----------------------------------------";
+  const headerBrand = brand ? BRAND_LABELS[brand] : undefined;
 
   return (
     <Card
@@ -25,7 +32,9 @@ export function PrintContainer({ events, storeName, whatsapp, instagram }: Print
       {/* Header Estilo Nota Fiscal */}
       <div className="text-center mb-2">
         <h1 className="font-bold text-base uppercase leading-tight tracking-tight">PRÓXIMOS EVENTOS</h1>
-        <h2 className="font-bold text-sm break-words uppercase mt-1">RI HAPPY - {storeName || 'UNIDADE'}</h2>
+        <h2 className="font-bold text-sm break-words uppercase mt-1">
+          {headerBrand ? `${headerBrand} - ${storeName || 'UNIDADE'}` : storeName || 'UNIDADE'}
+        </h2>
       </div>
 
       <p className="text-xs my-2 text-center tracking-tighter opacity-30">{separator}</p>

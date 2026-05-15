@@ -22,7 +22,14 @@ const LOCAL_STORAGE_KEY_EVENTS = "eventPrinter.events";
 
 type ViewMode = 'events' | 'discount' | 'exchange_seal';
 
-export const STORES = [
+export type Brand = 'ri_happy' | 'pb_kids';
+
+const BRAND_LABELS: Record<Brand, string> = {
+  ri_happy: 'Ri Happy',
+  pb_kids: 'PB Kids',
+};
+
+const STORES = [
   { code: "1030", name: "NOVA AMÉRICA" },
   { code: "1033", name: "NORTESHOPPING" },
   { code: "1052", name: "BANGU" },
@@ -55,8 +62,7 @@ const initialEvent: EventData = {
   startTime: '14:00',
   endTime: '18:00',
   description: 'Uma breve descrição do evento que será impresso no papel térmico.',
-  predefinedEvent: 'outro',
-  isActive: true,
+  predefinedEvent: 'outro',  brand: 'ri_happy',  isActive: true,
   timeFormat: 'range',
 };
 
@@ -170,6 +176,17 @@ export default function Home() {
     }
   }, [sortedEvents, isSameThemeAllMonth, monthOfEvents]);
 
+  const eventBrandLabel = (brand?: Brand) => {
+    if (!brand) return "";
+    return BRAND_LABELS[brand] || "";
+  };
+
+  const currentBrand = useMemo(() => {
+    if (enhancedEvents.length === 0) return undefined;
+    const firstBrand = enhancedEvents[0].brand;
+    return enhancedEvents.every((event) => event.brand === firstBrand) ? firstBrand : undefined;
+  }, [enhancedEvents]);
+
   const handleAddEvent = () => {
     if (events.length < MAX_EVENTS) {
       const newEvent: EventData = {
@@ -181,6 +198,7 @@ export default function Home() {
         endTime: '20:00',
         description: '',
         predefinedEvent: 'outro',
+        brand: 'ri_happy',
         isActive: true,
         timeFormat: 'range',
       };
@@ -277,6 +295,7 @@ export default function Home() {
                                 <div className={`h-2.5 w-2.5 rounded-full ${eventData.isActive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-zinc-300'}`} />
                                 <div>
                                   <p className="font-semibold text-zinc-800 text-sm">{eventData.title || "Novo Evento"}</p>
+                                  <p className="text-xs uppercase text-zinc-500 mt-0.5">{eventBrandLabel(eventData.brand)}</p>
                                 </div>
                               </div>
                             </AccordionTrigger>
@@ -436,6 +455,7 @@ export default function Home() {
                     events={enhancedEvents}
                     whatsapp={whatsapp}
                     instagram={instagram}
+                    brand={currentBrand}
                   />
               ) : viewMode === 'discount' ? (
                   <DiscountCoupon storeName={storeName} />

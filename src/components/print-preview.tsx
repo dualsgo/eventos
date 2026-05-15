@@ -7,8 +7,13 @@ interface PrintPreviewProps {
   data: EventData;
 }
 
+const BRAND_LABELS: Record<string, string> = {
+  ri_happy: 'RI HAPPY',
+  pb_kids: 'PB KIDS',
+};
+
 export function PrintPreview({ data }: PrintPreviewProps) {
-  const { title, date, startTime, endTime, description, timeFormat } = data;
+  const { title, date, startTime, endTime, description, timeFormat, brand } = data;
 
   const formatDateWithWeekday = (dateString: string) => {
     try {
@@ -72,6 +77,11 @@ export function PrintPreview({ data }: PrintPreviewProps) {
 
   return (
     <div className="text-center">
+      {brand && (
+        <p className="text-[9px] uppercase tracking-[0.25em] opacity-50 mb-1">
+          {BRAND_LABELS[brand] || ""}
+        </p>
+      )}
       <h3 className="font-bold text-base break-words uppercase">
         {title || "SEU EVENTO AQUI"}
       </h3>
