@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const MAX_EVENTS = 4;
 const LOCAL_STORAGE_KEY_STORE = "eventPrinter.storeName";
+const LOCAL_STORAGE_KEY_BRAND = "eventPrinter.brand";
 const LOCAL_STORAGE_KEY_WHATSAPP = "eventPrinter.whatsapp";
 const LOCAL_STORAGE_KEY_INSTAGRAM = "eventPrinter.instagram";
 const LOCAL_STORAGE_KEY_EVENTS = "eventPrinter.events";
@@ -68,6 +69,7 @@ const initialEvent: EventData = {
 
 export default function Home() {
   const [storeName, setStoreName] = useState('');
+  const [brand, setBrand] = useState<Brand>('ri_happy');
   const [whatsapp, setWhatsapp] = useState('');
   const [instagram, setInstagram] = useState('');
   const [events, setEvents] = useState<EventData[]>([initialEvent]);
@@ -80,6 +82,8 @@ export default function Home() {
     try {
       const savedStoreName = localStorage.getItem(LOCAL_STORAGE_KEY_STORE);
       if (savedStoreName) setStoreName(JSON.parse(savedStoreName));
+      const savedBrand = localStorage.getItem(LOCAL_STORAGE_KEY_BRAND);
+      if (savedBrand) setBrand(JSON.parse(savedBrand));
       const savedWhatsapp = localStorage.getItem(LOCAL_STORAGE_KEY_WHATSAPP);
       if (savedWhatsapp) setWhatsapp(JSON.parse(savedWhatsapp));
       const savedInstagram = localStorage.getItem(LOCAL_STORAGE_KEY_INSTAGRAM);
@@ -99,10 +103,11 @@ export default function Home() {
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY_STORE, JSON.stringify(storeName));
+    localStorage.setItem(LOCAL_STORAGE_KEY_BRAND, JSON.stringify(brand));
     localStorage.setItem(LOCAL_STORAGE_KEY_WHATSAPP, JSON.stringify(whatsapp));
     localStorage.setItem(LOCAL_STORAGE_KEY_INSTAGRAM, JSON.stringify(instagram));
     localStorage.setItem(LOCAL_STORAGE_KEY_EVENTS, JSON.stringify(events));
-  }, [storeName, whatsapp, instagram, events]);
+  }, [storeName, brand, whatsapp, instagram, events]);
 
   useEffect(() => {
     document.body.classList.remove('print-events', 'print-discount', 'print-exchange_seal');
@@ -181,12 +186,6 @@ export default function Home() {
     return BRAND_LABELS[brand] || "";
   };
 
-  const currentBrand = useMemo(() => {
-    if (enhancedEvents.length === 0) return undefined;
-    const firstBrand = enhancedEvents[0].brand;
-    return enhancedEvents.every((event) => event.brand === firstBrand) ? firstBrand : undefined;
-  }, [enhancedEvents]);
-
   const handleAddEvent = () => {
     if (events.length < MAX_EVENTS) {
       const newEvent: EventData = {
@@ -229,17 +228,34 @@ export default function Home() {
                 <CardDescription className="text-zinc-500">Estes dados serão usados no cabeçalho dos cupons.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 pt-6">
-                <div className="space-y-2">
-                  <Label htmlFor="storeName" className="text-zinc-700 font-semibold text-sm">Nome da Unidade</Label>
-                  <Input 
-                    id="storeName" 
-                    value={storeName} 
-                    onChange={(e) => setStoreName(e.target.value)} 
-                    placeholder="Ex: Carioca Shopping"
-                    className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-11"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-[1.5fr,1fr] gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="storeName" className="text-zinc-700 font-semibold text-sm">Nome da Unidade</Label>
+                    <Input 
+                      id="storeName" 
+                      value={storeName} 
+                      onChange={(e) => setStoreName(e.target.value)} 
+                      placeholder="Ex: Carioca Shopping"
+                      className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-11"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="brand" className="text-zinc-700 font-semibold text-sm">Rede</Label>
+                    <Select value={brand} onValueChange={(value) => setBrand(value as Brand)}>
+                      <SelectTrigger className="h-11 bg-white/50 border-zinc-200 rounded-xl focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(BRAND_LABELS).map(([key, label]) => (
+                          <SelectItem key={key} value={key}>
+                            {label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="whatsapp" className="text-zinc-700 font-semibold text-sm">WhatsApp</Label>
                     <Input 
@@ -455,7 +471,7 @@ export default function Home() {
                     events={enhancedEvents}
                     whatsapp={whatsapp}
                     instagram={instagram}
-                    brand={currentBrand}
+                    brand={brand}
                   />
               ) : viewMode === 'discount' ? (
                   <DiscountCoupon storeName={storeName} />

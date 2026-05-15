@@ -77,11 +77,6 @@ export function PrintPreview({ data }: PrintPreviewProps) {
 
   return (
     <div className="text-center">
-      {brand && (
-        <p className="text-[9px] uppercase tracking-[0.25em] opacity-50 mb-1">
-          {BRAND_LABELS[brand] || ""}
-        </p>
-      )}
       <h3 className="font-bold text-base break-words uppercase">
         {title || "SEU EVENTO AQUI"}
       </h3>
