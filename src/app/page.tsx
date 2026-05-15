@@ -474,7 +474,7 @@ export default function Home() {
                     brand={brand}
                   />
               ) : viewMode === 'discount' ? (
-                  <DiscountCoupon storeName={storeName} />
+                  <DiscountCoupon storeName={storeName} brand={brand} />
               ) : (
                   <ExchangeSeal origin={exchangeOrigin} storeCode={exchangeStore} />
               )}
