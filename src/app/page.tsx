@@ -8,11 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, Printer, CalendarDays, TicketPercent, Info } from 'lucide-react';
+import { PlusCircle, Printer, CalendarDays, TicketPercent, Info, MessageSquare } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { ExchangeSeal } from '@/components/exchange-seal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SurveyInviteCoupon } from '@/components/survey-invite-coupon';
 
 const MAX_EVENTS = 4;
 const LOCAL_STORAGE_KEY_STORE = "eventPrinter.storeName";
@@ -21,7 +22,7 @@ const LOCAL_STORAGE_KEY_WHATSAPP = "eventPrinter.whatsapp";
 const LOCAL_STORAGE_KEY_INSTAGRAM = "eventPrinter.instagram";
 const LOCAL_STORAGE_KEY_EVENTS = "eventPrinter.events";
 
-type ViewMode = 'events' | 'discount' | 'exchange_seal';
+type ViewMode = 'events' | 'discount' | 'exchange_seal' | 'survey_invite';
 
 export type Brand = 'ri_happy' | 'pb_kids';
 
@@ -77,6 +78,12 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<ViewMode>("exchange_seal");
   const [exchangeOrigin, setExchangeOrigin] = useState<'ADD PICKUP' | 'Site'>('ADD PICKUP');
   const [exchangeStore, setExchangeStore] = useState('');
+  const [surveyStoreCode, setSurveyStoreCode] = useState('');
+
+  const isPrintEnabled = 
+    (viewMode === 'exchange_seal' && !!exchangeStore) ||
+    (viewMode === 'survey_invite' && !!surveyStoreCode) ||
+    (viewMode !== 'exchange_seal' && viewMode !== 'survey_invite' && !!storeName);
 
   useEffect(() => {
     try {
@@ -407,10 +414,53 @@ export default function Home() {
                 </CardContent>
               </Card>
             )}
+
+            {viewMode === 'survey_invite' && (
+              <Card className="shadow-none border border-zinc-200/60 bg-white/60 backdrop-blur-xl rounded-2xl">
+                <CardHeader className="border-b border-zinc-100 pb-5">
+                  <CardTitle className="text-lg font-bold flex items-center gap-2 text-zinc-800">
+                    Configurar Pesquisa
+                  </CardTitle>
+                  <CardDescription className="text-zinc-500">Selecione a unidade da loja.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6 pt-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="surveyStore" className="text-zinc-700 font-semibold text-sm">Loja na URL (4 dígitos)</Label>
+                    <Select value={surveyStoreCode} onValueChange={setSurveyStoreCode}>
+                      <SelectTrigger className="h-11 bg-white/50 border-zinc-200 rounded-xl">
+                        <SelectValue placeholder="Selecione a loja" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {STORES.map((store) => (
+                          <SelectItem key={store.code} value={store.code}>
+                            {store.code} - {store.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="brand" className="text-zinc-700 font-semibold text-sm">Rede</Label>
+                    <Select value={brand} onValueChange={(value) => setBrand(value as Brand)}>
+                      <SelectTrigger className="h-11 bg-white/50 border-zinc-200 rounded-xl focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(BRAND_LABELS).map(([key, label]) => (
+                          <SelectItem key={key} value={key}>
+                            {label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           <div className="flex flex-col items-center justify-start gap-6 lg:sticky lg:top-8 w-full">
-            <div className="no-print flex p-1.5 bg-zinc-200/50 backdrop-blur-md rounded-2xl w-full max-w-sm gap-1 border border-zinc-200/50 shadow-inner">
+            <div className="no-print flex p-1.5 bg-zinc-200/50 backdrop-blur-md rounded-2xl w-full max-w-xl gap-1 border border-zinc-200/50 shadow-inner overflow-x-auto no-scrollbar">
                 <button 
                   onClick={() => setViewMode('events')} 
                   className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${viewMode === 'events' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
@@ -427,10 +477,17 @@ export default function Home() {
                 </button>
                 <button 
                   onClick={() => setViewMode('exchange_seal')} 
-                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${viewMode === 'exchange_seal' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-sm font-semibold transition-all duration-200 shrink-0 ${viewMode === 'exchange_seal' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
                 >
                     <Info className="h-4 w-4" />
                     Selo Troca
+                </button>
+                <button 
+                  onClick={() => setViewMode('survey_invite')} 
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-sm font-semibold transition-all duration-200 shrink-0 ${viewMode === 'survey_invite' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
+                >
+                    <MessageSquare className="h-4 w-4" />
+                    Pesquisa
                 </button>
             </div>
 
@@ -456,7 +513,7 @@ export default function Home() {
                   }
                 `}</style>
               )}
-              {!((viewMode === 'exchange_seal' && exchangeStore) || (viewMode !== 'exchange_seal' && storeName)) && (
+              {!isPrintEnabled && (
                 <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-8 text-center no-print">
                   <div className="h-16 w-16 bg-[#E10098]/10 rounded-full flex items-center justify-center mb-4">
                     <Info className="h-8 w-8 text-[#E10098]" />
@@ -475,6 +532,12 @@ export default function Home() {
                   />
               ) : viewMode === 'discount' ? (
                   <DiscountCoupon storeName={storeName} brand={brand} />
+              ) : viewMode === 'survey_invite' ? (
+                  <SurveyInviteCoupon 
+                    storeCode={surveyStoreCode} 
+                    storeName={STORES.find(s => s.code === surveyStoreCode)?.name || storeName} 
+                    brand={brand} 
+                  />
               ) : (
                   <ExchangeSeal origin={exchangeOrigin} storeCode={exchangeStore} />
               )}
@@ -485,8 +548,8 @@ export default function Home() {
               
               <Button 
                 onClick={() => window.print()} 
-                disabled={!((viewMode === 'exchange_seal' && exchangeStore) || (viewMode !== 'exchange_seal' && storeName))}
-                className={`w-full py-6 rounded-2xl shadow-lg transition-all active:scale-[0.98] ${((viewMode === 'exchange_seal' && exchangeStore) || (viewMode !== 'exchange_seal' && storeName)) ? 'bg-zinc-900 hover:bg-zinc-800 text-white' : 'bg-zinc-200 text-zinc-400 cursor-not-allowed'}`} 
+                disabled={!isPrintEnabled}
+                className={`w-full py-6 rounded-2xl shadow-lg transition-all active:scale-[0.98] ${isPrintEnabled ? 'bg-zinc-900 hover:bg-zinc-800 text-white' : 'bg-zinc-200 text-zinc-400 cursor-not-allowed'}`} 
                 size="lg"
               >
                 <Printer className="mr-3 h-5 w-5" />
