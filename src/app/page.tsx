@@ -221,12 +221,10 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center bg-zinc-50/50 p-4 sm:p-8 font-sans">
-      <div className="w-full max-w-6xl mx-auto">
-
-
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr,450px] gap-8 xl:gap-12 items-start">
-          <div className="no-print space-y-8">
+    <main className="flex min-h-screen w-full flex-col items-center bg-zinc-50/50 p-4 sm:p-8 font-sans overflow-hidden">
+      <div className="w-full max-w-[1600px] mx-auto h-[calc(100vh-4rem)] sm:h-[calc(100vh-8rem)]">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr,450px] xl:grid-cols-[1fr,500px] gap-8 xl:gap-12 items-start h-full">
+          <div className="no-print space-y-8 overflow-y-auto pr-2 h-full pb-10 custom-scrollbar">
             <Card className="shadow-none border border-zinc-200/60 bg-white/60 backdrop-blur-xl transition-all hover:bg-white/80 rounded-2xl">
               <CardHeader className="border-b border-zinc-100 pb-5">
                 <CardTitle className="text-lg font-bold flex items-center gap-2 text-zinc-800">
@@ -459,35 +457,35 @@ export default function Home() {
             )}
           </div>
 
-          <div className="flex flex-col items-center justify-start gap-6 lg:sticky lg:top-8 w-full">
-            <div className="no-print flex p-1.5 bg-zinc-200/50 backdrop-blur-md rounded-2xl w-full max-w-xl gap-1 border border-zinc-200/50 shadow-inner overflow-x-auto no-scrollbar">
+          <div className="flex flex-col items-center justify-start gap-6 lg:sticky lg:top-0 w-full h-full overflow-y-auto pb-10 custom-scrollbar">
+            <div className="no-print grid grid-cols-2 md:grid-cols-4 p-1.5 bg-zinc-200/50 backdrop-blur-md rounded-2xl w-full gap-1 border border-zinc-200/50 shadow-inner">
                 <button 
                   onClick={() => setViewMode('events')} 
-                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${viewMode === 'events' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
+                  className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs xl:text-sm font-semibold transition-all duration-200 ${viewMode === 'events' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
                 >
-                    <CalendarDays className="h-4 w-4" />
-                    Eventos
+                    <CalendarDays className="h-4 w-4 shrink-0" />
+                    <span className="truncate">Eventos</span>
                 </button>
                 <button 
                   onClick={() => setViewMode('discount')} 
-                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${viewMode === 'discount' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
+                  className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs xl:text-sm font-semibold transition-all duration-200 ${viewMode === 'discount' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
                 >
-                    <TicketPercent className="h-4 w-4" />
-                    Cupom 10%
+                    <TicketPercent className="h-4 w-4 shrink-0" />
+                    <span className="truncate">Cupom 10%</span>
                 </button>
                 <button 
                   onClick={() => setViewMode('exchange_seal')} 
-                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-sm font-semibold transition-all duration-200 shrink-0 ${viewMode === 'exchange_seal' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
+                  className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs xl:text-sm font-semibold transition-all duration-200 ${viewMode === 'exchange_seal' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
                 >
-                    <Info className="h-4 w-4" />
-                    Selo Troca
+                    <Info className="h-4 w-4 shrink-0" />
+                    <span className="truncate">Selo Troca</span>
                 </button>
                 <button 
                   onClick={() => setViewMode('survey_invite')} 
-                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-sm font-semibold transition-all duration-200 shrink-0 ${viewMode === 'survey_invite' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
+                  className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs xl:text-sm font-semibold transition-all duration-200 ${viewMode === 'survey_invite' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
                 >
-                    <MessageSquare className="h-4 w-4" />
-                    Pesquisa
+                    <MessageSquare className="h-4 w-4 shrink-0" />
+                    <span className="truncate">Pesquisa</span>
                 </button>
             </div>
 
