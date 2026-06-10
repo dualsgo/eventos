@@ -382,15 +382,21 @@ export default function Home() {
                   <div className="space-y-2">
                     <Label className="text-zinc-700 font-semibold text-sm">Origem</Label>
                     <div className="grid grid-cols-3 gap-3">
-                      {(['ADD PICKUP', 'Site', 'AGG50'] as const).map((origin) => (
+                      {(['ADD PICKUP', 'Site', 'AGG50'] as const).map((origin) => {
+                        const labels = {
+                          'ADD PICKUP': 'Adicional Pickup',
+                          'Site': 'Site',
+                          'AGG50': 'AGING'
+                        };
+                        return (
                         <button
                           key={origin}
                           onClick={() => setExchangeOrigin(origin)}
                           className={`py-3 px-4 rounded-xl text-sm font-bold border-2 transition-all ${exchangeOrigin === origin ? 'border-[#E10098] bg-[#E10098]/10 text-[#E10098]' : 'border-zinc-200 text-zinc-500 hover:border-zinc-300'}`}
                         >
-                          {origin}
+                          {labels[origin]}
                         </button>
-                      ))}
+                      )})}
                     </div>
                   </div>
 
@@ -460,6 +466,13 @@ export default function Home() {
           <div className="flex flex-col items-center justify-start gap-6 lg:sticky lg:top-0 w-full h-full overflow-y-auto pb-10 custom-scrollbar">
             <div className="no-print grid grid-cols-2 md:grid-cols-4 p-1.5 bg-zinc-200/50 backdrop-blur-md rounded-2xl w-full gap-1 border border-zinc-200/50 shadow-inner">
                 <button 
+                  onClick={() => setViewMode('exchange_seal')} 
+                  className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs xl:text-sm font-semibold transition-all duration-200 ${viewMode === 'exchange_seal' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
+                >
+                    <Info className="h-4 w-4 shrink-0" />
+                    <span className="truncate">Selo Troca</span>
+                </button>
+                <button 
                   onClick={() => setViewMode('events')} 
                   className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs xl:text-sm font-semibold transition-all duration-200 ${viewMode === 'events' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
                 >
@@ -472,13 +485,6 @@ export default function Home() {
                 >
                     <TicketPercent className="h-4 w-4 shrink-0" />
                     <span className="truncate">Cupom 10%</span>
-                </button>
-                <button 
-                  onClick={() => setViewMode('exchange_seal')} 
-                  className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs xl:text-sm font-semibold transition-all duration-200 ${viewMode === 'exchange_seal' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
-                >
-                    <Info className="h-4 w-4 shrink-0" />
-                    <span className="truncate">Selo Troca</span>
                 </button>
                 <button 
                   onClick={() => setViewMode('survey_invite')} 
