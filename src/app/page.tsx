@@ -76,7 +76,7 @@ export default function Home() {
   const [events, setEvents] = useState<EventData[]>([initialEvent]);
   const [isSameThemeAllMonth, setIsSameThemeAllMonth] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("exchange_seal");
-  const [exchangeOrigin, setExchangeOrigin] = useState<'ADD PICKUP' | 'Site'>('ADD PICKUP');
+  const [exchangeOrigin, setExchangeOrigin] = useState<'ADD PICKUP' | 'Site' | 'AGG50'>('ADD PICKUP');
   const [exchangeStore, setExchangeStore] = useState('');
   const [surveyStoreCode, setSurveyStoreCode] = useState('');
 
@@ -382,7 +382,7 @@ export default function Home() {
                   <div className="space-y-2">
                     <Label className="text-zinc-700 font-semibold text-sm">Origem</Label>
                     <div className="grid grid-cols-3 gap-3">
-                      {(['ADD PICKUP', 'Site'] as const).map((origin) => (
+                      {(['ADD PICKUP', 'Site', 'AGG50'] as const).map((origin) => (
                         <button
                           key={origin}
                           onClick={() => setExchangeOrigin(origin)}
