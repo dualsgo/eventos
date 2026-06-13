@@ -14,6 +14,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/
 import { ExchangeSeal } from '@/components/exchange-seal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SurveyInviteCoupon } from '@/components/survey-invite-coupon';
+import { AgingLabel } from '@/components/aging-label';
 
 const MAX_EVENTS = 4;
 const LOCAL_STORAGE_KEY_STORE = "eventPrinter.storeName";
@@ -22,7 +23,7 @@ const LOCAL_STORAGE_KEY_WHATSAPP = "eventPrinter.whatsapp";
 const LOCAL_STORAGE_KEY_INSTAGRAM = "eventPrinter.instagram";
 const LOCAL_STORAGE_KEY_EVENTS = "eventPrinter.events";
 
-type ViewMode = 'events' | 'discount' | 'exchange_seal' | 'survey_invite';
+type ViewMode = 'events' | 'discount' | 'exchange_seal' | 'survey_invite' | 'aging_label';
 
 export type Brand = 'ri_happy' | 'pb_kids';
 
@@ -81,9 +82,10 @@ export default function Home() {
   const [surveyStoreCode, setSurveyStoreCode] = useState('');
 
   const isPrintEnabled = 
+    viewMode === 'aging_label' ||
     (viewMode === 'exchange_seal' && !!exchangeStore) ||
     (viewMode === 'survey_invite' && !!surveyStoreCode) ||
-    (viewMode !== 'exchange_seal' && viewMode !== 'survey_invite' && !!storeName);
+    (viewMode !== 'exchange_seal' && viewMode !== 'survey_invite' && viewMode !== 'aging_label' && !!storeName);
 
   useEffect(() => {
     try {
@@ -464,7 +466,7 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col items-center justify-start gap-6 lg:sticky lg:top-0 w-full h-full overflow-y-auto pb-10 custom-scrollbar">
-            <div className="no-print grid grid-cols-2 md:grid-cols-4 p-1.5 bg-zinc-200/50 backdrop-blur-md rounded-2xl w-full gap-1 border border-zinc-200/50 shadow-inner">
+            <div className="no-print grid grid-cols-2 md:grid-cols-5 p-1.5 bg-zinc-200/50 backdrop-blur-md rounded-2xl w-full gap-1 border border-zinc-200/50 shadow-inner">
                 <button 
                   onClick={() => setViewMode('exchange_seal')} 
                   className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs xl:text-sm font-semibold transition-all duration-200 ${viewMode === 'exchange_seal' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
@@ -493,26 +495,58 @@ export default function Home() {
                     <MessageSquare className="h-4 w-4 shrink-0" />
                     <span className="truncate">Pesquisa</span>
                 </button>
+                <button 
+                  onClick={() => setViewMode('aging_label')} 
+                  className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs xl:text-sm font-semibold transition-all duration-200 ${viewMode === 'aging_label' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
+                >
+                    <Printer className="h-4 w-4 shrink-0" />
+                    <span className="truncate">Aging</span>
+                </button>
             </div>
 
             <div id="print-container" className="w-full lg:w-[450px] overflow-x-auto no-scrollbar origin-top md:scale-100 flex justify-center shrink-0 py-4">
-              {viewMode === 'exchange_seal' && (
+              {viewMode === 'aging_label' && (
                 <style>{`
                   @media print {
                     @page { 
-                      size: 110mm 50mm !important; 
+                      size: 100mm 15mm !important; 
                       margin: 0 !important;
                     }
                     #print-container {
-                      width: 110mm !important;
-                      height: 50mm !important;
+                      width: 100mm !important;
+                      height: 15mm !important;
                       display: flex !important;
-                      justify-content: center !important;
-                      align-items: center !important;
+                      justify-content: flex-start !important;
+                      align-items: flex-start !important;
                       position: absolute !important;
                       left: 0 !important;
                       top: 0 !important;
                       overflow: hidden !important;
+                      margin: 0 !important;
+                      padding: 0 !important;
+                    }
+                  }
+                `}</style>
+              )}
+              {viewMode === 'exchange_seal' && (
+                <style>{`
+                  @media print {
+                    @page { 
+                      size: 102mm 48mm !important; 
+                      margin: 0 !important;
+                    }
+                    #print-container {
+                      width: 102mm !important;
+                      height: 48mm !important;
+                      display: flex !important;
+                      justify-content: flex-start !important;
+                      align-items: flex-start !important;
+                      position: absolute !important;
+                      left: 0 !important;
+                      top: 0 !important;
+                      overflow: hidden !important;
+                      margin: 0 !important;
+                      padding: 0 !important;
                     }
                   }
                 `}</style>
@@ -542,6 +576,8 @@ export default function Home() {
                     storeName={STORES.find(s => s.code === surveyStoreCode)?.name || storeName} 
                     brand={brand} 
                   />
+              ) : viewMode === 'aging_label' ? (
+                  <AgingLabel />
               ) : (
                   <ExchangeSeal origin={exchangeOrigin} storeCode={exchangeStore} />
               )}
