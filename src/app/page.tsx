@@ -265,7 +265,7 @@ export default function Home() {
           <div className="no-print w-full flex flex-col gap-4 lg:pr-2">
 
             {/* Navigation tabs — prominent, spanning the left column */}
-            <div className="no-print grid grid-cols-2 sm:grid-cols-5 p-1.5 bg-white/70 backdrop-blur-md rounded-2xl w-full gap-1.5 border border-zinc-200/60 shadow-sm">
+            <div className="no-print grid grid-cols-2 sm:grid-cols-5 p-1.5 bg-white/70 backdrop-blur-md rounded-2xl w-full gap-1.5 border border-zinc-200/60 shadow-sm relative z-50">
               <button
                 onClick={() => setViewMode('exchange_seal')}
                 className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
