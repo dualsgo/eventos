@@ -255,10 +255,10 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center bg-zinc-50/50 p-4 sm:p-8 font-sans overflow-hidden">
-      <div className="w-full max-w-[1600px] mx-auto h-[calc(100vh-4rem)] sm:h-[calc(100vh-8rem)]">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr,450px] xl:grid-cols-[1fr,500px] gap-8 xl:gap-12 items-start h-full">
-          <div className="no-print space-y-8 overflow-y-auto pr-2 h-full pb-10 custom-scrollbar">
+    <main className="flex min-h-screen w-full flex-col items-center bg-zinc-50/50 p-4 sm:p-8 font-sans lg:overflow-hidden">
+      <div className="w-full max-w-[1600px] mx-auto min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-8rem)] lg:h-[calc(100vh-4rem)] lg:sm:h-[calc(100vh-8rem)]">
+        <div className="flex flex-col lg:grid lg:grid-cols-[1fr,450px] xl:grid-cols-[1fr,500px] gap-8 xl:gap-12 items-start h-full">
+          <div className="no-print w-full space-y-8 lg:overflow-y-auto lg:pr-2 lg:h-full pb-10 custom-scrollbar">
             <Card className="shadow-none border border-zinc-200/60 bg-white/60 backdrop-blur-xl transition-all hover:bg-white/80 rounded-2xl">
               <CardHeader className="border-b border-zinc-100 pb-5">
                 <CardTitle className="text-lg font-bold flex items-center gap-2 text-zinc-800">
@@ -452,7 +452,7 @@ export default function Home() {
             )}
           </div>
 
-          <div className="flex flex-col items-center justify-start gap-6 lg:sticky lg:top-0 w-full h-full overflow-y-auto pb-10 custom-scrollbar">
+          <div className="flex flex-col items-center justify-start gap-6 lg:sticky lg:top-0 w-full lg:h-full lg:overflow-y-auto pb-10 custom-scrollbar">
             <div className="no-print grid grid-cols-2 md:grid-cols-4 p-1.5 bg-zinc-200/50 backdrop-blur-md rounded-2xl w-full gap-1 border border-zinc-200/50 shadow-inner">
                 <button 
                   onClick={() => setViewMode('exchange_seal')} 
@@ -484,7 +484,7 @@ export default function Home() {
                 </button>
             </div>
 
-            <div id="print-container" className="w-full lg:w-[450px] overflow-x-auto no-scrollbar origin-top md:scale-100 flex justify-center shrink-0 py-4">
+            <div id="print-container" className="w-full lg:w-[450px] overflow-x-auto no-scrollbar origin-top scale-[0.85] sm:scale-100 flex justify-center shrink-0 py-4">
               {viewMode === 'aging_label' && (
                 <style>{`
                   @media print {
