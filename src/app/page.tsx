@@ -15,6 +15,7 @@ import { ExchangeSeal } from '@/components/exchange-seal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SurveyInviteCoupon } from '@/components/survey-invite-coupon';
 import { AgingLabel } from '@/components/aging-label';
+import { ToolsMenu } from '@/components/tools-menu';
 
 const MAX_EVENTS = 4;
 const LOCAL_STORAGE_KEY_STORE = "eventPrinter.storeName";
@@ -256,6 +257,7 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center bg-zinc-50/50 p-4 sm:p-8 font-sans lg:overflow-hidden">
+      <ToolsMenu />
       <div className="w-full max-w-[1600px] mx-auto min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-8rem)] lg:h-[calc(100vh-4rem)] lg:sm:h-[calc(100vh-8rem)]">
         <div className="flex flex-col lg:grid lg:grid-cols-[1fr,450px] xl:grid-cols-[1fr,500px] gap-8 xl:gap-12 items-start h-full">
           <div className="no-print w-full space-y-8 lg:overflow-y-auto lg:pr-2 lg:h-full pb-10 custom-scrollbar">
