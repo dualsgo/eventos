@@ -71,6 +71,7 @@ const initialEvent: EventData = {
 
 export default function Home() {
   const [storeCode, setStoreCode] = useState('');
+  const [customStore, setCustomStore] = useState('');
   const [brand, setBrand] = useState<Brand>('ri_happy');
   const [whatsapp, setWhatsapp] = useState('');
   const [instagram, setInstagram] = useState('');
@@ -80,10 +81,25 @@ export default function Home() {
   const [exchangeOrigin, setExchangeOrigin] = useState<'ADD PICKUP' | 'Site' | 'AGG50'>('ADD PICKUP');
 
   const storeName = useMemo(() => {
+    if (storeCode === 'OUTRA') {
+      const parts = customStore.split('-');
+      if (parts.length > 1) {
+         return parts.slice(1).join('-').trim();
+      }
+      return customStore;
+    }
     return STORES.find(s => s.code === storeCode)?.name || '';
-  }, [storeCode]);
+  }, [storeCode, customStore]);
 
-  const isPrintEnabled = viewMode === 'aging_label' || !!storeCode;
+  const derivedStoreCode = useMemo(() => {
+    if (storeCode === 'OUTRA') {
+      const match = customStore.match(/^(\d{4})/);
+      return match ? match[1] : '';
+    }
+    return storeCode;
+  }, [storeCode, customStore]);
+
+  const isPrintEnabled = viewMode === 'aging_label' || (storeCode === 'OUTRA' ? !!customStore : !!storeCode);
 
   useEffect(() => {
     try {
@@ -95,7 +111,12 @@ export default function Home() {
           setStoreCode(parsed);
         } else {
           const found = STORES.find(s => s.name === parsed);
-          if (found) setStoreCode(found.code);
+          if (found) {
+            setStoreCode(found.code);
+          } else if (parsed) {
+            setStoreCode('OUTRA');
+            setCustomStore(parsed);
+          }
         }
       }
       const savedBrand = localStorage.getItem(LOCAL_STORAGE_KEY_BRAND);
@@ -118,12 +139,16 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_STORE, JSON.stringify(storeCode));
+    if (storeCode === 'OUTRA') {
+      localStorage.setItem(LOCAL_STORAGE_KEY_STORE, JSON.stringify(customStore));
+    } else {
+      localStorage.setItem(LOCAL_STORAGE_KEY_STORE, JSON.stringify(storeCode));
+    }
     localStorage.setItem(LOCAL_STORAGE_KEY_BRAND, JSON.stringify(brand));
     localStorage.setItem(LOCAL_STORAGE_KEY_WHATSAPP, JSON.stringify(whatsapp));
     localStorage.setItem(LOCAL_STORAGE_KEY_INSTAGRAM, JSON.stringify(instagram));
     localStorage.setItem(LOCAL_STORAGE_KEY_EVENTS, JSON.stringify(events));
-  }, [storeCode, brand, whatsapp, instagram, events]);
+  }, [storeCode, customStore, brand, whatsapp, instagram, events]);
 
   useEffect(() => {
     document.body.classList.remove('print-events', 'print-discount', 'print-exchange_seal');
@@ -255,8 +280,17 @@ export default function Home() {
                             {store.code} - {store.name}
                           </SelectItem>
                         ))}
+                        <SelectItem value="OUTRA">OUTRA</SelectItem>
                       </SelectContent>
                     </Select>
+                    {storeCode === 'OUTRA' && (
+                      <Input 
+                        value={customStore} 
+                        onChange={(e) => setCustomStore(e.target.value)} 
+                        placeholder="Ex: 1187 - CARIOCA SHOPPING"
+                        className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-11 mt-2"
+                      />
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="brand" className="text-zinc-700 font-semibold text-sm">Rede</Label>
@@ -516,14 +550,14 @@ export default function Home() {
                   <DiscountCoupon storeName={storeName} brand={brand} />
               ) : viewMode === 'survey_invite' ? (
                   <SurveyInviteCoupon 
-                    storeCode={storeCode} 
+                    storeCode={derivedStoreCode} 
                     storeName={storeName} 
                     brand={brand} 
                   />
               ) : viewMode === 'aging_label' ? (
                   <AgingLabel />
               ) : (
-                  <ExchangeSeal origin={exchangeOrigin} storeCode={storeCode} />
+                  <ExchangeSeal origin={exchangeOrigin} storeCode={derivedStoreCode} />
               )}
             </div>
 
