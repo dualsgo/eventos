@@ -195,7 +195,7 @@ export default function Home() {
     if (isSameThemeAllMonth && happySabados.length > 0) {
         const firstHappySabado = happySabados[0];
         const themeTitle = `Happy Sábado - ${firstHappySabado.subtitle}`;
-        const themeDescription = `Todos os sábados do mês de ${monthOfEvents}.\n${firstHappySabado.description}`;
+        const themeDescription = `Todo sábado de ${monthOfEvents} é dia de festa na loja!\n${firstHappySabado.description}`;
         
         const unifiedHappySabadoEvent: EventData = {
             ...firstHappySabado,

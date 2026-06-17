@@ -135,7 +135,7 @@ const PREDEFINED_EVENTS = {
   },
   happy_sabado: {
     title: "Happy Sábado - ",
-    description: "Atividades e brincadeiras especiais todo sábado.",
+    description: "Venha celebrar com a gente! Brincadeiras, atividades e muita diversão para toda a família.",
     startTime: "14:00",
     endTime: "20:00",
     defaultDate: () => getNextDayOfWeekAdvanced(6), // Saturday
