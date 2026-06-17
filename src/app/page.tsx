@@ -256,14 +256,14 @@ export default function Home() {
   };
 
   return (
-    <main className="flex h-screen w-full flex-col items-center bg-zinc-50/50 font-sans overflow-hidden">
+    <main className="flex min-h-screen w-full flex-col items-center bg-zinc-50/50 font-sans">
       <ToolsMenu />
       {/* Main content area with top padding to clear the ToolsMenu button */}
-      <div className="w-full max-w-[1600px] mx-auto h-full pt-16 pb-4 px-4 sm:px-6 flex flex-col">
-        <div className="flex flex-col lg:grid lg:grid-cols-[1fr,420px] xl:grid-cols-[1fr,460px] gap-6 xl:gap-8 items-start flex-1 min-h-0">
+      <div className="w-full max-w-[1600px] mx-auto pt-16 pb-6 px-4 sm:px-6 flex flex-col">
+        <div className="flex flex-col lg:grid lg:grid-cols-[1fr,420px] xl:grid-cols-[1fr,460px] gap-6 xl:gap-8 items-start">
 
           {/* LEFT COLUMN — Formulários + navegação */}
-          <div className="no-print w-full flex flex-col gap-4 lg:overflow-y-auto lg:pr-2 lg:h-full custom-scrollbar">
+          <div className="no-print w-full flex flex-col gap-4 lg:pr-2">
 
             {/* Navigation tabs — prominent, spanning the left column */}
             <div className="no-print grid grid-cols-2 sm:grid-cols-4 p-1.5 bg-white/70 backdrop-blur-md rounded-2xl w-full gap-1.5 border border-zinc-200/60 shadow-sm">
@@ -512,7 +512,7 @@ export default function Home() {
           </div>
 
           {/* RIGHT COLUMN — Preview + Print button */}
-          <div className="flex flex-col items-center justify-start gap-4 w-full lg:h-full lg:overflow-y-auto custom-scrollbar pb-4">
+          <div className="flex flex-col items-center justify-start gap-4 w-full pb-4">
             <div id="print-container" className="w-full overflow-x-auto no-scrollbar origin-top scale-[0.85] sm:scale-100 flex justify-center shrink-0 py-2 relative">
               {viewMode === 'aging_label' && (
                 <style>{`
@@ -590,7 +590,7 @@ export default function Home() {
               )}
             </div>
 
-            <div className="no-print w-full flex flex-col gap-3 mt-auto">
+            <div className="no-print w-full flex flex-col gap-3">
               <Button
                 onClick={() => window.print()}
                 disabled={!isPrintEnabled}
