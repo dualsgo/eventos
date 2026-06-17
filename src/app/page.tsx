@@ -257,16 +257,15 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center bg-zinc-50/50 font-sans">
-      <ToolsMenu />
-      {/* Main content area with top padding to clear the ToolsMenu button */}
-      <div className="w-full max-w-[1600px] mx-auto pt-16 pb-6 px-4 sm:px-6 flex flex-col">
+      {/* Main content area */}
+      <div className="w-full max-w-[1600px] mx-auto pt-8 pb-6 px-4 sm:px-6 flex flex-col">
         <div className="flex flex-col lg:grid lg:grid-cols-[1fr,420px] xl:grid-cols-[1fr,460px] gap-6 xl:gap-8 items-start">
 
           {/* LEFT COLUMN — Formulários + navegação */}
           <div className="no-print w-full flex flex-col gap-4 lg:pr-2">
 
             {/* Navigation tabs — prominent, spanning the left column */}
-            <div className="no-print grid grid-cols-2 sm:grid-cols-4 p-1.5 bg-white/70 backdrop-blur-md rounded-2xl w-full gap-1.5 border border-zinc-200/60 shadow-sm">
+            <div className="no-print grid grid-cols-2 sm:grid-cols-5 p-1.5 bg-white/70 backdrop-blur-md rounded-2xl w-full gap-1.5 border border-zinc-200/60 shadow-sm">
               <button
                 onClick={() => setViewMode('exchange_seal')}
                 className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
@@ -311,6 +310,7 @@ export default function Home() {
                 <MessageSquare className="h-4 w-4 shrink-0" />
                 <span>Pesquisa</span>
               </button>
+              <ToolsMenu />
             </div>
 
             {/* Store info card */}

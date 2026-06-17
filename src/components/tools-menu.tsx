@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { LayoutGrid, BarChart2, CalendarClock, Image, X } from "lucide-react";
 
 const TOOLS = [
@@ -38,33 +38,42 @@ const TOOLS = [
 
 export function ToolsMenu() {
   const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <div className="no-print fixed top-4 right-4 z-50 flex flex-col items-end gap-2">
+    <div className="relative flex" ref={menuRef}>
       {/* Toggle button */}
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? "Fechar menu de ferramentas" : "Abrir menu de ferramentas"}
-        className={`group flex items-center gap-2 rounded-xl shadow-md px-3 py-2 transition-all duration-300 active:scale-95 border ${
+        className={`w-full flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
           open
-            ? "bg-zinc-900 border-zinc-700 text-white"
-            : "bg-white/90 backdrop-blur-md border-zinc-200/80 text-zinc-600 hover:bg-zinc-900 hover:text-white hover:border-zinc-700 hover:shadow-xl"
+            ? "bg-zinc-900 shadow text-white"
+            : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100"
         }`}
       >
-        <span className={`transition-all duration-300 ${open ? "scale-0 w-0 overflow-hidden" : "scale-100"}`}>
-          <LayoutGrid className="h-4 w-4" />
+        <span className={`transition-all duration-300 ${open ? "scale-0 w-0 overflow-hidden hidden" : "scale-100 block"}`}>
+          <LayoutGrid className="h-4 w-4 shrink-0" />
         </span>
-        <span className={`transition-all duration-300 ${open ? "scale-100" : "scale-0 w-0 overflow-hidden"}`}>
-          <X className="h-4 w-4" />
+        <span className={`transition-all duration-300 ${open ? "scale-100 block" : "scale-0 w-0 overflow-hidden hidden"}`}>
+          <X className="h-4 w-4 shrink-0" />
         </span>
-        <span className="text-xs font-semibold">
-          {open ? "Fechar" : "Outras Ferramentas"}
-        </span>
+        <span className="truncate">Mais</span>
       </button>
 
       {/* Tool links panel */}
       <div
-        className={`transition-all duration-300 origin-top-right ${
+        className={`absolute top-full right-0 sm:left-1/2 sm:-translate-x-1/2 mt-2 z-50 transition-all duration-300 origin-top ${
           open
             ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
             : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
