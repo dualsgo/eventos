@@ -256,24 +256,77 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center bg-zinc-50/50 p-4 sm:p-8 font-sans lg:overflow-hidden">
+    <main className="flex h-screen w-full flex-col items-center bg-zinc-50/50 font-sans overflow-hidden">
       <ToolsMenu />
-      <div className="w-full max-w-[1600px] mx-auto min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-8rem)] lg:h-[calc(100vh-4rem)] lg:sm:h-[calc(100vh-8rem)]">
-        <div className="flex flex-col lg:grid lg:grid-cols-[1fr,450px] xl:grid-cols-[1fr,500px] gap-8 xl:gap-12 items-start h-full">
-          <div className="no-print w-full space-y-8 lg:overflow-y-auto lg:pr-2 lg:h-full pb-10 custom-scrollbar">
+      {/* Main content area with top padding to clear the ToolsMenu button */}
+      <div className="w-full max-w-[1600px] mx-auto h-full pt-16 pb-4 px-4 sm:px-6 flex flex-col">
+        <div className="flex flex-col lg:grid lg:grid-cols-[1fr,420px] xl:grid-cols-[1fr,460px] gap-6 xl:gap-8 items-start flex-1 min-h-0">
+
+          {/* LEFT COLUMN — Formulários + navegação */}
+          <div className="no-print w-full flex flex-col gap-4 lg:overflow-y-auto lg:pr-2 lg:h-full custom-scrollbar">
+
+            {/* Navigation tabs — prominent, spanning the left column */}
+            <div className="no-print grid grid-cols-2 sm:grid-cols-4 p-1.5 bg-white/70 backdrop-blur-md rounded-2xl w-full gap-1.5 border border-zinc-200/60 shadow-sm">
+              <button
+                onClick={() => setViewMode('exchange_seal')}
+                className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                  viewMode === 'exchange_seal'
+                    ? 'bg-zinc-900 shadow text-white'
+                    : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100'
+                }`}
+              >
+                <Info className="h-4 w-4 shrink-0" />
+                <span>Selo Troca</span>
+              </button>
+              <button
+                onClick={() => setViewMode('events')}
+                className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                  viewMode === 'events'
+                    ? 'bg-zinc-900 shadow text-white'
+                    : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100'
+                }`}
+              >
+                <CalendarDays className="h-4 w-4 shrink-0" />
+                <span>Eventos</span>
+              </button>
+              <button
+                onClick={() => setViewMode('discount')}
+                className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                  viewMode === 'discount'
+                    ? 'bg-zinc-900 shadow text-white'
+                    : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100'
+                }`}
+              >
+                <TicketPercent className="h-4 w-4 shrink-0" />
+                <span>Cupom 10%</span>
+              </button>
+              <button
+                onClick={() => setViewMode('survey_invite')}
+                className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                  viewMode === 'survey_invite'
+                    ? 'bg-zinc-900 shadow text-white'
+                    : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100'
+                }`}
+              >
+                <MessageSquare className="h-4 w-4 shrink-0" />
+                <span>Pesquisa</span>
+              </button>
+            </div>
+
+            {/* Store info card */}
             <Card className="shadow-none border border-zinc-200/60 bg-white/60 backdrop-blur-xl transition-all hover:bg-white/80 rounded-2xl">
-              <CardHeader className="border-b border-zinc-100 pb-5">
-                <CardTitle className="text-lg font-bold flex items-center gap-2 text-zinc-800">
+              <CardHeader className="border-b border-zinc-100 pb-4 pt-5 px-5">
+                <CardTitle className="text-base font-bold flex items-center gap-2 text-zinc-800">
                   Informações da Loja
                 </CardTitle>
-                <CardDescription className="text-zinc-500">Estes dados serão usados no cabeçalho dos cupons.</CardDescription>
+                <CardDescription className="text-zinc-500 text-xs">Estes dados serão usados no cabeçalho dos cupons.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4 pt-6">
-                <div className="grid grid-cols-1 sm:grid-cols-[1.5fr,1fr] gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="storeName" className="text-zinc-700 font-semibold text-sm">Nome da Unidade</Label>
+              <CardContent className="space-y-3 pt-4 px-5 pb-5">
+                <div className="grid grid-cols-1 sm:grid-cols-[1.5fr,1fr] gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="storeName" className="text-zinc-700 font-semibold text-xs">Nome da Unidade</Label>
                     <Select value={storeCode} onValueChange={setStoreCode}>
-                      <SelectTrigger className="h-11 bg-white/50 border-zinc-200 rounded-xl focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098]">
+                      <SelectTrigger className="h-10 bg-white/50 border-zinc-200 rounded-xl focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098]">
                         <SelectValue placeholder="Selecione a loja" />
                       </SelectTrigger>
                       <SelectContent>
@@ -286,18 +339,18 @@ export default function Home() {
                       </SelectContent>
                     </Select>
                     {storeCode === 'OUTRA' && (
-                      <Input 
-                        value={customStore} 
-                        onChange={(e) => setCustomStore(e.target.value)} 
+                      <Input
+                        value={customStore}
+                        onChange={(e) => setCustomStore(e.target.value)}
                         placeholder="Ex: 1187 - CARIOCA SHOPPING"
-                        className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-11 mt-2"
+                        className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-10 mt-1.5"
                       />
                     )}
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="brand" className="text-zinc-700 font-semibold text-sm">Rede</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="brand" className="text-zinc-700 font-semibold text-xs">Rede</Label>
                     <Select value={brand} onValueChange={(value) => setBrand(value as Brand)}>
-                      <SelectTrigger className="h-11 bg-white/50 border-zinc-200 rounded-xl focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098]">
+                      <SelectTrigger className="h-10 bg-white/50 border-zinc-200 rounded-xl focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -310,25 +363,25 @@ export default function Home() {
                     </Select>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="whatsapp" className="text-zinc-700 font-semibold text-sm">WhatsApp</Label>
-                    <Input 
-                      id="whatsapp" 
-                      value={whatsapp} 
-                      onChange={(e) => setWhatsapp(e.target.value)} 
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="whatsapp" className="text-zinc-700 font-semibold text-xs">WhatsApp</Label>
+                    <Input
+                      id="whatsapp"
+                      value={whatsapp}
+                      onChange={(e) => setWhatsapp(e.target.value)}
                       placeholder="(21) 99999-8888"
-                      className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-11"
+                      className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-10"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="instagram" className="text-zinc-700 font-semibold text-sm">Instagram</Label>
-                    <Input 
-                      id="instagram" 
-                      value={instagram} 
-                      onChange={(e) => setInstagram(e.target.value)} 
+                  <div className="space-y-1.5">
+                    <Label htmlFor="instagram" className="text-zinc-700 font-semibold text-xs">Instagram</Label>
+                    <Input
+                      id="instagram"
+                      value={instagram}
+                      onChange={(e) => setInstagram(e.target.value)}
                       placeholder="@rihappy"
-                      className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-11"
+                      className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-10"
                     />
                   </div>
                 </div>
@@ -337,15 +390,15 @@ export default function Home() {
 
             {viewMode === 'events' && (
               <Card className="shadow-none border border-zinc-200/60 bg-white/60 backdrop-blur-xl rounded-2xl">
-                <CardHeader className="border-b border-zinc-100 pb-5">
-                  <CardTitle className="text-lg font-bold flex items-center gap-2 text-zinc-800">
+                <CardHeader className="border-b border-zinc-100 pb-4 pt-5 px-5">
+                  <CardTitle className="text-base font-bold flex items-center gap-2 text-zinc-800">
                     Gerenciar Eventos
                   </CardTitle>
-                  <CardDescription className="text-zinc-500">Adicione até {MAX_EVENTS} eventos. Apenas os ativos serão impressos.</CardDescription>
+                  <CardDescription className="text-zinc-500 text-xs">Adicione até {MAX_EVENTS} eventos. Apenas os ativos serão impressos.</CardDescription>
                 </CardHeader>
-                <CardContent className="pt-6">
+                <CardContent className="pt-4 px-5 pb-5">
                   {showSameThemeSwitch && (
-                    <div className="flex items-center space-x-2 py-3 mb-6 bg-yellow-50 border border-yellow-100 px-4 rounded-xl">
+                    <div className="flex items-center space-x-2 py-3 mb-4 bg-yellow-50 border border-yellow-100 px-4 rounded-xl">
                       <Switch
                         id="same-theme-switch"
                         checked={isSameThemeAllMonth}
@@ -356,43 +409,43 @@ export default function Home() {
                       </Label>
                     </div>
                   )}
-                  
-                  <Accordion type="multiple" className="w-full space-y-4">
+
+                  <Accordion type="multiple" className="w-full space-y-3">
                     {events.map((eventData) => (
                       <AccordionItem value={eventData.id!} key={eventData.id} className="border-none">
                         <div className={`border rounded-2xl transition-all shadow-sm ${eventData.isActive ? 'border-zinc-200 bg-white' : 'border-dashed border-zinc-200 bg-zinc-50/50 opacity-70'}`}>
-                            <AccordionTrigger className="px-5 py-4 hover:no-underline rounded-2xl">
-                              <div className="flex-1 text-left flex items-center gap-4">
-                                <div className={`h-2.5 w-2.5 rounded-full ${eventData.isActive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-zinc-300'}`} />
-                                <div>
-                                  <p className="font-semibold text-zinc-800 text-sm">{eventData.title || "Novo Evento"}</p>
-                                  <p className="text-xs uppercase text-zinc-500 mt-0.5">{eventBrandLabel(eventData.brand)}</p>
-                                </div>
+                          <AccordionTrigger className="px-5 py-3.5 hover:no-underline rounded-2xl">
+                            <div className="flex-1 text-left flex items-center gap-4">
+                              <div className={`h-2 w-2 rounded-full ${eventData.isActive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-zinc-300'}`} />
+                              <div>
+                                <p className="font-semibold text-zinc-800 text-sm">{eventData.title || "Novo Evento"}</p>
+                                <p className="text-xs uppercase text-zinc-500 mt-0.5">{eventBrandLabel(eventData.brand)}</p>
                               </div>
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              <div className="border-t border-gray-100 p-4">
-                                <EventForm 
-                                  onDataChange={(data) => handleDataChange(eventData.id!, data)} 
-                                  initialData={eventData}
-                                  onRemove={() => handleRemoveEvent(eventData.id!)}
-                                  showRemoveButton={events.length > 1}
-                                  isSameThemeAllMonth={isSameThemeAllMonth && eventData.predefinedEvent === 'happy_sabado'}
-                                />
-                              </div>
-                            </AccordionContent>
-                          </div>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="border-t border-gray-100 p-4">
+                              <EventForm
+                                onDataChange={(data) => handleDataChange(eventData.id!, data)}
+                                initialData={eventData}
+                                onRemove={() => handleRemoveEvent(eventData.id!)}
+                                showRemoveButton={events.length > 1}
+                                isSameThemeAllMonth={isSameThemeAllMonth && eventData.predefinedEvent === 'happy_sabado'}
+                              />
+                            </div>
+                          </AccordionContent>
+                        </div>
                       </AccordionItem>
                     ))}
                   </Accordion>
 
                   {events.length < MAX_EVENTS && (
-                    <Button 
-                      onClick={handleAddEvent} 
-                      className="w-full mt-6 py-6 border-dashed border-2 bg-transparent text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800 hover:border-zinc-300 transition-all rounded-2xl shadow-none" 
+                    <Button
+                      onClick={handleAddEvent}
+                      className="w-full mt-4 py-5 border-dashed border-2 bg-transparent text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800 hover:border-zinc-300 transition-all rounded-2xl shadow-none"
                       variant="outline"
                     >
-                      <PlusCircle className="mr-2 h-5 w-5" />
+                      <PlusCircle className="mr-2 h-4 w-4" />
                       <span className="text-sm font-semibold">Adicionar Novo Evento</span>
                     </Button>
                   )}
@@ -402,35 +455,34 @@ export default function Home() {
 
             {viewMode === 'discount' && (
               <Card className="shadow-sm border-none ring-1 ring-gray-200 bg-[#E10098]/5">
-
-                <CardContent className="pt-4">
-                    <div className="bg-[#E10098]/5 rounded-2xl p-6 border border-[#E10098]/10 text-[#E10098]">
-                      <p className="font-bold flex items-center gap-2 mb-4">
-                         <TicketPercent className="h-5 w-5" />
-                         Boas Práticas
-                      </p>
-                      <ul className="space-y-3 text-sm font-medium leading-tight list-disc pl-5">
-                        <li>Avise o cliente sobre o desconto assim que identificar que se trata de uma retirada de pedido online.</li>
-                        <li>Se possível, verifique o produto que está sendo retirado antes de buscá-lo no estoque para oferecer um complemento.</li>
-                        <li>Grampeie o cupom na frente do termo de retirada para o cliente visualizar enquanto assina.</li>
-                        <li>Reforce que o benefício é exclusivo e imediato, válido apenas para o momento.</li>
-                      </ul>
-                    </div>
+                <CardContent className="pt-4 px-5 pb-5">
+                  <div className="bg-[#E10098]/5 rounded-2xl p-5 border border-[#E10098]/10 text-[#E10098]">
+                    <p className="font-bold flex items-center gap-2 mb-3">
+                      <TicketPercent className="h-5 w-5" />
+                      Boas Práticas
+                    </p>
+                    <ul className="space-y-2.5 text-sm font-medium leading-tight list-disc pl-5">
+                      <li>Avise o cliente sobre o desconto assim que identificar que se trata de uma retirada de pedido online.</li>
+                      <li>Se possível, verifique o produto que está sendo retirado antes de buscá-lo no estoque para oferecer um complemento.</li>
+                      <li>Grampeie o cupom na frente do termo de retirada para o cliente visualizar enquanto assina.</li>
+                      <li>Reforce que o benefício é exclusivo e imediato, válido apenas para o momento.</li>
+                    </ul>
+                  </div>
                 </CardContent>
               </Card>
             )}
 
             {viewMode === 'exchange_seal' && (
               <Card className="shadow-none border border-zinc-200/60 bg-white/60 backdrop-blur-xl rounded-2xl">
-                <CardHeader className="border-b border-zinc-100 pb-5">
-                  <CardTitle className="text-lg font-bold flex items-center gap-2 text-zinc-800">
+                <CardHeader className="border-b border-zinc-100 pb-4 pt-5 px-5">
+                  <CardTitle className="text-base font-bold flex items-center gap-2 text-zinc-800">
                     Configurar Selo Troca
                   </CardTitle>
-                  <CardDescription className="text-zinc-500">Selecione a origem da troca.</CardDescription>
+                  <CardDescription className="text-zinc-500 text-xs">Selecione a origem da troca.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6 pt-6">
+                <CardContent className="space-y-4 pt-4 px-5 pb-5">
                   <div className="space-y-2">
-                    <Label className="text-zinc-700 font-semibold text-sm">Origem</Label>
+                    <Label className="text-zinc-700 font-semibold text-xs">Origem</Label>
                     <div className="grid grid-cols-3 gap-3">
                       {(['ADD PICKUP', 'Site', 'AGG50'] as const).map((origin) => {
                         const labels = {
@@ -439,14 +491,19 @@ export default function Home() {
                           'AGG50': 'AGING'
                         };
                         return (
-                        <button
-                          key={origin}
-                          onClick={() => setExchangeOrigin(origin)}
-                          className={`py-3 px-4 rounded-xl text-sm font-bold border-2 transition-all ${exchangeOrigin === origin ? 'border-[#E10098] bg-[#E10098]/10 text-[#E10098]' : 'border-zinc-200 text-zinc-500 hover:border-zinc-300'}`}
-                        >
-                          {labels[origin]}
-                        </button>
-                      )})}
+                          <button
+                            key={origin}
+                            onClick={() => setExchangeOrigin(origin)}
+                            className={`py-3 px-4 rounded-xl text-sm font-bold border-2 transition-all ${
+                              exchangeOrigin === origin
+                                ? 'border-[#E10098] bg-[#E10098]/10 text-[#E10098]'
+                                : 'border-zinc-200 text-zinc-500 hover:border-zinc-300'
+                            }`}
+                          >
+                            {labels[origin]}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </CardContent>
@@ -454,44 +511,14 @@ export default function Home() {
             )}
           </div>
 
-          <div className="flex flex-col items-center justify-start gap-6 lg:sticky lg:top-0 w-full lg:h-full lg:overflow-y-auto pb-10 custom-scrollbar">
-            <div className="no-print grid grid-cols-2 md:grid-cols-4 p-1.5 bg-zinc-200/50 backdrop-blur-md rounded-2xl w-full gap-1 border border-zinc-200/50 shadow-inner">
-                <button 
-                  onClick={() => setViewMode('exchange_seal')} 
-                  className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs xl:text-sm font-semibold transition-all duration-200 ${viewMode === 'exchange_seal' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
-                >
-                    <Info className="h-4 w-4 shrink-0" />
-                    <span className="truncate">Selo Troca</span>
-                </button>
-                <button 
-                  onClick={() => setViewMode('events')} 
-                  className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs xl:text-sm font-semibold transition-all duration-200 ${viewMode === 'events' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
-                >
-                    <CalendarDays className="h-4 w-4 shrink-0" />
-                    <span className="truncate">Eventos</span>
-                </button>
-                <button 
-                  onClick={() => setViewMode('discount')} 
-                  className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs xl:text-sm font-semibold transition-all duration-200 ${viewMode === 'discount' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
-                >
-                    <TicketPercent className="h-4 w-4 shrink-0" />
-                    <span className="truncate">Cupom 10%</span>
-                </button>
-                <button 
-                  onClick={() => setViewMode('survey_invite')} 
-                  className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs xl:text-sm font-semibold transition-all duration-200 ${viewMode === 'survey_invite' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
-                >
-                    <MessageSquare className="h-4 w-4 shrink-0" />
-                    <span className="truncate">Pesquisa</span>
-                </button>
-            </div>
-
-            <div id="print-container" className="w-full lg:w-[450px] overflow-x-auto no-scrollbar origin-top scale-[0.85] sm:scale-100 flex justify-center shrink-0 py-4">
+          {/* RIGHT COLUMN — Preview + Print button */}
+          <div className="flex flex-col items-center justify-start gap-4 w-full lg:h-full lg:overflow-y-auto custom-scrollbar pb-4">
+            <div id="print-container" className="w-full overflow-x-auto no-scrollbar origin-top scale-[0.85] sm:scale-100 flex justify-center shrink-0 py-2 relative">
               {viewMode === 'aging_label' && (
                 <style>{`
                   @media print {
-                    @page { 
-                      size: 100mm 15mm !important; 
+                    @page {
+                      size: 100mm 15mm !important;
                       margin: 0 !important;
                     }
                     #print-container {
@@ -513,8 +540,8 @@ export default function Home() {
               {viewMode === 'exchange_seal' && (
                 <style>{`
                   @media print {
-                    @page { 
-                      size: 110mm 50mm !important; 
+                    @page {
+                      size: 110mm 50mm !important;
                       margin: 0 !important;
                     }
                     #print-container {
@@ -533,43 +560,45 @@ export default function Home() {
               )}
               {!isPrintEnabled && (
                 <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-8 text-center no-print">
-                  <div className="h-16 w-16 bg-[#E10098]/10 rounded-full flex items-center justify-center mb-4">
-                    <Info className="h-8 w-8 text-[#E10098]" />
+                  <div className="h-14 w-14 bg-[#E10098]/10 rounded-full flex items-center justify-center mb-3">
+                    <Info className="h-7 w-7 text-[#E10098]" />
                   </div>
-                  <h3 className="text-lg font-bold text-zinc-900 mb-2">Atenção!</h3>
+                  <h3 className="text-base font-bold text-zinc-900 mb-1">Atenção!</h3>
                   <p className="text-sm text-zinc-500">Por favor, identifique a sua <b>unidade/loja</b> primeiro para habilitar a impressão.</p>
                 </div>
               )}
               {viewMode === 'events' ? (
-                  <PrintContainer
-                    storeName={storeName}
-                    events={enhancedEvents}
-                    whatsapp={whatsapp}
-                    instagram={instagram}
-                    brand={brand}
-                  />
+                <PrintContainer
+                  storeName={storeName}
+                  events={enhancedEvents}
+                  whatsapp={whatsapp}
+                  instagram={instagram}
+                  brand={brand}
+                />
               ) : viewMode === 'discount' ? (
-                  <DiscountCoupon storeName={storeName} brand={brand} />
+                <DiscountCoupon storeName={storeName} brand={brand} />
               ) : viewMode === 'survey_invite' ? (
-                  <SurveyInviteCoupon 
-                    storeCode={derivedStoreCode} 
-                    storeName={storeName} 
-                    brand={brand} 
-                  />
+                <SurveyInviteCoupon
+                  storeCode={derivedStoreCode}
+                  storeName={storeName}
+                  brand={brand}
+                />
               ) : viewMode === 'aging_label' ? (
-                  <AgingLabel />
+                <AgingLabel />
               ) : (
-                  <ExchangeSeal origin={exchangeOrigin} storeCode={derivedStoreCode} />
+                <ExchangeSeal origin={exchangeOrigin} storeCode={derivedStoreCode} />
               )}
             </div>
 
-            <div className="flex w-full max-w-[450px] flex-col gap-4 no-print mt-2">
-
-              
-              <Button 
-                onClick={() => window.print()} 
+            <div className="no-print w-full flex flex-col gap-3 mt-auto">
+              <Button
+                onClick={() => window.print()}
                 disabled={!isPrintEnabled}
-                className={`w-full py-6 rounded-2xl shadow-lg transition-all active:scale-[0.98] ${isPrintEnabled ? 'bg-zinc-900 hover:bg-zinc-800 text-white' : 'bg-zinc-200 text-zinc-400 cursor-not-allowed'}`} 
+                className={`w-full py-6 rounded-2xl shadow-lg transition-all active:scale-[0.98] ${
+                  isPrintEnabled
+                    ? 'bg-zinc-900 hover:bg-zinc-800 text-white'
+                    : 'bg-zinc-200 text-zinc-400 cursor-not-allowed'
+                }`}
                 size="lg"
               >
                 <Printer className="mr-3 h-5 w-5" />
@@ -577,6 +606,7 @@ export default function Home() {
               </Button>
             </div>
           </div>
+
         </div>
       </div>
     </main>

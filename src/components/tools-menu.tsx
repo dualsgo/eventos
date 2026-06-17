@@ -40,16 +40,37 @@ export function ToolsMenu() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="no-print fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-      {/* Tool links panel */}
-      <div
-        className={`flex flex-col gap-2 transition-all duration-300 origin-bottom-right ${
+    <div className="no-print fixed top-4 right-4 z-50 flex flex-col items-end gap-2">
+      {/* Toggle button */}
+      <button
+        onClick={() => setOpen((v) => !v)}
+        aria-label={open ? "Fechar menu de ferramentas" : "Abrir menu de ferramentas"}
+        className={`group flex items-center gap-2 rounded-xl shadow-md px-3 py-2 transition-all duration-300 active:scale-95 border ${
           open
-            ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
-            : "opacity-0 scale-95 translate-y-2 pointer-events-none"
+            ? "bg-zinc-900 border-zinc-700 text-white"
+            : "bg-white/90 backdrop-blur-md border-zinc-200/80 text-zinc-600 hover:bg-zinc-900 hover:text-white hover:border-zinc-700 hover:shadow-xl"
         }`}
       >
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-zinc-200/70 p-3 flex flex-col gap-2 min-w-[220px]">
+        <span className={`transition-all duration-300 ${open ? "scale-0 w-0 overflow-hidden" : "scale-100"}`}>
+          <LayoutGrid className="h-4 w-4" />
+        </span>
+        <span className={`transition-all duration-300 ${open ? "scale-100" : "scale-0 w-0 overflow-hidden"}`}>
+          <X className="h-4 w-4" />
+        </span>
+        <span className="text-xs font-semibold">
+          {open ? "Fechar" : "Outras Ferramentas"}
+        </span>
+      </button>
+
+      {/* Tool links panel */}
+      <div
+        className={`transition-all duration-300 origin-top-right ${
+          open
+            ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
+            : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+        }`}
+      >
+        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-zinc-200/70 p-3 flex flex-col gap-2 min-w-[230px]">
           <p className="text-[10px] uppercase font-bold text-zinc-400 tracking-widest px-1 pb-1 border-b border-zinc-100">
             Outras Ferramentas
           </p>
@@ -95,25 +116,6 @@ export function ToolsMenu() {
           })}
         </div>
       </div>
-
-      {/* Toggle button */}
-      <button
-        onClick={() => setOpen((v) => !v)}
-        aria-label={open ? "Fechar menu de ferramentas" : "Abrir menu de ferramentas"}
-        className={`group h-13 w-13 rounded-2xl shadow-lg flex items-center justify-center transition-all duration-300 active:scale-95 border ${
-          open
-            ? "bg-zinc-900 border-zinc-700 text-white rotate-90"
-            : "bg-white border-zinc-200/80 text-zinc-600 hover:bg-zinc-900 hover:text-white hover:border-zinc-700 hover:shadow-xl"
-        }`}
-        style={{ height: 52, width: 52 }}
-      >
-        <span className={`transition-all duration-300 ${open ? "scale-0 absolute" : "scale-100"}`}>
-          <LayoutGrid className="h-5 w-5" />
-        </span>
-        <span className={`transition-all duration-300 ${open ? "scale-100" : "scale-0 absolute"}`}>
-          <X className="h-5 w-5" />
-        </span>
-      </button>
     </div>
   );
 }
