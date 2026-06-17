@@ -70,7 +70,7 @@ const initialEvent: EventData = {
 };
 
 export default function Home() {
-  const [storeName, setStoreName] = useState('');
+  const [storeCode, setStoreCode] = useState('');
   const [brand, setBrand] = useState<Brand>('ri_happy');
   const [whatsapp, setWhatsapp] = useState('');
   const [instagram, setInstagram] = useState('');
@@ -78,19 +78,26 @@ export default function Home() {
   const [isSameThemeAllMonth, setIsSameThemeAllMonth] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("exchange_seal");
   const [exchangeOrigin, setExchangeOrigin] = useState<'ADD PICKUP' | 'Site' | 'AGG50'>('ADD PICKUP');
-  const [exchangeStore, setExchangeStore] = useState('');
-  const [surveyStoreCode, setSurveyStoreCode] = useState('');
 
-  const isPrintEnabled = 
-    viewMode === 'aging_label' ||
-    (viewMode === 'exchange_seal' && !!exchangeStore) ||
-    (viewMode === 'survey_invite' && !!surveyStoreCode) ||
-    (viewMode !== 'exchange_seal' && viewMode !== 'survey_invite' && viewMode !== 'aging_label' && !!storeName);
+  const storeName = useMemo(() => {
+    return STORES.find(s => s.code === storeCode)?.name || '';
+  }, [storeCode]);
+
+  const isPrintEnabled = viewMode === 'aging_label' || !!storeCode;
 
   useEffect(() => {
     try {
-      const savedStoreName = localStorage.getItem(LOCAL_STORAGE_KEY_STORE);
-      if (savedStoreName) setStoreName(JSON.parse(savedStoreName));
+      const savedStoreNameOrCode = localStorage.getItem(LOCAL_STORAGE_KEY_STORE);
+      if (savedStoreNameOrCode) {
+        const parsed = JSON.parse(savedStoreNameOrCode);
+        const isCode = STORES.some(s => s.code === parsed);
+        if (isCode) {
+          setStoreCode(parsed);
+        } else {
+          const found = STORES.find(s => s.name === parsed);
+          if (found) setStoreCode(found.code);
+        }
+      }
       const savedBrand = localStorage.getItem(LOCAL_STORAGE_KEY_BRAND);
       if (savedBrand) setBrand(JSON.parse(savedBrand));
       const savedWhatsapp = localStorage.getItem(LOCAL_STORAGE_KEY_WHATSAPP);
@@ -111,12 +118,12 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_STORE, JSON.stringify(storeName));
+    localStorage.setItem(LOCAL_STORAGE_KEY_STORE, JSON.stringify(storeCode));
     localStorage.setItem(LOCAL_STORAGE_KEY_BRAND, JSON.stringify(brand));
     localStorage.setItem(LOCAL_STORAGE_KEY_WHATSAPP, JSON.stringify(whatsapp));
     localStorage.setItem(LOCAL_STORAGE_KEY_INSTAGRAM, JSON.stringify(instagram));
     localStorage.setItem(LOCAL_STORAGE_KEY_EVENTS, JSON.stringify(events));
-  }, [storeName, brand, whatsapp, instagram, events]);
+  }, [storeCode, brand, whatsapp, instagram, events]);
 
   useEffect(() => {
     document.body.classList.remove('print-events', 'print-discount', 'print-exchange_seal');
@@ -238,13 +245,18 @@ export default function Home() {
                 <div className="grid grid-cols-1 sm:grid-cols-[1.5fr,1fr] gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="storeName" className="text-zinc-700 font-semibold text-sm">Nome da Unidade</Label>
-                    <Input 
-                      id="storeName" 
-                      value={storeName} 
-                      onChange={(e) => setStoreName(e.target.value)} 
-                      placeholder="Ex: Carioca Shopping"
-                      className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-11"
-                    />
+                    <Select value={storeCode} onValueChange={setStoreCode}>
+                      <SelectTrigger className="h-11 bg-white/50 border-zinc-200 rounded-xl focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098]">
+                        <SelectValue placeholder="Selecione a loja" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {STORES.map((store) => (
+                          <SelectItem key={store.code} value={store.code}>
+                            {store.code} - {store.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="brand" className="text-zinc-700 font-semibold text-sm">Rede</Label>
@@ -378,7 +390,7 @@ export default function Home() {
                   <CardTitle className="text-lg font-bold flex items-center gap-2 text-zinc-800">
                     Configurar Selo Troca
                   </CardTitle>
-                  <CardDescription className="text-zinc-500">Selecione a origem e a unidade da loja.</CardDescription>
+                  <CardDescription className="text-zinc-500">Selecione a origem da troca.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6 pt-6">
                   <div className="space-y-2">
@@ -401,72 +413,13 @@ export default function Home() {
                       )})}
                     </div>
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="exchangeStore" className="text-zinc-700 font-semibold text-sm">Loja (4 dígitos)</Label>
-                    <Select value={exchangeStore} onValueChange={setExchangeStore}>
-                      <SelectTrigger className="h-11 bg-white/50 border-zinc-200 rounded-xl">
-                        <SelectValue placeholder="Selecione a loja" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {STORES.map((store) => (
-                          <SelectItem key={store.code} value={store.code}>
-                            {store.code} - {store.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {viewMode === 'survey_invite' && (
-              <Card className="shadow-none border border-zinc-200/60 bg-white/60 backdrop-blur-xl rounded-2xl">
-                <CardHeader className="border-b border-zinc-100 pb-5">
-                  <CardTitle className="text-lg font-bold flex items-center gap-2 text-zinc-800">
-                    Configurar Pesquisa
-                  </CardTitle>
-                  <CardDescription className="text-zinc-500">Selecione a unidade da loja.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6 pt-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="surveyStore" className="text-zinc-700 font-semibold text-sm">Loja na URL (4 dígitos)</Label>
-                    <Select value={surveyStoreCode} onValueChange={setSurveyStoreCode}>
-                      <SelectTrigger className="h-11 bg-white/50 border-zinc-200 rounded-xl">
-                        <SelectValue placeholder="Selecione a loja" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {STORES.map((store) => (
-                          <SelectItem key={store.code} value={store.code}>
-                            {store.code} - {store.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="brand" className="text-zinc-700 font-semibold text-sm">Rede</Label>
-                    <Select value={brand} onValueChange={(value) => setBrand(value as Brand)}>
-                      <SelectTrigger className="h-11 bg-white/50 border-zinc-200 rounded-xl focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(BRAND_LABELS).map(([key, label]) => (
-                          <SelectItem key={key} value={key}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
                 </CardContent>
               </Card>
             )}
           </div>
 
           <div className="flex flex-col items-center justify-start gap-6 lg:sticky lg:top-0 w-full h-full overflow-y-auto pb-10 custom-scrollbar">
-            <div className="no-print grid grid-cols-2 md:grid-cols-5 p-1.5 bg-zinc-200/50 backdrop-blur-md rounded-2xl w-full gap-1 border border-zinc-200/50 shadow-inner">
+            <div className="no-print grid grid-cols-2 md:grid-cols-4 p-1.5 bg-zinc-200/50 backdrop-blur-md rounded-2xl w-full gap-1 border border-zinc-200/50 shadow-inner">
                 <button 
                   onClick={() => setViewMode('exchange_seal')} 
                   className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs xl:text-sm font-semibold transition-all duration-200 ${viewMode === 'exchange_seal' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
@@ -494,13 +447,6 @@ export default function Home() {
                 >
                     <MessageSquare className="h-4 w-4 shrink-0" />
                     <span className="truncate">Pesquisa</span>
-                </button>
-                <button 
-                  onClick={() => setViewMode('aging_label')} 
-                  className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs xl:text-sm font-semibold transition-all duration-200 ${viewMode === 'aging_label' ? 'bg-white shadow border border-zinc-200/50 text-zinc-900' : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/30'}`}
-                >
-                    <Printer className="h-4 w-4 shrink-0" />
-                    <span className="truncate">Aging</span>
                 </button>
             </div>
 
@@ -532,21 +478,19 @@ export default function Home() {
                 <style>{`
                   @media print {
                     @page { 
-                      size: 102mm 48mm !important; 
+                      size: 110mm 50mm !important; 
                       margin: 0 !important;
                     }
                     #print-container {
-                      width: 102mm !important;
-                      height: 48mm !important;
+                      width: 110mm !important;
+                      height: 50mm !important;
                       display: flex !important;
-                      justify-content: flex-start !important;
-                      align-items: flex-start !important;
+                      justify-content: center !important;
+                      align-items: center !important;
                       position: absolute !important;
                       left: 0 !important;
                       top: 0 !important;
                       overflow: hidden !important;
-                      margin: 0 !important;
-                      padding: 0 !important;
                     }
                   }
                 `}</style>
@@ -572,14 +516,14 @@ export default function Home() {
                   <DiscountCoupon storeName={storeName} brand={brand} />
               ) : viewMode === 'survey_invite' ? (
                   <SurveyInviteCoupon 
-                    storeCode={surveyStoreCode} 
-                    storeName={STORES.find(s => s.code === surveyStoreCode)?.name || storeName} 
+                    storeCode={storeCode} 
+                    storeName={storeName} 
                     brand={brand} 
                   />
               ) : viewMode === 'aging_label' ? (
                   <AgingLabel />
               ) : (
-                  <ExchangeSeal origin={exchangeOrigin} storeCode={exchangeStore} />
+                  <ExchangeSeal origin={exchangeOrigin} storeCode={storeCode} />
               )}
             </div>
 
