@@ -3,6 +3,7 @@
 import type { EventData } from './event-form';
 import { Card } from '@/components/ui/card';
 import { PrintPreview } from './print-preview';
+import QRCode from 'react-qr-code';
 
 interface PrintContainerProps {
   events: EventData[];
@@ -14,6 +15,7 @@ interface PrintContainerProps {
 
 const RECEIPT_WIDTH_PX = 302;
 const RECEIPT_MIN_HEIGHT_PX = 113;
+const SUPER_EVENTOS_URL = "https://www.rihappy.com.br/super-eventos?utmi_cp=super_eventos&utmi_p=home_ri_happy&utmi_pc=button";
 
 const BRAND_LABELS: Record<'ri_happy' | 'pb_kids', string> = {
   ri_happy: 'RI HAPPY',
@@ -67,6 +69,21 @@ export function PrintContainer({ events, storeName, whatsapp, instagram, brand }
         </>
       )}
 
+      {/* QR Code Super Eventos */}
+      <p className="text-xs my-2 text-center tracking-tighter opacity-30">{separator}</p>
+      <div className="flex flex-col items-center gap-1.5 mt-2 mb-4">
+        <p className="text-[10px] font-bold uppercase tracking-wide">Confira todos os nossos eventos!</p>
+        <div className="p-1.5 bg-white rounded border border-black/10 inline-block">
+          <QRCode
+            value={SUPER_EVENTOS_URL}
+            size={80}
+            bgColor="#ffffff"
+            fgColor="#000000"
+            level="M"
+          />
+        </div>
+        <p className="text-[9px] font-medium opacity-60">Escaneie o QR Code com seu celular</p>
+      </div>
 
       {/* Efeito visual de papel rasgado (apenas tela) */}
       <div 
