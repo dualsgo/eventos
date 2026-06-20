@@ -14,7 +14,6 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/
 import { ExchangeSeal } from '@/components/exchange-seal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SurveyInviteCoupon } from '@/components/survey-invite-coupon';
-import { AgingLabel } from '@/components/aging-label';
 import { ToolsMenu } from '@/components/tools-menu';
 
 const MAX_EVENTS = 4;
@@ -24,7 +23,7 @@ const LOCAL_STORAGE_KEY_WHATSAPP = "eventPrinter.whatsapp";
 const LOCAL_STORAGE_KEY_INSTAGRAM = "eventPrinter.instagram";
 const LOCAL_STORAGE_KEY_EVENTS = "eventPrinter.events";
 
-type ViewMode = 'events' | 'discount' | 'exchange_seal' | 'survey_invite' | 'aging_label';
+type ViewMode = 'events' | 'discount' | 'exchange_seal' | 'survey_invite';
 
 export type Brand = 'ri_happy' | 'pb_kids';
 
@@ -100,7 +99,7 @@ export default function Home() {
     return storeCode;
   }, [storeCode, customStore]);
 
-  const isPrintEnabled = viewMode === 'aging_label' || (storeCode === 'OUTRA' ? !!customStore : !!storeCode);
+  const isPrintEnabled = (storeCode === 'OUTRA' ? !!customStore : !!storeCode);
 
   useEffect(() => {
     try {
@@ -514,29 +513,6 @@ export default function Home() {
           {/* RIGHT COLUMN — Preview + Print button */}
           <div className="flex flex-col items-center justify-start gap-4 w-full pb-4">
             <div id="print-container" className="w-full overflow-x-auto no-scrollbar origin-top scale-[0.85] sm:scale-100 flex justify-center shrink-0 py-2 relative">
-              {viewMode === 'aging_label' && (
-                <style>{`
-                  @media print {
-                    @page {
-                      size: 100mm 15mm !important;
-                      margin: 0 !important;
-                    }
-                    #print-container {
-                      width: 100mm !important;
-                      height: 15mm !important;
-                      display: flex !important;
-                      justify-content: flex-start !important;
-                      align-items: flex-start !important;
-                      position: absolute !important;
-                      left: 0 !important;
-                      top: 0 !important;
-                      overflow: hidden !important;
-                      margin: 0 !important;
-                      padding: 0 !important;
-                    }
-                  }
-                `}</style>
-              )}
               {viewMode === 'exchange_seal' && (
                 <style>{`
                   @media print {
@@ -583,8 +559,6 @@ export default function Home() {
                   storeName={storeName}
                   brand={brand}
                 />
-              ) : viewMode === 'aging_label' ? (
-                <AgingLabel />
               ) : (
                 <ExchangeSeal origin={exchangeOrigin} storeCode={derivedStoreCode} />
               )}
