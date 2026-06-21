@@ -507,7 +507,7 @@ export default function Home() {
                   <Accordion type="multiple" className="w-full space-y-3">
                     {events.map((eventData) => (
                       <AccordionItem value={eventData.id!} key={eventData.id} className="border-none">
-                        <div className={`border rounded-2xl transition-all shadow-sm ${eventData.isActive ? 'border-zinc-200 bg-white' : 'border-dashed border-zinc-200 bg-zinc-50/50 opacity-70'}`[...)}>
+                        <div className={`border rounded-2xl transition-all shadow-sm ${eventData.isActive ? 'border-zinc-200 bg-white' : 'border-dashed border-zinc-200 bg-zinc-50/50 opacity-70'}`}>
                           <AccordionTrigger className="px-5 py-3.5 hover:no-underline rounded-2xl">
                             <div className="flex-1 text-left flex items-center gap-4">
                               <div className={`h-2 w-2 rounded-full ${eventData.isActive ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-zinc-300'}`} />
