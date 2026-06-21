@@ -295,7 +295,15 @@ export default function Home() {
     return storeCode;
   }, [storeCode, customStore]);
 
-  const isPrintEnabled = (storeCode === 'OUTRA' ? !!customStore : !!storeCode);
+  const isPrintEnabled = useMemo(() => {
+    const hasStore = storeCode === 'OUTRA' ? !!customStore : !!storeCode;
+    
+    if (viewMode === 'exchange_seal') {
+      return hasStore && selectedRegional !== 'TODAS' && !!brand;
+    }
+    
+    return hasStore;
+  }, [storeCode, customStore, viewMode, selectedRegional, brand]);
 
   useEffect(() => {
     try {
@@ -573,28 +581,30 @@ export default function Home() {
                     </Select>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="whatsapp" className="text-zinc-700 font-semibold text-xs">WhatsApp</Label>
-                    <Input
-                      id="whatsapp"
-                      value={whatsapp}
-                      onChange={(e) => setWhatsapp(e.target.value)}
-                      placeholder="(21) 99999-8888"
-                      className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-10"
-                    />
+                {viewMode === 'events' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="whatsapp" className="text-zinc-700 font-semibold text-xs">WhatsApp</Label>
+                      <Input
+                        id="whatsapp"
+                        value={whatsapp}
+                        onChange={(e) => setWhatsapp(e.target.value)}
+                        placeholder="(21) 99999-8888"
+                        className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-10"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="instagram" className="text-zinc-700 font-semibold text-xs">Instagram</Label>
+                      <Input
+                        id="instagram"
+                        value={instagram}
+                        onChange={(e) => setInstagram(e.target.value)}
+                        placeholder="@rihappy"
+                        className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-10"
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="instagram" className="text-zinc-700 font-semibold text-xs">Instagram</Label>
-                    <Input
-                      id="instagram"
-                      value={instagram}
-                      onChange={(e) => setInstagram(e.target.value)}
-                      placeholder="@rihappy"
-                      className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-10"
-                    />
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
 
