@@ -338,7 +338,7 @@ export default function Home() {
         }
       }
     } catch (error) {
-        console.error("Failed to load data from localStorage", error);
+         console.error("Failed to load data from localStorage", error);
     }
   }, []);
 
@@ -662,7 +662,7 @@ export default function Home() {
                   {events.length < MAX_EVENTS && (
                     <Button
                       onClick={handleAddEvent}
-                      className="w-full mt-4 py-5 border-dashed border-2 bg-transparent text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800 hover:border-zinc-300 transition-all rounded-2xl shadow-none"
+                      className="w-full mt-4 py-5 border-dashed border-2 bg-transparent text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800 hover:border-zinc-300 transition-all rounded-2xl"
                       variant="outline"
                     >
                       <PlusCircle className="mr-2 h-4 w-4" />
@@ -738,12 +738,12 @@ export default function Home() {
                 <style>{`
                   @media print {
                     @page {
-                      size: 110mm 50mm !important;
+                      size: 102mm 48mm !important;
                       margin: 0 !important;
                     }
                     #print-container {
-                      width: 110mm !important;
-                      height: 50mm !important;
+                      width: 102mm !important;
+                      height: 48mm !important;
                       display: flex !important;
                       justify-content: center !important;
                       align-items: center !important;
