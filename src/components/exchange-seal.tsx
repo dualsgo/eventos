@@ -26,7 +26,7 @@ export function ExchangeSeal({ origin, storeCode }: ExchangeSealProps) {
       <div style={{ height: '5mm' }} />
 
       {/* 20mm - Loja e Selo Troca */}
-      <div className="flex flex-col items-start justify-center pl-2" style={{ height: '20mm' }}>
+      <div className="flex flex-col items-start justify-center pl-2" style={{ height: '20mm', paddingTop: '1mm' }}>
         <p className="text-lg leading-tight">
           Loja: {storeCode}
         </p>
@@ -45,9 +45,9 @@ export function ExchangeSeal({ origin, storeCode }: ExchangeSealProps) {
       {/* 5mm - Espaço que era da Política (Vazio agora) */}
       <div style={{ height: '5mm' }} />
 
-      {/* 10mm - Data (Começa em 14mm da esquerda e 3mm do fundo) */}
+      {/* 10mm - Data (Começa em 14mm da esquerda e 2mm do fundo) */}
       <div className="relative w-full" style={{ height: '10mm' }}>
-        <p className="absolute text-xs leading-none" style={{ left: '14mm', bottom: '3mm' }}>
+        <p className="absolute text-xs leading-none" style={{ left: '14mm', bottom: '2mm' }}>
           {today}
         </p>
       </div>
