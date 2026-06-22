@@ -345,8 +345,12 @@ export default function Home() {
   const isPrintEnabled = useMemo(() => {
     const hasStore = storeCode === 'OUTRA' ? !!customStore : !!storeCode;
     
+    if (viewMode === 'events') {
+      return hasStore && !!brand;
+    }
+
     if (viewMode === 'exchange_seal') {
-      return hasStore && !!selectedRegional && !!brand;
+      return hasStore && !!selectedRegional;
     }
     
     return hasStore;
@@ -578,7 +582,7 @@ export default function Home() {
                 <CardDescription className="text-zinc-500 text-xs">Estes dados serão usados no cabeçalho dos cupons.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3 pt-4 px-5 pb-5">
-                <div className="grid grid-cols-1 sm:grid-cols-[1fr,1.5fr,1fr] gap-3">
+                <div className={`grid grid-cols-1 gap-3 ${viewMode === 'events' ? 'sm:grid-cols-[1fr,1.5fr,1fr]' : 'sm:grid-cols-[1fr,2fr]'}`}>
                   <div className="space-y-1.5">
                     <Label htmlFor="regional" className="text-zinc-700 font-semibold text-xs">Regional</Label>
                     <Select value={selectedRegional} onValueChange={(val) => { setSelectedRegional(val); setStoreCode(''); }}>
@@ -618,21 +622,23 @@ export default function Home() {
                       />
                     )}
                   </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="brand" className="text-zinc-700 font-semibold text-xs">Rede</Label>
-                    <Select value={brand} onValueChange={(value) => setBrand(value as Brand)} disabled={!storeCode}>
-                      <SelectTrigger className="h-10 bg-white/50 border-zinc-200 rounded-xl focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] disabled:opacity-50">
-                        <SelectValue placeholder="Selecione a Rede" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(BRAND_LABELS).map(([key, label]) => (
-                          <SelectItem key={key} value={key}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  {viewMode === 'events' && (
+                    <div className="space-y-1.5">
+                      <Label htmlFor="brand" className="text-zinc-700 font-semibold text-xs">Rede</Label>
+                      <Select value={brand} onValueChange={(value) => setBrand(value as Brand)} disabled={!storeCode}>
+                        <SelectTrigger className="h-10 bg-white/50 border-zinc-200 rounded-xl focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] disabled:opacity-50">
+                          <SelectValue placeholder="Selecione a Rede" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(BRAND_LABELS).map(([key, label]) => (
+                            <SelectItem key={key} value={key}>
+                              {label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                 </div>
                 {viewMode === 'events' && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
