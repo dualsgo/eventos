@@ -275,52 +275,6 @@ export default function Home() {
   const [isSameThemeAllMonth, setIsSameThemeAllMonth] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("exchange_seal");
   const [exchangeOrigin, setExchangeOrigin] = useState<'ADD PICKUP' | 'Site' | 'AGG50'>('ADD PICKUP');
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
-
-  const handleGeneratePDF = async () => {
-    setIsGeneratingPdf(true);
-    try {
-      const { toJpeg } = await import('html-to-image');
-      const { jsPDF } = await import('jspdf');
-
-      const element = document.getElementById('capture-target');
-      if (!element) return;
-
-      const imgData = await toJpeg(element, {
-        quality: 1.0,
-        backgroundColor: '#ffffff',
-        pixelRatio: 4,
-        fontEmbedCSS: '', // Evita erro de CORS ao ler CSSRules (Google Fonts, etc)
-      });
-      
-      let pdf;
-      if (viewMode === 'exchange_seal') {
-        pdf = new jsPDF({
-          orientation: 'landscape',
-          unit: 'mm',
-          format: [102, 48]
-        });
-        pdf.addImage(imgData, 'JPEG', 0, 0, 102, 48);
-        pdf.save('selo_troca.pdf');
-      } else {
-        const mmWidth = 80;
-        const rect = element.getBoundingClientRect();
-        const mmHeight = (rect.height * mmWidth) / rect.width;
-        pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'mm',
-          format: [mmWidth, mmHeight]
-        });
-        pdf.addImage(imgData, 'JPEG', 0, 0, mmWidth, mmHeight);
-        pdf.save('etiqueta.pdf');
-      }
-    } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
-      alert('Ocorreu um erro ao gerar o PDF. Tente novamente.');
-    } finally {
-      setIsGeneratingPdf(false);
-    }
-  };
 
   const storeName = useMemo(() => {
     if (storeCode === 'OUTRA') {
@@ -812,46 +766,40 @@ export default function Home() {
                   <p className="text-sm text-zinc-500">Por favor, identifique a sua <b>unidade/loja</b> primeiro para habilitar a impressão.</p>
                 </div>
               )}
-              <div id="capture-target" className="shrink-0 bg-white">
-                {viewMode === 'events' ? (
-                  <PrintContainer
-                    storeName={storeName}
-                    events={enhancedEvents}
-                    whatsapp={whatsapp}
-                    instagram={instagram}
-                    brand={brand}
-                  />
-                ) : viewMode === 'discount' ? (
-                  <DiscountCoupon storeName={storeName} brand={brand} />
-                ) : viewMode === 'survey_invite' ? (
-                  <SurveyInviteCoupon
-                    storeCode={derivedStoreCode}
-                    storeName={storeName}
-                    brand={brand}
-                  />
-                ) : (
-                  <ExchangeSeal origin={exchangeOrigin} storeCode={derivedStoreCode} />
-                )}
-              </div>
+              {viewMode === 'events' ? (
+                <PrintContainer
+                  storeName={storeName}
+                  events={enhancedEvents}
+                  whatsapp={whatsapp}
+                  instagram={instagram}
+                  brand={brand}
+                />
+              ) : viewMode === 'discount' ? (
+                <DiscountCoupon storeName={storeName} brand={brand} />
+              ) : viewMode === 'survey_invite' ? (
+                <SurveyInviteCoupon
+                  storeCode={derivedStoreCode}
+                  storeName={storeName}
+                  brand={brand}
+                />
+              ) : (
+                <ExchangeSeal origin={exchangeOrigin} storeCode={derivedStoreCode} />
+              )}
             </div>
 
             <div className="no-print w-full flex flex-col gap-3">
               <Button
-                onClick={handleGeneratePDF}
-                disabled={!isPrintEnabled || isGeneratingPdf}
+                onClick={() => window.print()}
+                disabled={!isPrintEnabled}
                 className={`w-full py-6 rounded-2xl shadow-lg transition-all active:scale-[0.98] ${
-                  isPrintEnabled && !isGeneratingPdf
+                  isPrintEnabled
                     ? 'bg-zinc-900 hover:bg-zinc-800 text-white'
                     : 'bg-zinc-200 text-zinc-400 cursor-not-allowed'
                 }`}
                 size="lg"
               >
-                <Printer className={`mr-3 h-5 w-5 ${isGeneratingPdf ? 'animate-pulse' : ''}`} />
-                <span className="text-base font-semibold">
-                  {isGeneratingPdf 
-                    ? 'Gerando...' 
-                    : (viewMode === 'exchange_seal' ? 'Gerar Selo' : 'Gerar Etiqueta')}
-                </span>
+                <Printer className="mr-3 h-5 w-5" />
+                <span className="text-base font-semibold">Imprimir Agora</span>
               </Button>
             </div>
           </div>

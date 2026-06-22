@@ -20,7 +20,7 @@ export function ExchangeSeal({ origin, storeCode }: ExchangeSealProps) {
 
   const Label = () => (
     <div className="flex flex-col bg-white text-black text-center overflow-hidden border-r border-dashed border-gray-200 last:border-r-0 print:border-none" 
-         style={{ width: '34mm', height: '50mm', fontFamily: 'Arial, sans-serif' }}>
+         style={{ width: '34mm', height: '48mm', fontFamily: 'Arial, sans-serif' }}>
       
       {/* 5mm - Logo (Reservado) */}
       <div style={{ height: '5mm' }} />
@@ -55,7 +55,7 @@ export function ExchangeSeal({ origin, storeCode }: ExchangeSealProps) {
   );
 
   return (
-    <div className="flex bg-white shadow-xl print:shadow-none" style={{ width: '110mm', height: '50mm' }}>
+    <div className="flex bg-white shadow-xl print:shadow-none" style={{ width: '102mm', height: '48mm' }}>
       <Label />
       <Label />
       <Label />
