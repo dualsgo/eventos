@@ -17,6 +17,7 @@ import { SurveyInviteCoupon } from '@/components/survey-invite-coupon';
 import { ToolsMenu } from '@/components/tools-menu';
 
 const MAX_EVENTS = 4;
+const LOCAL_STORAGE_KEY_REGIONAL = "eventPrinter.regional";
 const LOCAL_STORAGE_KEY_STORE = "eventPrinter.storeName";
 const LOCAL_STORAGE_KEY_BRAND = "eventPrinter.brand";
 const LOCAL_STORAGE_KEY_WHATSAPP = "eventPrinter.whatsapp";
@@ -255,20 +256,20 @@ const initialEvent: EventData = {
 };
 
 export default function Home() {
-  const [selectedRegional, setSelectedRegional] = useState('TODAS');
+  const [selectedRegional, setSelectedRegional] = useState('');
   const [storeCode, setStoreCode] = useState('');
   const [customStore, setCustomStore] = useState('');
   
   const regionals = useMemo(() => {
     const regs = new Set(STORES.map(s => s.regional));
-    return ['TODAS', ...Array.from(regs)].sort();
+    return Array.from(regs).sort();
   }, []);
 
   const filteredStores = useMemo(() => {
-    if (selectedRegional === 'TODAS') return STORES;
+    if (!selectedRegional) return [];
     return STORES.filter(s => s.regional === selectedRegional);
   }, [selectedRegional]);
-  const [brand, setBrand] = useState<Brand>('ri_happy');
+  const [brand, setBrand] = useState<Brand | ''>('');
   const [whatsapp, setWhatsapp] = useState('');
   const [instagram, setInstagram] = useState('');
   const [events, setEvents] = useState<EventData[]>([initialEvent]);
@@ -345,7 +346,7 @@ export default function Home() {
     const hasStore = storeCode === 'OUTRA' ? !!customStore : !!storeCode;
     
     if (viewMode === 'exchange_seal') {
-      return hasStore && selectedRegional !== 'TODAS' && !!brand;
+      return hasStore && !!selectedRegional && !!brand;
     }
     
     return hasStore;
@@ -353,6 +354,11 @@ export default function Home() {
 
   useEffect(() => {
     try {
+      const savedRegional = localStorage.getItem(LOCAL_STORAGE_KEY_REGIONAL);
+      if (savedRegional) {
+        setSelectedRegional(JSON.parse(savedRegional));
+      }
+
       const savedStoreNameOrCode = localStorage.getItem(LOCAL_STORAGE_KEY_STORE);
       if (savedStoreNameOrCode) {
         const parsed = JSON.parse(savedStoreNameOrCode);
@@ -389,6 +395,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY_REGIONAL, JSON.stringify(selectedRegional));
     if (storeCode === 'OUTRA') {
       localStorage.setItem(LOCAL_STORAGE_KEY_STORE, JSON.stringify(customStore));
     } else {
@@ -398,7 +405,7 @@ export default function Home() {
     localStorage.setItem(LOCAL_STORAGE_KEY_WHATSAPP, JSON.stringify(whatsapp));
     localStorage.setItem(LOCAL_STORAGE_KEY_INSTAGRAM, JSON.stringify(instagram));
     localStorage.setItem(LOCAL_STORAGE_KEY_EVENTS, JSON.stringify(events));
-  }, [storeCode, customStore, brand, whatsapp, instagram, events]);
+  }, [selectedRegional, storeCode, customStore, brand, whatsapp, instagram, events]);
 
   useEffect(() => {
     document.body.classList.remove('print-events', 'print-discount', 'print-exchange_seal');
@@ -589,8 +596,8 @@ export default function Home() {
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="storeName" className="text-zinc-700 font-semibold text-xs">Nome da Unidade</Label>
-                    <Select value={storeCode} onValueChange={setStoreCode}>
-                      <SelectTrigger className="h-10 bg-white/50 border-zinc-200 rounded-xl focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098]">
+                    <Select value={storeCode} onValueChange={setStoreCode} disabled={!selectedRegional}>
+                      <SelectTrigger className="h-10 bg-white/50 border-zinc-200 rounded-xl focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] disabled:opacity-50">
                         <SelectValue placeholder="Selecione a loja" />
                       </SelectTrigger>
                       <SelectContent>
@@ -613,9 +620,9 @@ export default function Home() {
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="brand" className="text-zinc-700 font-semibold text-xs">Rede</Label>
-                    <Select value={brand} onValueChange={(value) => setBrand(value as Brand)}>
-                      <SelectTrigger className="h-10 bg-white/50 border-zinc-200 rounded-xl focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098]">
-                        <SelectValue />
+                    <Select value={brand} onValueChange={(value) => setBrand(value as Brand)} disabled={!storeCode}>
+                      <SelectTrigger className="h-10 bg-white/50 border-zinc-200 rounded-xl focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] disabled:opacity-50">
+                        <SelectValue placeholder="Selecione a Rede" />
                       </SelectTrigger>
                       <SelectContent>
                         {Object.entries(BRAND_LABELS).map(([key, label]) => (
