@@ -9,7 +9,6 @@ interface PrintContainerProps {
   events: EventData[];
   storeName: string;
   whatsapp?: string;
-  instagram?: string;
   brand?: 'ri_happy' | 'pb_kids';
 }
 
@@ -22,7 +21,7 @@ const BRAND_LABELS: Record<'ri_happy' | 'pb_kids', string> = {
   pb_kids: 'PB KIDS',
 };
 
-export function PrintContainer({ events, storeName, whatsapp, instagram, brand }: PrintContainerProps) {
+export function PrintContainer({ events, storeName, whatsapp, brand }: PrintContainerProps) {
   const separator = "----------------------------------------";
   const headerBrand = brand ? BRAND_LABELS[brand] : undefined;
 
@@ -59,15 +58,11 @@ export function PrintContainer({ events, storeName, whatsapp, instagram, brand }
         <p className="text-[10px] font-medium mt-1">Nossos eventos são gratuitos. Esperamos por você!</p>
       </div>
 
-      {(whatsapp || instagram) && (
-        <>
-          <p className="text-xs my-2 text-center tracking-tighter opacity-30">{separator}</p>
-          <div className="text-center text-[10px] font-bold space-y-1">
-            {whatsapp && <p>WHATSAPP: {whatsapp}</p>}
-            {instagram && <p>INSTAGRAM: {instagram}</p>}
-          </div>
-        </>
-      )}
+      <p className="text-xs my-2 text-center tracking-tighter opacity-30">{separator}</p>
+      <div className="text-center text-[10px] font-bold space-y-1">
+        {whatsapp && <p>WHATSAPP: {whatsapp}</p>}
+        <p>INSTAGRAM: @rihappy @pbkids</p>
+      </div>
 
       {/* QR Code Super Eventos */}
       <p className="text-xs my-2 text-center tracking-tighter opacity-30">{separator}</p>

@@ -21,7 +21,6 @@ const LOCAL_STORAGE_KEY_REGIONAL = "eventPrinter.regional";
 const LOCAL_STORAGE_KEY_STORE = "eventPrinter.storeName";
 const LOCAL_STORAGE_KEY_BRAND = "eventPrinter.brand";
 const LOCAL_STORAGE_KEY_WHATSAPP = "eventPrinter.whatsapp";
-const LOCAL_STORAGE_KEY_INSTAGRAM = "eventPrinter.instagram";
 const LOCAL_STORAGE_KEY_EVENTS = "eventPrinter.events";
 
 type ViewMode = 'events' | 'discount' | 'exchange_seal' | 'survey_invite';
@@ -255,6 +254,16 @@ const initialEvent: EventData = {
   timeFormat: 'range',
 };
 
+const formatWhatsapp = (value: string) => {
+  let v = value.replace(/\D/g, '');
+  v = v.substring(0, 11);
+  if (v.length === 0) return '';
+  if (v.length <= 2) return `(${v}`;
+  if (v.length <= 6) return `(${v.slice(0, 2)}) ${v.slice(2)}`;
+  if (v.length <= 10) return `(${v.slice(0, 2)}) ${v.slice(2, 6)}-${v.slice(6)}`;
+  return `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
+};
+
 export default function Home() {
   const [selectedRegional, setSelectedRegional] = useState('');
   const [storeCode, setStoreCode] = useState('');
@@ -271,7 +280,6 @@ export default function Home() {
   }, [selectedRegional]);
   const [brand, setBrand] = useState<Brand | ''>('');
   const [whatsapp, setWhatsapp] = useState('');
-  const [instagram, setInstagram] = useState('');
   const [events, setEvents] = useState<EventData[]>([initialEvent]);
   const [isSameThemeAllMonth, setIsSameThemeAllMonth] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("exchange_seal");
@@ -383,8 +391,6 @@ export default function Home() {
       if (savedBrand) setBrand(JSON.parse(savedBrand));
       const savedWhatsapp = localStorage.getItem(LOCAL_STORAGE_KEY_WHATSAPP);
       if (savedWhatsapp) setWhatsapp(JSON.parse(savedWhatsapp));
-      const savedInstagram = localStorage.getItem(LOCAL_STORAGE_KEY_INSTAGRAM);
-      if (savedInstagram) setInstagram(JSON.parse(savedInstagram));
       
       const savedEvents = localStorage.getItem(LOCAL_STORAGE_KEY_EVENTS);
       if (savedEvents) {
@@ -407,9 +413,8 @@ export default function Home() {
     }
     localStorage.setItem(LOCAL_STORAGE_KEY_BRAND, JSON.stringify(brand));
     localStorage.setItem(LOCAL_STORAGE_KEY_WHATSAPP, JSON.stringify(whatsapp));
-    localStorage.setItem(LOCAL_STORAGE_KEY_INSTAGRAM, JSON.stringify(instagram));
     localStorage.setItem(LOCAL_STORAGE_KEY_EVENTS, JSON.stringify(events));
-  }, [selectedRegional, storeCode, customStore, brand, whatsapp, instagram, events]);
+  }, [selectedRegional, storeCode, customStore, brand, whatsapp, events]);
 
   useEffect(() => {
     document.body.classList.remove('print-events', 'print-discount', 'print-exchange_seal');
@@ -559,6 +564,7 @@ export default function Home() {
                 <TicketPercent className="h-4 w-4 shrink-0" />
                 <span>Cupom 10%</span>
               </button>
+              {/*
               <button
                 onClick={() => setViewMode('survey_invite')}
                 className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
@@ -570,6 +576,7 @@ export default function Home() {
                 <MessageSquare className="h-4 w-4 shrink-0" />
                 <span>Pesquisa</span>
               </button>
+              */}
               <ToolsMenu />
             </div>
 
@@ -600,7 +607,14 @@ export default function Home() {
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="storeName" className="text-zinc-700 font-semibold text-xs">Nome da Unidade</Label>
-                    <Select value={storeCode} onValueChange={setStoreCode} disabled={!selectedRegional}>
+                    <Select value={storeCode} onValueChange={(val) => {
+                      setStoreCode(val);
+                      if (val.startsWith('90')) {
+                        setBrand('pb_kids');
+                      } else if (val !== 'OUTRA') {
+                        setBrand('ri_happy');
+                      }
+                    }} disabled={!selectedRegional}>
                       <SelectTrigger className="h-10 bg-white/50 border-zinc-200 rounded-xl focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] disabled:opacity-50">
                         <SelectValue placeholder="Selecione a loja" />
                       </SelectTrigger>
@@ -616,7 +630,15 @@ export default function Home() {
                     {storeCode === 'OUTRA' && (
                       <Input
                         value={customStore}
-                        onChange={(e) => setCustomStore(e.target.value)}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setCustomStore(val);
+                          const match = val.match(/^(\d{4})/);
+                          if (match) {
+                            if (match[1].startsWith('90')) setBrand('pb_kids');
+                            else setBrand('ri_happy');
+                          }
+                        }}
                         placeholder="Ex: 1187 - CARIOCA SHOPPING"
                         className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-10 mt-1.5"
                       />
@@ -641,24 +663,14 @@ export default function Home() {
                   )}
                 </div>
                 {viewMode === 'events' && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                  <div className="grid grid-cols-1 gap-3 mt-3">
                     <div className="space-y-1.5">
                       <Label htmlFor="whatsapp" className="text-zinc-700 font-semibold text-xs">WhatsApp</Label>
                       <Input
                         id="whatsapp"
                         value={whatsapp}
-                        onChange={(e) => setWhatsapp(e.target.value)}
+                        onChange={(e) => setWhatsapp(formatWhatsapp(e.target.value))}
                         placeholder="(21) 99999-8888"
-                        className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-10"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="instagram" className="text-zinc-700 font-semibold text-xs">Instagram</Label>
-                      <Input
-                        id="instagram"
-                        value={instagram}
-                        onChange={(e) => setInstagram(e.target.value)}
-                        placeholder="@rihappy"
                         className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-10"
                       />
                     </div>
@@ -831,7 +843,6 @@ export default function Home() {
                     storeName={storeName}
                     events={enhancedEvents}
                     whatsapp={whatsapp}
-                    instagram={instagram}
                     brand={brand}
                   />
                 ) : viewMode === 'discount' ? (
