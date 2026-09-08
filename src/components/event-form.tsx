@@ -288,9 +288,15 @@ export function EventForm({
           />
         </div>
 
+        {isDisabled && (
+          <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold px-3.5 py-2.5 rounded-xl">
+            Este evento está unificado no tema do mês definido no primeiro Happy Sábado.
+          </div>
+        )}
+
         <fieldset
           disabled={isDisabled}
-          className={`space-y-6 ${isDisabled ? "opacity-50" : ""}`}
+          className={`space-y-6 ${isDisabled ? "opacity-50 pointer-events-none" : ""}`}
         >
           <FormField
             control={form.control}

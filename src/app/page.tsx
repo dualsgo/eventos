@@ -8,22 +8,23 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, Printer, CalendarDays, TicketPercent, Info, MessageSquare } from 'lucide-react';
+import { PlusCircle, Printer, Download, CalendarDays, TicketPercent, Info } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { ExchangeSeal } from '@/components/exchange-seal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SurveyInviteCoupon } from '@/components/survey-invite-coupon';
-import { ToolsMenu } from '@/components/tools-menu';
+import { useToast } from '@/hooks/use-toast';
+import { STORE_CODES, getBrandFromStoreCode } from '@/data/stores';
 
 const MAX_EVENTS = 4;
-const LOCAL_STORAGE_KEY_REGIONAL = "eventPrinter.regional";
-const LOCAL_STORAGE_KEY_STORE = "eventPrinter.storeName";
+const LOCAL_STORAGE_KEY_STORE = "eventPrinter.storeCode";
+const LOCAL_STORAGE_KEY_CUSTOM_STORE = "eventPrinter.customStore";
 const LOCAL_STORAGE_KEY_BRAND = "eventPrinter.brand";
 const LOCAL_STORAGE_KEY_WHATSAPP = "eventPrinter.whatsapp";
 const LOCAL_STORAGE_KEY_EVENTS = "eventPrinter.events";
 
-type ViewMode = 'events' | 'discount' | 'exchange_seal' | 'survey_invite';
+type ViewMode = 'exchange_seal' | 'events' | 'discount' | 'survey_invite';
 
 export type Brand = 'ri_happy' | 'pb_kids';
 
@@ -31,216 +32,6 @@ const BRAND_LABELS: Record<Brand, string> = {
   ri_happy: 'Ri Happy',
   pb_kids: 'PB Kids',
 };
-
-const STORES = [
-  { code: "1341", name: "SHOPPING BOA VISTA (POP UP)", regional: "NE2 - CAIO" },
-  { code: "1061", name: "GUARARAPES", regional: "NE2 - CAIO" },
-  { code: "1062", name: "MANAÍRA", regional: "NE2 - CAIO" },
-  { code: "1070", name: "CENTER RECIFE", regional: "NE2 - CAIO" },
-  { code: "1105", name: "SHOPPING DA ILHA", regional: "NE2 - CAIO" },
-  { code: "1118", name: "RIOMAR RECIFE", regional: "NE2 - CAIO" },
-  { code: "1131", name: "NORTH SHOP CARUARU", regional: "NE2 - CAIO" },
-  { code: "1137", name: "SHOPPING RIO ANIL", regional: "NE2 - CAIO" },
-  { code: "1142", name: "SHOPPING SÃO LUÍS", regional: "NE2 - CAIO" },
-  { code: "1158", name: "MANGABEIRA SHOPPING", regional: "NE2 - CAIO" },
-  { code: "1167", name: "TERESINA SHOPPING", regional: "NE2 - CAIO" },
-  { code: "1193", name: "SHOPPING RIO POTY", regional: "NE2 - CAIO" },
-  { code: "1282", name: "TACARUNA", regional: "NE2 - CAIO" },
-  { code: "9035", name: "CASA FORTE", regional: "NE2 - CAIO" },
-  { code: "9083", name: "SHOPPING RECIFE", regional: "NE2 - CAIO" },
-  { code: "9086", name: "SHOPPING RIOMAR RECIFE", regional: "NE2 - CAIO" },
-  { code: "1030", name: "NOVA AMÉRICA", regional: "RJ1 - DANIELE" },
-  { code: "1033", name: "NORTESHOPPING", regional: "RJ1 - DANIELE" },
-  { code: "1052", name: "BANGU", regional: "RJ1 - DANIELE" },
-  { code: "1057", name: "IGUATEMI RJ", regional: "RJ1 - DANIELE" },
-  { code: "1058", name: "VIA PARQUE", regional: "RJ1 - DANIELE" },
-  { code: "1072", name: "GRANDE RIO", regional: "RJ1 - DANIELE" },
-  { code: "1078", name: "ILHA PLAZA", regional: "RJ1 - DANIELE" },
-  { code: "1101", name: "PARTEGE SÃO GONÇALO", regional: "RJ1 - DANIELE" },
-  { code: "1106", name: "SHOPPING METROPOLITANO BARRA", regional: "RJ1 - DANIELE" },
-  { code: "1141", name: "AMÉRICA SHOPPING", regional: "RJ1 - DANIELE" },
-  { code: "1169", name: "NOVA IGUAÇU", regional: "RJ1 - DANIELE" },
-  { code: "1187", name: "CARIOCA SHOPPING", regional: "RJ1 - DANIELE" },
-  { code: "1224", name: "TOP SHOPPING", regional: "RJ1 - DANIELE" },
-  { code: "1232", name: "BARRA SHOPPING", regional: "RJ1 - DANIELE" },
-  { code: "1239", name: "SHOPPING RECREIO", regional: "RJ1 - DANIELE" },
-  { code: "1300", name: "ECO VILLA", regional: "RJ1 - DANIELE" },
-  { code: "1301", name: "IPANEMA", regional: "RJ1 - DANIELE" },
-  { code: "1304", name: "PARK JACAREPAGUÁ", regional: "RJ1 - DANIELE" },
-  { code: "1335", name: "PLAZA NITERÓI", regional: "RJ1 - DANIELE" },
-  { code: "1337", name: "PARQUE CAMPO GRANDE", regional: "RJ1 - DANIELE" },
-  { code: "9014", name: "RIO DESIGN", regional: "RJ1 - DANIELE" },
-  { code: "9094", name: "BARRA SHOPPING", regional: "RJ1 - DANIELE" },
-  { code: "1037", name: "BRASÍLIA", regional: "NO1 - EDUARDO" },
-  { code: "1065", name: "IGUATEMI FORTALEZA", regional: "NE1 - JUCILENE" },
-  { code: "1068", name: "NORTH SHOPPING", regional: "NE1 - JUCILENE" },
-  { code: "1075", name: "MIDWAY MALL", regional: "NE1 - JUCILENE" },
-  { code: "1147", name: "MOSSORÓ WEST SHOPPING", regional: "NE1 - JUCILENE" },
-  { code: "1152", name: "NORTH SHOPPING JOQUEI", regional: "NE1 - JUCILENE" },
-  { code: "1154", name: "SHOPP PARANGABA", regional: "NE1 - JUCILENE" },
-  { code: "1173", name: "RIOMAR FORTALEZA", regional: "NE1 - JUCILENE" },
-  { code: "1206", name: "SHOPPING VIA SUL", regional: "NE1 - JUCILENE" },
-  { code: "1207", name: "PÁTIO DOM LUIS", regional: "NE1 - JUCILENE" },
-  { code: "1208", name: "SHOPPING BENFICA", regional: "NE1 - JUCILENE" },
-  { code: "9082", name: "SHOPPING DEL PASEO", regional: "NE1 - JUCILENE" },
-  { code: "9084", name: "SHOPPING IGUATEMI FORTALEZA", regional: "NE1 - JUCILENE" },
-  { code: "9087", name: "SHOPPING RIOMAR FORTALEZA", regional: "NE1 - JUCILENE" },
-  { code: "9088", name: "RIOMAR KENNEDY", regional: "NE1 - JUCILENE" },
-  { code: "1014", name: "CATUAÍ SHOPPING", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "1019", name: "AVENIDA CENTER", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "1079", name: "FLORIPA", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "1080", name: "CATUAI MARINGÁ", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "1081", name: "VILLA ROMANA FLORIANÓPOLIS", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "1084", name: "PALLADIUM", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "1092", name: "CURITIBA", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "1096", name: "PRAIA DE BELAS", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "1111", name: "NEUMARKT SHOPPING", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "1126", name: "CONTINENTE FLORIPA", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "1171", name: "BALNEÁRIO CAMBORIÚ SHOPPING", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "1176", name: "JOINVILLE GARTEN", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "1186", name: "NAÇÕES CRICIÚMA", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "1230", name: "BARRA SHOPPING SUL", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "1305", name: "BOURBON IPIRANGA", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "1334", name: "BOURBON CARLOS GOMES", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "9007", name: "BARIGUI", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "9009", name: "MUELLER", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "9071", name: "PÁTIO BATEL SHOPPING", regional: "SU1 - LUIZ ALEXANDRE" },
-  { code: "1082", name: "SALVADOR", regional: "NE3 - PIETRO" },
-  { code: "1089", name: "PRAIA DA COSTA", regional: "NE3 - PIETRO" },
-  { code: "1093", name: "PÁTIO MACEIÓ", regional: "NE3 - PIETRO" },
-  { code: "1104", name: "MESTRE ÁLVARO", regional: "NE3 - PIETRO" },
-  { code: "1134", name: "PARQUE SHOPPING MACEIÓ", regional: "NE3 - PIETRO" },
-  { code: "1139", name: "PATIO ARAPIRACA GARDEN", regional: "NE3 - PIETRO" },
-  { code: "1204", name: "SHOPPING DA BAHIA", regional: "NE3 - PIETRO" },
-  { code: "1205", name: "SHOPPING CENTER JARDINS - ARACAJÚ", regional: "NE3 - PIETRO" },
-  { code: "1250", name: "PARQUE SHOPPING BAHIA", regional: "NE3 - PIETRO" },
-  { code: "1290", name: "MACEIÓ SHOPPING", regional: "NE3 - PIETRO" },
-  { code: "1302", name: "SALVADOR NORTE", regional: "NE3 - PIETRO" },
-  { code: "9021", name: "BARRA SALVADOR", regional: "NE3 - PIETRO" },
-  { code: "9031", name: "ARACAJU", regional: "NE3 - PIETRO" },
-  { code: "9044", name: "PARALELA", regional: "NE3 - PIETRO" },
-  { code: "9061", name: "BELA VISTA", regional: "NE3 - PIETRO" },
-  { code: "1008", name: "PIRACICABA", regional: "SP5 - RODRIGO" },
-  { code: "1009", name: "PLAZA AVENIDA", regional: "SP5 - RODRIGO" },
-  { code: "1010", name: "NOVO SHOPPING", regional: "SP5 - RODRIGO" },
-  { code: "1012", name: "RIBEIRÃO SHOPPING", regional: "SP5 - RODRIGO" },
-  { code: "1013", name: "RIO PRETO", regional: "SP5 - RODRIGO" },
-  { code: "1016", name: "PRESIDENTE PRUDENTE", regional: "SP5 - RODRIGO" },
-  { code: "1018", name: "RIO CLARO", regional: "SP5 - RODRIGO" },
-  { code: "1024", name: "LIMEIRA", regional: "SP5 - RODRIGO" },
-  { code: "1028", name: "SÃO CARLOS", regional: "SP5 - RODRIGO" },
-  { code: "1047", name: "BAURU", regional: "SP5 - RODRIGO" },
-  { code: "1053", name: "MARILIA", regional: "SP5 - RODRIGO" },
-  { code: "1122", name: "SHOPPING NAÇÕES BAURU", regional: "SP5 - RODRIGO" },
-  { code: "1138", name: "SHOPPING SERRA SUL", regional: "SP5 - RODRIGO" },
-  { code: "1151", name: "IGUATEMI SÃO JOSÉ DO RIO PRETO", regional: "SP5 - RODRIGO" },
-  { code: "1345", name: "SHOPPING JARAGUÁ ARARAQUARA", regional: "SP5 - RODRIGO" },
-  { code: "9072", name: "IGUATEMI RIBEIRÃO PRETO", regional: "SP5 - RODRIGO" },
-  { code: "1011", name: "MIRUNA", regional: "SP1 - SAMUEL" },
-  { code: "1021", name: "MORUMBI TOWN", regional: "SP1 - SAMUEL" },
-  { code: "1027", name: "SP MARKET", regional: "SP1 - SAMUEL" },
-  { code: "1042", name: "HIGIENÓPOLIS", regional: "SP1 - SAMUEL" },
-  { code: "1044", name: "IGUATEMI SÃO PAULO", regional: "SP1 - SAMUEL" },
-  { code: "1045", name: "VILLA LOBOS", regional: "SP1 - SAMUEL" },
-  { code: "1048", name: "INTERLAGOS", regional: "SP1 - SAMUEL" },
-  { code: "1191", name: "CIDADE SÃO PAULO", regional: "SP1 - SAMUEL" },
-  { code: "1303", name: "BOURBON SP", regional: "SP1 - SAMUEL" },
-  { code: "1343", name: "WEST PLAZA (POP UP)", regional: "SP1 - SAMUEL" },
-  { code: "1349", name: "SHOPPING MORUMBI", regional: "SP1 - SAMUEL" },
-  { code: "9001", name: "REBOUÇAS", regional: "SP1 - SAMUEL" },
-  { code: "9005", name: "CIDADE JARDIM", regional: "SP1 - SAMUEL" },
-  { code: "9006", name: "ELDORADO", regional: "SP1 - SAMUEL" },
-  { code: "9016", name: "JARDIM SUL", regional: "SP1 - SAMUEL" },
-  { code: "9025", name: "MORUMBI", regional: "SP1 - SAMUEL" },
-  { code: "9060", name: "JK", regional: "SP1 - SAMUEL" },
-  { code: "9092", name: "SHOPPING IBIRAPUERA", regional: "SP1 - SAMUEL" },
-  { code: "1020", name: "CAMPINAS SHOPPING", regional: "SP4 - SIDMILA" },
-  { code: "1023", name: "COLINAS", regional: "SP4 - SIDMILA" },
-  { code: "1031", name: "ESPLANADA SHOPPING CENTER", regional: "SP4 - SIDMILA" },
-  { code: "1049", name: "VALE SUL", regional: "SP4 - SIDMILA" },
-  { code: "1064", name: "IGUATEMI CAMPINAS", regional: "SP4 - SIDMILA" },
-  { code: "1098", name: "BRISAMAR", regional: "SP4 - SIDMILA" },
-  { code: "1177", name: "DOMINGOS DE MORAES", regional: "SP4 - SIDMILA" },
-  { code: "1197", name: "PARQUE DAS BANDEIRAS", regional: "SP4 - SIDMILA" },
-  { code: "1200", name: "OTTO BAUMGART", regional: "SP4 - SIDMILA" },
-  { code: "9011", name: "CENTER VALE", regional: "SP4 - SIDMILA" },
-  { code: "9027", name: "DOM PEDRO", regional: "SP4 - SIDMILA" },
-  { code: "9075", name: "IGUATEMI ESPLANADA", regional: "SP4 - SIDMILA" },
-  { code: "9090", name: "FAZENDA BOA VISTA", regional: "SP4 - SIDMILA" },
-  { code: "1043", name: "CONJUNTO NACIONAL", regional: "C01 - TAISE" },
-  { code: "1054", name: "CAMPO GRANDE", regional: "C01 - TAISE" },
-  { code: "1067", name: "TAGUATINGA", regional: "C01 - TAISE" },
-  { code: "1071", name: "BURITI", regional: "C01 - TAISE" },
-  { code: "1085", name: "PANTANAL", regional: "C01 - TAISE" },
-  { code: "1088", name: "BRASIL PARK SHOP", regional: "C01 - TAISE" },
-  { code: "1094", name: "BOULEVARD BRASILIA", regional: "C01 - TAISE" },
-  { code: "1095", name: "CAPIM DOURADO", regional: "C01 - TAISE" },
-  { code: "1102", name: "NORTE SUL", regional: "C01 - TAISE" },
-  { code: "1114", name: "AVENIDA CENTER DOURADOS", regional: "C01 - TAISE" },
-  { code: "1115", name: "PARQUE BELÉM", regional: "C01 - TAISE" },
-  { code: "1119", name: "BOULEVARD BELÉM", regional: "C01 - TAISE" },
-  { code: "1129", name: "GOIÂNIA SHOPPING", regional: "C01 - TAISE" },
-  { code: "1196", name: "ESTAÇÃO CUIABÁ", regional: "C01 - TAISE" },
-  { code: "1202", name: "SHOPPING CERRADO", regional: "C01 - TAISE" },
-  { code: "1209", name: "SHOPPING BOSQUE GRÃO PARÁ", regional: "C01 - TAISE" },
-  { code: "1215", name: "SUMAÚMA PARK SHOPPING", regional: "C01 - TAISE" },
-  { code: "1216", name: "BRASILIA SHOPPING", regional: "C01 - TAISE" },
-  { code: "1241", name: "SHOPPING FLAMBOYANT", regional: "C01 - TAISE" },
-  { code: "1340", name: "MANAUS PLAZA SHOPPING (POP UP)", regional: "C01 - TAISE" },
-  { code: "9064", name: "SHOPPING AMAZONAS", regional: "C01 - TAISE" },
-  { code: "9078", name: "MANAUARA SHOPPING", regional: "C01 - TAISE" },
-  { code: "1026", name: "MOGI", regional: "SP2 - TARCIO" },
-  { code: "1035", name: "GUARULHOS", regional: "SP2 - TARCIO" },
-  { code: "1038", name: "SHOPPING PENHA", regional: "SP2 - TARCIO" },
-  { code: "1051", name: "ARICANDUVA", regional: "SP2 - TARCIO" },
-  { code: "1063", name: "METRÔ TATUAPÉ", regional: "SP2 - TARCIO" },
-  { code: "1090", name: "UNIÃO DE OSASCO", regional: "SP2 - TARCIO" },
-  { code: "1140", name: "TIETÊ PLAZA SHOPPING", regional: "SP2 - TARCIO" },
-  { code: "1172", name: "METRÔ ITAQUERA", regional: "SP2 - TARCIO" },
-  { code: "1281", name: "METRÔ TUCURUVI", regional: "SP2 - TARCIO" },
-  { code: "1338", name: "OSASCO PLAZA (POP UP)", regional: "SP2 - TARCIO" },
-  { code: "9023", name: "ANÁLIA FRANCO", regional: "SP2 - TARCIO" },
-  { code: "9040", name: "SANTANA", regional: "SP2 - TARCIO" },
-  { code: "9058", name: "MOOCA", regional: "SP2 - TARCIO" },
-  { code: "9076", name: "PARQUE SHOPPING MAIA", regional: "SP2 - TARCIO" },
-  { code: "9093", name: "METRÔ TATUAPÉ - TUDO BLOCOS", regional: "SP2 - TARCIO" },
-  { code: "1015", name: "INDEPENDÊNCIA", regional: "MG1 - THAINA MARQUES" },
-  { code: "1025", name: "UBERLÂNDIA", regional: "MG1 - THAINA MARQUES" },
-  { code: "1032", name: "DEL REY", regional: "MG1 - THAINA MARQUES" },
-  { code: "1050", name: "SAVASSI", regional: "MG1 - THAINA MARQUES" },
-  { code: "1069", name: "ITAUPOWER", regional: "MG1 - THAINA MARQUES" },
-  { code: "1086", name: "MINAS SHOPPING", regional: "MG1 - THAINA MARQUES" },
-  { code: "1100", name: "BOULEVARD BH", regional: "MG1 - THAINA MARQUES" },
-  { code: "1110", name: "ESTAÇÃO BH", regional: "MG1 - THAINA MARQUES" },
-  { code: "1113", name: "BOULEVARD CAMPOS", regional: "MG1 - THAINA MARQUES" },
-  { code: "1116", name: "BOULEVARD VILA VELHA", regional: "MG1 - THAINA MARQUES" },
-  { code: "1133", name: "SHOP METROPOLITAN GARDEN", regional: "MG1 - THAINA MARQUES" },
-  { code: "1163", name: "JARDIM NORTE", regional: "MG1 - THAINA MARQUES" },
-  { code: "1214", name: "SHOPPING VILA VELHA", regional: "MG1 - THAINA MARQUES" },
-  { code: "1238", name: "BH SHOPPING", regional: "MG1 - THAINA MARQUES" },
-  { code: "9012", name: "DIAMOND", regional: "MG1 - THAINA MARQUES" },
-  { code: "9024", name: "UBERLÂNDIA", regional: "MG1 - THAINA MARQUES" },
-  { code: "9026", name: "BH SHOPPING", regional: "MG1 - THAINA MARQUES" },
-  { code: "9089", name: "SHOPPING UBERLÂNDIA", regional: "MG1 - THAINA MARQUES" },
-  { code: "1002", name: "JOÃO CACHOEIRA", regional: "SP3 - THAINA PRESTES" },
-  { code: "1004", name: "AUGUSTA", regional: "SP3 - THAINA PRESTES" },
-  { code: "1017", name: "GRAN PLAZA", regional: "SP3 - THAINA PRESTES" },
-  { code: "1041", name: "RAPOSO", regional: "SP3 - THAINA PRESTES" },
-  { code: "1046", name: "LITORAL PLAZA", regional: "SP3 - THAINA PRESTES" },
-  { code: "1055", name: "PRAIAMAR", regional: "SP3 - THAINA PRESTES" },
-  { code: "1060", name: "MAUÁ", regional: "SP3 - THAINA PRESTES" },
-  { code: "1066", name: "MAXI SHOPPING", regional: "SP3 - THAINA PRESTES" },
-  { code: "1087", name: "LA PLAGE", regional: "SP3 - THAINA PRESTES" },
-  { code: "1091", name: "PRAÇA DA MOÇA", regional: "SP3 - THAINA PRESTES" },
-  { code: "1121", name: "SÃO BERNARDO PLAZA", regional: "SP3 - THAINA PRESTES" },
-  { code: "1130", name: "ATRIUM SANTO ANDRÉ", regional: "SP3 - THAINA PRESTES" },
-  { code: "1244", name: "ANA COSTA", regional: "SP3 - THAINA PRESTES" },
-  { code: "1342", name: "MIRAMAR (POP UP)", regional: "SP3 - THAINA PRESTES" },
-  { code: "9029", name: "TAMBORÉ", regional: "SP3 - THAINA PRESTES" },
-  { code: "9054", name: "GRANJA VIANA", regional: "SP3 - THAINA PRESTES" },
-  { code: "9055", name: "ALPHAVILLE", regional: "SP3 - THAINA PRESTES" },
-  { code: "9073", name: "GOLDEN SQUARE SÃO BERNARDO", regional: "SP3 - THAINA PRESTES" },
-];
 
 const initialEvent: EventData = {
   id: `evt_${Math.random()}`,
@@ -250,7 +41,9 @@ const initialEvent: EventData = {
   startTime: '14:00',
   endTime: '18:00',
   description: 'Uma breve descrição do evento que será impresso no papel térmico.',
-  predefinedEvent: 'outro',  brand: 'ri_happy',  isActive: true,
+  predefinedEvent: 'outro',
+  brand: 'ri_happy',
+  isActive: true,
   timeFormat: 'range',
 };
 
@@ -265,26 +58,40 @@ const formatWhatsapp = (value: string) => {
 };
 
 export default function Home() {
-  const [selectedRegional, setSelectedRegional] = useState('');
+  const { toast } = useToast();
   const [storeCode, setStoreCode] = useState('');
   const [customStore, setCustomStore] = useState('');
-  
-  const regionals = useMemo(() => {
-    const regs = new Set(STORES.map(s => s.regional));
-    return Array.from(regs).sort();
-  }, []);
-
-  const filteredStores = useMemo(() => {
-    if (!selectedRegional) return [];
-    return STORES.filter(s => s.regional === selectedRegional);
-  }, [selectedRegional]);
   const [brand, setBrand] = useState<Brand | ''>('');
   const [whatsapp, setWhatsapp] = useState('');
   const [events, setEvents] = useState<EventData[]>([initialEvent]);
   const [isSameThemeAllMonth, setIsSameThemeAllMonth] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("exchange_seal");
-  const [exchangeOrigin, setExchangeOrigin] = useState<'ADD PICKUP' | 'Site' | 'AGG50'>('ADD PICKUP');
+  const [exchangeOrigin, setExchangeOrigin] = useState<'ADD PICKUP' | 'Site'>('ADD PICKUP');
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
+  const derivedStoreCode = useMemo(() => {
+    if (storeCode === 'OUTRA') {
+      const match = customStore.match(/^(\d{4})/);
+      return match ? match[1] : customStore.trim();
+    }
+    return storeCode;
+  }, [storeCode, customStore]);
+
+  const storeName = useMemo(() => {
+    return derivedStoreCode ? `LOJA ${derivedStoreCode}` : '';
+  }, [derivedStoreCode]);
+
+  const isPrintEnabled = useMemo(() => {
+    const hasStore = storeCode === 'OUTRA' ? !!customStore.trim() : !!storeCode;
+    if (viewMode === 'events') {
+      return hasStore && !!brand;
+    }
+    return hasStore;
+  }, [storeCode, customStore, viewMode, brand]);
+
+  const handlePrintDirect = () => {
+    window.print();
+  };
 
   const handleGeneratePDF = async () => {
     setIsGeneratingPdf(true);
@@ -299,9 +106,9 @@ export default function Home() {
         quality: 1.0,
         backgroundColor: '#ffffff',
         pixelRatio: 4,
-        fontEmbedCSS: '', // Evita erro de CORS ao ler CSSRules (Google Fonts, etc)
+        fontEmbedCSS: '',
       });
-      
+
       let pdf;
       if (viewMode === 'exchange_seal') {
         pdf = new jsPDF({
@@ -325,73 +132,40 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
-      alert('Ocorreu um erro ao gerar o PDF. Tente novamente.');
+      toast({
+        title: 'Erro ao gerar PDF',
+        description: 'Ocorreu um erro ao processar o documento. Você também pode usar o botão Imprimir.',
+        variant: 'destructive',
+      });
     } finally {
       setIsGeneratingPdf(false);
     }
   };
 
-  const storeName = useMemo(() => {
-    if (storeCode === 'OUTRA') {
-      const parts = customStore.split('-');
-      if (parts.length > 1) {
-         return parts.slice(1).join('-').trim();
-      }
-      return customStore;
-    }
-    return STORES.find(s => s.code === storeCode)?.name || '';
-  }, [storeCode, customStore]);
-
-  const derivedStoreCode = useMemo(() => {
-    if (storeCode === 'OUTRA') {
-      const match = customStore.match(/^(\d{4})/);
-      return match ? match[1] : '';
-    }
-    return storeCode;
-  }, [storeCode, customStore]);
-
-  const isPrintEnabled = useMemo(() => {
-    const hasStore = storeCode === 'OUTRA' ? !!customStore : !!storeCode;
-    
-    if (viewMode === 'events') {
-      return hasStore && !!brand;
-    }
-
-    if (viewMode === 'exchange_seal') {
-      return hasStore && !!selectedRegional;
-    }
-    
-    return hasStore;
-  }, [storeCode, customStore, viewMode, selectedRegional, brand]);
-
   useEffect(() => {
     try {
-      const savedRegional = localStorage.getItem(LOCAL_STORAGE_KEY_REGIONAL);
-      if (savedRegional) {
-        setSelectedRegional(JSON.parse(savedRegional));
-      }
-
-      const savedStoreNameOrCode = localStorage.getItem(LOCAL_STORAGE_KEY_STORE);
-      if (savedStoreNameOrCode) {
-        const parsed = JSON.parse(savedStoreNameOrCode);
-        const isCode = STORES.some(s => s.code === parsed);
-        if (isCode) {
+      const savedStore = localStorage.getItem(LOCAL_STORAGE_KEY_STORE);
+      if (savedStore) {
+        const parsed = JSON.parse(savedStore);
+        if (parsed) {
           setStoreCode(parsed);
-        } else {
-          const found = STORES.find(s => s.name === parsed);
-          if (found) {
-            setStoreCode(found.code);
-          } else if (parsed) {
-            setStoreCode('OUTRA');
-            setCustomStore(parsed);
+          if (parsed !== 'OUTRA') {
+            setBrand(getBrandFromStoreCode(parsed));
           }
         }
       }
+
+      const savedCustomStore = localStorage.getItem(LOCAL_STORAGE_KEY_CUSTOM_STORE);
+      if (savedCustomStore) {
+        setCustomStore(JSON.parse(savedCustomStore));
+      }
+
       const savedBrand = localStorage.getItem(LOCAL_STORAGE_KEY_BRAND);
       if (savedBrand) setBrand(JSON.parse(savedBrand));
+
       const savedWhatsapp = localStorage.getItem(LOCAL_STORAGE_KEY_WHATSAPP);
       if (savedWhatsapp) setWhatsapp(JSON.parse(savedWhatsapp));
-      
+
       const savedEvents = localStorage.getItem(LOCAL_STORAGE_KEY_EVENTS);
       if (savedEvents) {
         const parsedEvents = JSON.parse(savedEvents);
@@ -400,29 +174,29 @@ export default function Home() {
         }
       }
     } catch (error) {
-         console.error("Failed to load data from localStorage", error);
+      console.error("Falha ao carregar dados do localStorage", error);
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_REGIONAL, JSON.stringify(selectedRegional));
-    if (storeCode === 'OUTRA') {
-      localStorage.setItem(LOCAL_STORAGE_KEY_STORE, JSON.stringify(customStore));
-    } else {
-      localStorage.setItem(LOCAL_STORAGE_KEY_STORE, JSON.stringify(storeCode));
-    }
+    localStorage.setItem(LOCAL_STORAGE_KEY_STORE, JSON.stringify(storeCode));
+    localStorage.setItem(LOCAL_STORAGE_KEY_CUSTOM_STORE, JSON.stringify(customStore));
     localStorage.setItem(LOCAL_STORAGE_KEY_BRAND, JSON.stringify(brand));
     localStorage.setItem(LOCAL_STORAGE_KEY_WHATSAPP, JSON.stringify(whatsapp));
     localStorage.setItem(LOCAL_STORAGE_KEY_EVENTS, JSON.stringify(events));
-  }, [selectedRegional, storeCode, customStore, brand, whatsapp, events]);
+  }, [storeCode, customStore, brand, whatsapp, events]);
 
   useEffect(() => {
-    document.body.classList.remove('print-events', 'print-discount', 'print-exchange_seal');
+    document.body.classList.remove('print-events', 'print-discount', 'print-exchange_seal', 'print-survey_invite');
     document.body.classList.add(`print-${viewMode}`);
   }, [viewMode]);
 
   const showSameThemeSwitch = useMemo(() => {
     return events.some(event => event.predefinedEvent === 'happy_sabado');
+  }, [events]);
+
+  const firstHappySabadoId = useMemo(() => {
+    return events.find(e => e.predefinedEvent === 'happy_sabado')?.id;
   }, [events]);
 
   const activeEvents = useMemo(() => {
@@ -458,32 +232,32 @@ export default function Home() {
     );
 
     if (isSameThemeAllMonth && happySabados.length > 0) {
-        const firstHappySabado = happySabados[0];
-        const themeTitle = `Happy Sábado - ${firstHappySabado.subtitle}`;
-        const themeDescription = `Todo sábado de ${monthOfEvents} é dia de festa na loja!\n${firstHappySabado.description}`;
-        
-        const unifiedHappySabadoEvent: EventData = {
-            ...firstHappySabado,
-            id: 'unified_happy_sabado',
-            title: themeTitle,
-            description: themeDescription,
-            date: '',
-            startTime: '',
-            endTime: '',
-            isActive: true,
-        };
-        
-        return [...otherEvents, unifiedHappySabadoEvent].sort((a, b) => {
-            if(a.id === 'unified_happy_sabado') return 1;
-            if(b.id === 'unified_happy_sabado') return -1;
-            const dateA = new Date(`${a.date}T${a.startTime || '00:00'}`);
-            const dateB = new Date(`${b.date}T${b.startTime || '00:00'}`);
-            return dateA.getTime() - dateB.getTime();
-        });
+      const firstHappySabado = happySabados[0];
+      const themeTitle = `Happy Sábado - ${firstHappySabado.subtitle || ''}`;
+      const themeDescription = `Todo sábado de ${monthOfEvents} é dia de festa na loja!\n${firstHappySabado.description || ''}`;
+
+      const unifiedHappySabadoEvent: EventData = {
+        ...firstHappySabado,
+        id: 'unified_happy_sabado',
+        title: themeTitle,
+        description: themeDescription,
+        date: '',
+        startTime: '',
+        endTime: '',
+        isActive: true,
+      };
+
+      return [...otherEvents, unifiedHappySabadoEvent].sort((a, b) => {
+        if (a.id === 'unified_happy_sabado') return 1;
+        if (b.id === 'unified_happy_sabado') return -1;
+        const dateA = new Date(`${a.date}T${a.startTime || '00:00'}`);
+        const dateB = new Date(`${b.date}T${b.startTime || '00:00'}`);
+        return dateA.getTime() - dateB.getTime();
+      });
     } else {
       return sortedEvents.map((event: EventData) => ({
         ...event,
-        title: event.predefinedEvent === "happy_sabado" ? `Happy Sábado - ${event.subtitle}` : event.title,
+        title: event.predefinedEvent === "happy_sabado" ? `Happy Sábado - ${event.subtitle || ''}` : event.title,
       }));
     }
   }, [sortedEvents, isSameThemeAllMonth, monthOfEvents]);
@@ -497,7 +271,7 @@ export default function Home() {
     if (events.length < MAX_EVENTS) {
       const newEvent: EventData = {
         id: `evt_${Math.random()}`,
-        title: ``,
+        title: '',
         subtitle: '',
         date: new Date().toISOString().split('T')[0],
         startTime: '14:00',
@@ -522,15 +296,14 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center bg-zinc-50/50 font-sans">
-      {/* Main content area */}
       <div className="w-full max-w-[1600px] mx-auto pt-8 pb-6 px-4 sm:px-6 flex flex-col">
         <div className="flex flex-col lg:grid lg:grid-cols-[1fr,420px] xl:grid-cols-[1fr,460px] gap-6 xl:gap-8 items-start">
 
           {/* LEFT COLUMN — Formulários + navegação */}
           <div className="no-print w-full flex flex-col gap-4 lg:pr-2">
 
-            {/* Navigation tabs — prominent, spanning the left column */}
-            <div className="no-print grid grid-cols-2 sm:grid-cols-5 p-1.5 bg-white/70 backdrop-blur-md rounded-2xl w-full gap-1.5 border border-zinc-200/60 shadow-sm relative z-50">
+            {/* Navigation tabs */}
+            <div className="no-print grid grid-cols-3 p-1.5 bg-white/70 backdrop-blur-md rounded-2xl w-full gap-1.5 border border-zinc-200/60 shadow-sm relative z-50">
               <button
                 onClick={() => setViewMode('exchange_seal')}
                 className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
@@ -564,90 +337,65 @@ export default function Home() {
                 <TicketPercent className="h-4 w-4 shrink-0" />
                 <span>Cupom 10%</span>
               </button>
-              {/*
-              <button
-                onClick={() => setViewMode('survey_invite')}
-                className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                  viewMode === 'survey_invite'
-                    ? 'bg-zinc-900 shadow text-white'
-                    : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100'
-                }`}
-              >
-                <MessageSquare className="h-4 w-4 shrink-0" />
-                <span>Pesquisa</span>
-              </button>
-              */}
-              <ToolsMenu />
             </div>
 
             {/* Store info card */}
             <Card className="shadow-none border border-zinc-200/60 bg-white/60 backdrop-blur-xl transition-all hover:bg-white/80 rounded-2xl">
               <CardHeader className="border-b border-zinc-100 pb-4 pt-5 px-5">
                 <CardTitle className="text-base font-bold flex items-center gap-2 text-zinc-800">
-                  Informações da Loja
+                  Identificação da Loja
                 </CardTitle>
-                <CardDescription className="text-zinc-500 text-xs">Estes dados serão usados no cabeçalho dos cupons.</CardDescription>
+                <CardDescription className="text-zinc-500 text-xs">Selecione o número da filial.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3 pt-4 px-5 pb-5">
-                <div className={`grid grid-cols-1 gap-3 ${viewMode === 'events' ? 'sm:grid-cols-[1fr,1.5fr,1fr]' : 'sm:grid-cols-[1fr,2fr]'}`}>
+                <div className={`grid grid-cols-1 gap-3 ${viewMode === 'events' ? 'sm:grid-cols-[2fr,1fr]' : 'sm:grid-cols-1'}`}>
                   <div className="space-y-1.5">
-                    <Label htmlFor="regional" className="text-zinc-700 font-semibold text-xs">Regional</Label>
-                    <Select value={selectedRegional} onValueChange={(val) => { setSelectedRegional(val); setStoreCode(''); }}>
+                    <Label htmlFor="storeCode" className="text-zinc-700 font-semibold text-xs">Número da Loja</Label>
+                    <Select
+                      value={storeCode}
+                      onValueChange={(val) => {
+                        setStoreCode(val);
+                        if (val !== 'OUTRA') {
+                          setBrand(getBrandFromStoreCode(val));
+                        }
+                      }}
+                    >
                       <SelectTrigger className="h-10 bg-white/50 border-zinc-200 rounded-xl focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098]">
-                        <SelectValue placeholder="Regional" />
+                        <SelectValue placeholder="Selecione o número da loja" />
                       </SelectTrigger>
-                      <SelectContent>
-                        {regionals.map((reg) => (
-                          <SelectItem key={reg} value={reg}>
-                            {reg}
+                      <SelectContent className="max-h-72">
+                        {STORE_CODES.map((code) => (
+                          <SelectItem key={code} value={code}>
+                            Loja {code}
                           </SelectItem>
                         ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="storeName" className="text-zinc-700 font-semibold text-xs">Nome da Unidade</Label>
-                    <Select value={storeCode} onValueChange={(val) => {
-                      setStoreCode(val);
-                      if (val.startsWith('90')) {
-                        setBrand('pb_kids');
-                      } else if (val !== 'OUTRA') {
-                        setBrand('ri_happy');
-                      }
-                    }} disabled={!selectedRegional}>
-                      <SelectTrigger className="h-10 bg-white/50 border-zinc-200 rounded-xl focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] disabled:opacity-50">
-                        <SelectValue placeholder="Selecione a loja" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {filteredStores.map((store) => (
-                          <SelectItem key={store.code} value={store.code}>
-                            {store.code} - {store.name}
-                          </SelectItem>
-                        ))}
-                        <SelectItem value="OUTRA">OUTRA</SelectItem>
+                        <SelectItem value="OUTRA">OUTRA (Digitar número)</SelectItem>
                       </SelectContent>
                     </Select>
                     {storeCode === 'OUTRA' && (
                       <Input
                         value={customStore}
                         onChange={(e) => {
-                          const val = e.target.value;
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 4);
                           setCustomStore(val);
-                          const match = val.match(/^(\d{4})/);
-                          if (match) {
-                            if (match[1].startsWith('90')) setBrand('pb_kids');
-                            else setBrand('ri_happy');
+                          if (val) {
+                            setBrand(getBrandFromStoreCode(val));
                           }
                         }}
-                        placeholder="Ex: 1187 - CARIOCA SHOPPING"
+                        placeholder="Ex: 1187"
                         className="bg-white/50 border-zinc-200 focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] transition-all rounded-xl h-10 mt-1.5"
                       />
                     )}
                   </div>
+
                   {viewMode === 'events' && (
                     <div className="space-y-1.5">
                       <Label htmlFor="brand" className="text-zinc-700 font-semibold text-xs">Rede</Label>
-                      <Select value={brand} onValueChange={(value) => setBrand(value as Brand)} disabled={!storeCode}>
+                      <Select
+                        value={brand}
+                        onValueChange={(value) => setBrand(value as Brand)}
+                        disabled={!derivedStoreCode}
+                      >
                         <SelectTrigger className="h-10 bg-white/50 border-zinc-200 rounded-xl focus:ring-2 focus:ring-[#E10098]/20 focus:border-[#E10098] disabled:opacity-50">
                           <SelectValue placeholder="Selecione a Rede" />
                         </SelectTrigger>
@@ -662,10 +410,11 @@ export default function Home() {
                     </div>
                   )}
                 </div>
+
                 {viewMode === 'events' && (
                   <div className="grid grid-cols-1 gap-3 mt-3">
                     <div className="space-y-1.5">
-                      <Label htmlFor="whatsapp" className="text-zinc-700 font-semibold text-xs">WhatsApp</Label>
+                      <Label htmlFor="whatsapp" className="text-zinc-700 font-semibold text-xs">WhatsApp da Loja</Label>
                       <Input
                         id="whatsapp"
                         value={whatsapp}
@@ -721,7 +470,7 @@ export default function Home() {
                                 initialData={eventData}
                                 onRemove={() => handleRemoveEvent(eventData.id!)}
                                 showRemoveButton={events.length > 1}
-                                isSameThemeAllMonth={isSameThemeAllMonth && eventData.predefinedEvent === 'happy_sabado'}
+                                isSameThemeAllMonth={isSameThemeAllMonth && eventData.predefinedEvent === 'happy_sabado' && eventData.id !== firstHappySabadoId}
                               />
                             </div>
                           </AccordionContent>
@@ -774,12 +523,11 @@ export default function Home() {
                 <CardContent className="space-y-4 pt-4 px-5 pb-5">
                   <div className="space-y-2">
                     <Label className="text-zinc-700 font-semibold text-xs">Origem</Label>
-                    <div className="grid grid-cols-3 gap-3">
-                      {(['ADD PICKUP', 'Site', 'AGG50'] as const).map((origin) => {
+                    <div className="grid grid-cols-2 gap-3">
+                      {(['ADD PICKUP', 'Site'] as const).map((origin) => {
                         const labels = {
                           'ADD PICKUP': 'Adicional Pickup',
                           'Site': 'Site',
-                          'AGG50': 'AGING'
                         };
                         return (
                           <button
@@ -802,7 +550,7 @@ export default function Home() {
             )}
           </div>
 
-          {/* RIGHT COLUMN — Preview + Print button */}
+          {/* RIGHT COLUMN — Preview + Ações de Impressão */}
           <div className="flex flex-col items-center justify-start gap-4 w-full pb-4">
             <div id="print-container" className="w-full overflow-x-auto no-scrollbar origin-top scale-[0.85] sm:scale-100 flex justify-center shrink-0 py-2 relative">
               {viewMode === 'exchange_seal' && (
@@ -834,7 +582,7 @@ export default function Home() {
                     <Info className="h-7 w-7 text-[#E10098]" />
                   </div>
                   <h3 className="text-base font-bold text-zinc-900 mb-1">Atenção!</h3>
-                  <p className="text-sm text-zinc-500">Por favor, identifique a sua <b>unidade/loja</b> primeiro para habilitar a impressão.</p>
+                  <p className="text-sm text-zinc-500">Por favor, selecione o <b>número da loja</b> para habilitar a impressão.</p>
                 </div>
               )}
               <div id="capture-target" className="shrink-0 bg-white">
@@ -843,15 +591,15 @@ export default function Home() {
                     storeName={storeName}
                     events={enhancedEvents}
                     whatsapp={whatsapp}
-                    brand={brand}
+                    brand={brand || 'ri_happy'}
                   />
                 ) : viewMode === 'discount' ? (
-                  <DiscountCoupon storeName={storeName} brand={brand} />
+                  <DiscountCoupon storeName={storeName} brand={brand || 'ri_happy'} />
                 ) : viewMode === 'survey_invite' ? (
                   <SurveyInviteCoupon
                     storeCode={derivedStoreCode}
                     storeName={storeName}
-                    brand={brand}
+                    brand={brand || 'ri_happy'}
                   />
                 ) : (
                   <ExchangeSeal origin={exchangeOrigin} storeCode={derivedStoreCode} />
@@ -859,22 +607,35 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="no-print w-full flex flex-col gap-3">
+            <div className="no-print w-full flex flex-col sm:flex-row gap-3">
               <Button
-                onClick={handleGeneratePDF}
-                disabled={!isPrintEnabled || isGeneratingPdf}
-                className={`w-full py-6 rounded-2xl shadow-lg transition-all active:scale-[0.98] ${
-                  isPrintEnabled && !isGeneratingPdf
+                onClick={handlePrintDirect}
+                disabled={!isPrintEnabled}
+                className={`flex-1 py-6 rounded-2xl shadow-lg transition-all active:scale-[0.98] ${
+                  isPrintEnabled
                     ? 'bg-zinc-900 hover:bg-zinc-800 text-white'
                     : 'bg-zinc-200 text-zinc-400 cursor-not-allowed'
                 }`}
                 size="lg"
               >
-                <Printer className={`mr-3 h-5 w-5 ${isGeneratingPdf ? 'animate-pulse' : ''}`} />
+                <Printer className="mr-2.5 h-5 w-5" />
+                <span className="text-base font-semibold">Imprimir na Térmica</span>
+              </Button>
+
+              <Button
+                onClick={handleGeneratePDF}
+                disabled={!isPrintEnabled || isGeneratingPdf}
+                variant="outline"
+                className={`flex-1 py-6 rounded-2xl border-2 transition-all active:scale-[0.98] ${
+                  isPrintEnabled && !isGeneratingPdf
+                    ? 'border-zinc-300 hover:bg-zinc-100 text-zinc-800'
+                    : 'border-zinc-200 text-zinc-400 cursor-not-allowed'
+                }`}
+                size="lg"
+              >
+                <Download className={`mr-2.5 h-5 w-5 ${isGeneratingPdf ? 'animate-pulse' : ''}`} />
                 <span className="text-base font-semibold">
-                  {isGeneratingPdf 
-                    ? 'Gerando...' 
-                    : (viewMode === 'exchange_seal' ? 'Gerar Selo' : 'Gerar Etiqueta')}
+                  {isGeneratingPdf ? 'Gerando...' : (viewMode === 'exchange_seal' ? 'Baixar Selo' : 'Baixar PDF')}
                 </span>
               </Button>
             </div>

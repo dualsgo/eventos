@@ -3,8 +3,8 @@ import { Toaster } from "@/components/ui/toaster"
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Ferramentas',
-  description: 'Crie e imprima eventos em formato de cupom fiscal',
+  title: 'Ferramentas de Loja | Ri Happy & PB Kids',
+  description: 'Gerador de cupons térmicos e selos de troca para lojas Ri Happy e PB Kids',
 };
 
 export const viewport: Viewport = {
