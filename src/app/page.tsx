@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { PlusCircle, Printer, Download, CalendarDays, TicketPercent, Info } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
-import { ExchangeSeal } from '@/components/exchange-seal';
+import { ExchangeSeal, type ExchangeOrigin } from '@/components/exchange-seal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SurveyInviteCoupon } from '@/components/survey-invite-coupon';
 import { useToast } from '@/hooks/use-toast';
@@ -66,7 +66,7 @@ export default function Home() {
   const [events, setEvents] = useState<EventData[]>([initialEvent]);
   const [isSameThemeAllMonth, setIsSameThemeAllMonth] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("exchange_seal");
-  const [exchangeOrigin, setExchangeOrigin] = useState<'ADD PICKUP' | 'Site'>('ADD PICKUP');
+  const [exchangeOrigin, setExchangeOrigin] = useState<ExchangeOrigin>('ADD PICKUP');
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   const derivedStoreCode = useMemo(() => {
@@ -523,11 +523,12 @@ export default function Home() {
                 <CardContent className="space-y-4 pt-4 px-5 pb-5">
                   <div className="space-y-2">
                     <Label className="text-zinc-700 font-semibold text-xs">Origem</Label>
-                    <div className="grid grid-cols-2 gap-3">
-                      {(['ADD PICKUP', 'Site'] as const).map((origin) => {
-                        const labels = {
+                    <div className="grid grid-cols-3 gap-3">
+                      {(['ADD PICKUP', 'Site', 'DLVR'] as const).map((origin) => {
+                        const labels: Record<ExchangeOrigin, string> = {
                           'ADD PICKUP': 'Adicional Pickup',
                           'Site': 'Site',
+                          'DLVR': 'Delivery',
                         };
                         return (
                           <button
@@ -608,28 +609,34 @@ export default function Home() {
             </div>
 
             <div className="no-print w-full flex flex-col sm:flex-row gap-3">
-              <Button
-                onClick={handlePrintDirect}
-                disabled={!isPrintEnabled}
-                className={`flex-1 py-6 rounded-2xl shadow-lg transition-all active:scale-[0.98] ${
-                  isPrintEnabled
-                    ? 'bg-zinc-900 hover:bg-zinc-800 text-white'
-                    : 'bg-zinc-200 text-zinc-400 cursor-not-allowed'
-                }`}
-                size="lg"
-              >
-                <Printer className="mr-2.5 h-5 w-5" />
-                <span className="text-base font-semibold">Imprimir na Térmica</span>
-              </Button>
+              {viewMode !== 'exchange_seal' && (
+                <Button
+                  onClick={handlePrintDirect}
+                  disabled={!isPrintEnabled}
+                  className={`flex-1 py-6 rounded-2xl shadow-lg transition-all active:scale-[0.98] ${
+                    isPrintEnabled
+                      ? 'bg-zinc-900 hover:bg-zinc-800 text-white'
+                      : 'bg-zinc-200 text-zinc-400 cursor-not-allowed'
+                  }`}
+                  size="lg"
+                >
+                  <Printer className="mr-2.5 h-5 w-5" />
+                  <span className="text-base font-semibold">Imprimir na Térmica</span>
+                </Button>
+              )}
 
               <Button
                 onClick={handleGeneratePDF}
                 disabled={!isPrintEnabled || isGeneratingPdf}
-                variant="outline"
-                className={`flex-1 py-6 rounded-2xl border-2 transition-all active:scale-[0.98] ${
-                  isPrintEnabled && !isGeneratingPdf
-                    ? 'border-zinc-300 hover:bg-zinc-100 text-zinc-800'
-                    : 'border-zinc-200 text-zinc-400 cursor-not-allowed'
+                variant={viewMode === 'exchange_seal' ? 'default' : 'outline'}
+                className={`w-full ${viewMode !== 'exchange_seal' ? 'flex-1' : ''} py-6 rounded-2xl transition-all active:scale-[0.98] ${
+                  viewMode === 'exchange_seal'
+                    ? isPrintEnabled && !isGeneratingPdf
+                      ? 'bg-zinc-900 hover:bg-zinc-800 text-white shadow-lg'
+                      : 'bg-zinc-200 text-zinc-400 cursor-not-allowed'
+                    : isPrintEnabled && !isGeneratingPdf
+                      ? 'border-2 border-zinc-300 hover:bg-zinc-100 text-zinc-800'
+                      : 'border-2 border-zinc-200 text-zinc-400 cursor-not-allowed'
                 }`}
                 size="lg"
               >

@@ -2,17 +2,20 @@
 
 import { Card } from '@/components/ui/card';
 
+export type ExchangeOrigin = 'ADD PICKUP' | 'Site' | 'DLVR';
+
 interface ExchangeSealProps {
-  origin: 'ADD PICKUP' | 'Site';
+  origin: ExchangeOrigin;
   storeCode: string;
 }
 
-const ORIGIN_LABELS: Record<'ADD PICKUP' | 'Site', string> = {
+const ORIGIN_LABELS: Record<ExchangeOrigin, string> = {
   'ADD PICKUP': 'ADD PICKUP',
   'Site': 'SITE',
+  'DLVR': 'DLVR',
 };
 
-function SealLabel({ origin, storeCode, date }: { origin: 'ADD PICKUP' | 'Site'; storeCode: string; date: string }) {
+function SealLabel({ origin, storeCode, date }: { origin: ExchangeOrigin; storeCode: string; date: string }) {
   const displayOrigin = ORIGIN_LABELS[origin] || origin;
 
   return (
