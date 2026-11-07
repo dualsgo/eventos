@@ -1,6 +1,6 @@
 "use client";
 
-import { Card } from '@/components/ui/card';
+import { getBrandFromStoreCode } from '@/data/stores';
 
 export type ExchangeOrigin = 'ADD PICKUP' | 'Site' | 'DLVR' | 'CEHF';
 
@@ -17,7 +17,8 @@ const ORIGIN_LABELS: Record<ExchangeOrigin, string> = {
 };
 
 function SealLabel({ origin, storeCode, date }: { origin: ExchangeOrigin; storeCode: string; date: string }) {
-  const displayOrigin = ORIGIN_LABELS[origin] || origin;
+  const isPbKids = getBrandFromStoreCode(storeCode) === 'pb_kids';
+  const displayOrigin = origin === 'CEHF' && isPbKids ? 'CEBF' : (ORIGIN_LABELS[origin] || origin);
 
   return (
     <div

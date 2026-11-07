@@ -525,11 +525,12 @@ export default function Home() {
                     <Label className="text-zinc-700 font-semibold text-xs">Origem</Label>
                     <div className="grid grid-cols-2 gap-3">
                       {(['ADD PICKUP', 'Site', 'DLVR', 'CEHF'] as const).map((origin) => {
+                        const isPbKids = getBrandFromStoreCode(derivedStoreCode) === 'pb_kids';
                         const labels: Record<ExchangeOrigin, string> = {
                           'ADD PICKUP': 'Adicional Pickup',
                           'Site': 'Site',
                           'DLVR': 'Delivery',
-                          'CEHF': 'Campanha Esquenta Happy Friday',
+                          'CEHF': isPbKids ? 'Campanha Esquenta Best Friday' : 'Campanha Esquenta Happy Friday',
                         };
                         return (
                           <button
